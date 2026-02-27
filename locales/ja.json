@@ -1,0 +1,165 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "description": "プロフェッショナルバイク管理ゲーム"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "ログイン",
+        "email": "メールアドレス",
+        "emailOrUser": "メールまたはユーザー名",
+        "password": "パスワード",
+        "rememberMe": "ログイン状態を保持（30日間）",
+        "submit": "ログイン",
+        "forgotPassword": "パスワードをお忘れですか？",
+        "noAccount": "アカウントをお持ちでないですか？",
+        "registerHere": "こちらから登録"
+    },
+    "register": {
+        "title": "グリッドに参加",
+        "username": "ユーザー名",
+        "teamName": "チーム名",
+        "email": "メールアドレス",
+        "password": "パスワード",
+        "confirmPassword": "パスワード確認",
+        "submit": "アカウント作成",
+        "hasAccount": "すでにアカウントをお持ちですか？ ログイン",
+        "requirements": {
+            "length": "8文字以上",
+            "lowercase": "小文字を1つ",
+            "uppercase": "大文字を1つ",
+            "number": "数字を1つ",
+            "symbol": "記号または句読点を1つ"
+        },
+        "passwordMatch": "パスワードが一致しました",
+        "passwordMismatch": "一致しません"
+    },
+    "forgot": {
+        "title": "アクセスを回復",
+        "description": "メールアドレスを入力すると、パスワードリセットのリンクを送信します。",
+        "submit": "リンクを送信",
+        "backToLogin": "← ログインに戻る"
+    },
+    "reset": {
+        "title": "新しいパスワードを設定",
+        "newPassword": "新しいパスワード",
+        "submit": "更新"
+    },
+    "messages": {
+        "accountActivated": "アカウントが有効化されました！",
+        "welcome": "ようこそ",
+        "redirecting": "パドックにリダイレクト中...",
+        "loginRequired": "アクセスするにはログインが必要です。",
+        "accountVerified": "アカウントが有効化されました！ログインできます。",
+        "credentialsIncorrect": "認証情報が正しくありません",
+        "credentialsIncorrectMsg": "メールまたはパスワードが正しくありません。",
+        "accountNotVerified": "アカウントが確認されていません",
+        "accountNotVerifiedMsg": "ログインする前にメールを確認してください。",
+        "accessGranted": "アクセスが許可されました",
+        "welcomeUser": "ようこそ",
+        "redirectingPaddock": "パドックにリダイレクト中...",
+        "passwordUpdated": "パスワードが更新されました",
+        "passwordUpdatedMsg": "パスワードが正常に更新されました。",
+        "emailSent": "メールが送信されました",
+        "emailSentMsg": "メールが登録されている場合、パスワードリセットの手順が送信されます。",
+        "linkExpired": "リンクが期限切れです",
+        "linkExpiredMsg": "このリカバリーリンクは期限切れまたは無効です。",
+        "tokenInvalid": "トークンが無効です",
+        "tokenInvalidMsg": "この確認リンクは無効または既に使用されています。",
+        "registrationComplete": "登録完了",
+        "registrationCompleteMsg": "確認メールを送信しました。",
+        "verifyFailed": "確認に失敗しました",
+        "verifyFailedMsg": "あなたが人間であることを確認できませんでした。",
+        "redirectSeconds": "",
+        "seconds": "秒後にリダイレクトされます..."
+    },
+    "cookies": {
+        "title": "Cookie",
+        "description": "体験を向上させるためにCookieを使用しています。",
+        "acceptAll": "すべて受け入れる",
+        "necessaryOnly": "必要なもののみ"
+    },
+    "paddock": {
+        "title": "パドック",
+        "budget": "予算",
+        "team": "チーム",
+        "viewAd": "資金を受け取るために広告を見る",
+        "logout": "ログアウト",
+        "welcome": "ようこそ",
+        "manageTeam": "チームを管理して選手権を支配しよう",
+        "needFunds": "資金が必要ですか？",
+        "watchAd": "広告を見て追加で50,000€を受け取る",
+        "getReward": "報酬を受け取る",
+        "contentArea": "パドックコンテンツエリア",
+        "readyToAdd": "機能を追加する準備ができました"
+    },
+    "garaje": {
+        "title": "ガレージ"
+    },
+    "pilotos": {
+        "title": "ライダー",
+        "myPilotos": "マイライダー",
+        "noPiloto": "ライダーが割り当てられていません。",
+        "editNumber": "編集",
+        "saveNumber": "保存",
+        "numberTooltip": "番号は24時間に1回のみ編集できます",
+        "numberUpdated": "番号が正常に更新されました",
+        "waitTime": "番号を再度編集するには{time}お待ちください。",
+        "numberRange": "番号は1から99の間である必要があります",
+        "connectionError": "接続エラー"
+    },
+    "config": {
+        "title": "設定",
+        "subtitle": "ゲーム体験をカスタマイズ",
+        "myAccount": "マイアカウント",
+        "username": "ユーザー名",
+        "email": "メールアドレス",
+        "teamName": "チーム名",
+        "saveChanges": "変更を保存",
+        "language": "言語",
+        "changePassword": "パスワード変更",
+        "passwordDesc": "パスワードを変更したい場合、メールにリンクを送信します。",
+        "requestPassword": "パスワード変更をリクエスト",
+        "currentPassword": "現在のパスワード",
+        "newPassword": "新しいパスワード",
+        "confirmPassword": "新しいパスワードを確認",
+        "updatePassword": "パスワードを更新",
+        "notifications": "通知",
+        "emailNotifications": "メール",
+        "raceNotifications": "レース",
+        "newsNotifications": "ニュース",
+        "dangerZone": "危険区域",
+        "dangerText": "これらの操作は取り消せません。何をしているか確認してください。",
+        "deleteAccount": "アカウントを削除"
+    },
+    "language": {
+        "selector": "言語"
+    },
+    "attributes": {
+        "ritmo": "ペース",
+        "concentracion": "集中力",
+        "frenada": "ブレーキ",
+        "aceleracion": "加速",
+        "tecnica": "テクニック",
+        "experiencia": "経験",
+        "motivacion": "モチベーション",
+        "recuperacion": "回復",
+        "agresividad": "アグレッシブ",
+        "talento": "才能"
+    },
+    "physical": {
+        "estatura": "身長",
+        "peso": "体重",
+        "envergadura": "腕の長さ"
+    },
+    "buttons": {
+        "back": "戻る",
+        "backToLogin": "ログインに戻る",
+        "goToLogin": "ログインへ",
+        "retry": "再試行",
+        "requestNew": "新しいものをリクエスト"
+    }
+}

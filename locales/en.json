@@ -1,0 +1,165 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "description": "Professional motorcycle management game"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "LOGIN",
+        "email": "Email address",
+        "emailOrUser": "Email or username",
+        "password": "Password",
+        "rememberMe": "Keep me signed in (30 days)",
+        "submit": "ENTER",
+        "forgotPassword": "Forgot your password?",
+        "noAccount": "Don't have an account?",
+        "registerHere": "Register here"
+    },
+    "register": {
+        "title": "JOIN THE GRID",
+        "username": "Username",
+        "teamName": "Your Team Name",
+        "email": "Email address",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "submit": "CREATE ACCOUNT",
+        "hasAccount": "Already have an account? Login",
+        "requirements": {
+            "length": "Minimum 8 characters",
+            "lowercase": "One lowercase letter",
+            "uppercase": "One uppercase letter",
+            "number": "One number",
+            "symbol": "One symbol or punctuation"
+        },
+        "passwordMatch": "Passwords match",
+        "passwordMismatch": "Do not match"
+    },
+    "forgot": {
+        "title": "RECOVER ACCESS",
+        "description": "Enter your email and we'll send you a link to reset your password.",
+        "submit": "SEND LINK",
+        "backToLogin": "← Back to Login"
+    },
+    "reset": {
+        "title": "SET NEW PASSWORD",
+        "newPassword": "New Password",
+        "submit": "UPDATE"
+    },
+    "messages": {
+        "accountActivated": "ACCOUNT ACTIVATED!",
+        "welcome": "Welcome to",
+        "redirecting": "Redirecting to Paddock...",
+        "loginRequired": "You must login to access.",
+        "accountVerified": "Account activated! You can now login.",
+        "credentialsIncorrect": "INCORRECT CREDENTIALS",
+        "credentialsIncorrectMsg": "The email or password you entered is incorrect.",
+        "accountNotVerified": "ACCOUNT NOT VERIFIED",
+        "accountNotVerifiedMsg": "You must verify your email before logging in.",
+        "accessGranted": "ACCESS GRANTED",
+        "welcomeUser": "Welcome",
+        "redirectingPaddock": "Redirecting to Paddock...",
+        "passwordUpdated": "PASSWORD UPDATED",
+        "passwordUpdatedMsg": "Your password has been updated successfully.",
+        "emailSent": "EMAIL SENT",
+        "emailSentMsg": "If the email is registered, you'll receive instructions to reset your password.",
+        "linkExpired": "LINK EXPIRED",
+        "linkExpiredMsg": "This recovery link has expired or is invalid.",
+        "tokenInvalid": "INVALID TOKEN",
+        "tokenInvalidMsg": "This verification link is invalid or has already been used.",
+        "registrationComplete": "REGISTRATION COMPLETE",
+        "registrationCompleteMsg": "We've sent a verification email.",
+        "verifyFailed": "VERIFICATION FAILED",
+        "verifyFailedMsg": "We couldn't verify that you are human.",
+        "redirectSeconds": "You'll be redirected in",
+        "seconds": "seconds..."
+    },
+    "cookies": {
+        "title": "Cookies",
+        "description": "We use cookies to improve your experience. You can accept all or only necessary ones.",
+        "acceptAll": "Accept all",
+        "necessaryOnly": "Necessary only"
+    },
+    "paddock": {
+        "title": "Paddock",
+        "budget": "Budget",
+        "team": "Team",
+        "viewAd": "View ad to receive funds",
+        "logout": "Logout",
+        "welcome": "Welcome to the",
+        "manageTeam": "Manage your team and dominate the championship",
+        "needFunds": "Need funds?",
+        "watchAd": "Watch an ad to receive €50,000 extra",
+        "getReward": "Get Reward",
+        "contentArea": "Paddock content area",
+        "readyToAdd": "Ready to add features"
+    },
+    "garaje": {
+        "title": "Garage"
+    },
+    "pilotos": {
+        "title": "Riders",
+        "myPilotos": "My Riders",
+        "noPiloto": "You don't have any rider assigned.",
+        "editNumber": "edit",
+        "saveNumber": "save",
+        "numberTooltip": "The number can only be edited once every 24 hours",
+        "numberUpdated": "Number updated successfully",
+        "waitTime": "You must wait {time} to edit the number again.",
+        "numberRange": "The number must be between 1 and 99",
+        "connectionError": "Connection error"
+    },
+    "config": {
+        "title": "Settings",
+        "subtitle": "Customize your game experience",
+        "myAccount": "My Account",
+        "username": "Username",
+        "email": "Email address",
+        "teamName": "Team name",
+        "saveChanges": "Save Changes",
+        "language": "Language",
+        "changePassword": "Change Password",
+        "passwordDesc": "If you want to change your password, we will send a link to your email address.",
+        "requestPassword": "Request Password Change",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "updatePassword": "Update Password",
+        "notifications": "Notifications",
+        "emailNotifications": "Email",
+        "raceNotifications": "Races",
+        "newsNotifications": "News",
+        "dangerZone": "Danger Zone",
+        "dangerText": "These actions are irreversible. Make sure you know what you're doing.",
+        "deleteAccount": "Delete My Account"
+    },
+    "language": {
+        "selector": "Languages"
+    },
+    "attributes": {
+        "ritmo": "Pace",
+        "concentracion": "Concentration",
+        "frenada": "Braking",
+        "aceleracion": "Acceleration",
+        "tecnica": "Technique",
+        "experiencia": "Experience",
+        "motivacion": "Motivation",
+        "recuperacion": "Recovery",
+        "agresividad": "Aggressiveness",
+        "talento": "Talent"
+    },
+    "physical": {
+        "estatura": "Height",
+        "peso": "Weight",
+        "envergadura": "Wingspan"
+    },
+    "buttons": {
+        "back": "BACK",
+        "backToLogin": "BACK TO LOGIN",
+        "goToLogin": "GO TO LOGIN",
+        "retry": "RETRY",
+        "requestNew": "REQUEST NEW"
+    }
+}

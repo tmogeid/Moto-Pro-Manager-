@@ -1,0 +1,165 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "description": "Профессиональная игра по управлению мотоциклами"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "ВОЙТИ",
+        "email": "Электронная почта",
+        "emailOrUser": "Email или имя пользователя",
+        "password": "Пароль",
+        "rememberMe": "Оставаться в системе (30 дней)",
+        "submit": "ВОЙТИ",
+        "forgotPassword": "Забыли пароль?",
+        "noAccount": "Нет аккаунта?",
+        "registerHere": "Зарегистрироваться"
+    },
+    "register": {
+        "title": "ПРИСОЕДИНЯЙТЕСЬ К ГРИДУ",
+        "username": "Имя пользователя",
+        "teamName": "Название команды",
+        "email": "Электронная почта",
+        "password": "Пароль",
+        "confirmPassword": "Подтвердите пароль",
+        "submit": "СОЗДАТЬ АККАУНТ",
+        "hasAccount": "Уже есть аккаунт? Войти",
+        "requirements": {
+            "length": "Минимум 8 символов",
+            "lowercase": "Одна строчная буква",
+            "uppercase": "Одна заглавная буква",
+            "number": "Одна цифра",
+            "symbol": "Один символ или знак препинания"
+        },
+        "passwordMatch": "Пароли совпадают",
+        "passwordMismatch": "Не совпадают"
+    },
+    "forgot": {
+        "title": "ВОССТАНОВИТЬ ДОСТУП",
+        "description": "Введите email, и мы отправим ссылку для сброса пароля.",
+        "submit": "ОТПРАВИТЬ ССЫЛКУ",
+        "backToLogin": "← Назад к входу"
+    },
+    "reset": {
+        "title": "УСТАНОВИТЬ НОВЫЙ ПАРОЛЬ",
+        "newPassword": "Новый пароль",
+        "submit": "ОБНОВИТЬ"
+    },
+    "messages": {
+        "accountActivated": "АККАУНТ АКТИВИРОВАН!",
+        "welcome": "Добро пожаловать в",
+        "redirecting": "Перенаправление в Паддок...",
+        "loginRequired": "Необходимо войти для доступа.",
+        "accountVerified": "Аккаунт активирован! Теперь можете войти.",
+        "credentialsIncorrect": "НЕВЕРНЫЕ ДАННЫЕ",
+        "credentialsIncorrectMsg": "Email или пароль введены неверно.",
+        "accountNotVerified": "АККАУНТ НЕ ПОДТВЕРЖДЁН",
+        "accountNotVerifiedMsg": "Необходимо подтвердить email перед входом.",
+        "accessGranted": "ДОСТУП РАЗРЕШЁН",
+        "welcomeUser": "Добро пожаловать",
+        "redirectingPaddock": "Перенаправление в Паддок...",
+        "passwordUpdated": "ПАРОЛЬ ОБНОВЛЁН",
+        "passwordUpdatedMsg": "Ваш пароль успешно обновлён.",
+        "emailSent": "EMAIL ОТПРАВЛЕН",
+        "emailSentMsg": "Если email зарегистрирован, вы получите инструкции.",
+        "linkExpired": "ССЫЛКА ИСТЕКЛА",
+        "linkExpiredMsg": "Эта ссылка восстановления истекла или недействительна.",
+        "tokenInvalid": "НЕВЕРНЫЙ ТОКЕН",
+        "tokenInvalidMsg": "Эта ссылка подтверждения недействительна или уже использована.",
+        "registrationComplete": "РЕГИСТРАЦИЯ ЗАВЕРШЕНА",
+        "registrationCompleteMsg": "Мы отправили письмо с подтверждением.",
+        "verifyFailed": "ОШИБКА ВЕРИФИКАЦИИ",
+        "verifyFailedMsg": "Не удалось подтвердить, что вы человек.",
+        "redirectSeconds": "Перенаправление через",
+        "seconds": "секунд..."
+    },
+    "cookies": {
+        "title": "Файлы cookie",
+        "description": "Мы используем cookies для улучшения вашего опыта.",
+        "acceptAll": "Принять все",
+        "necessaryOnly": "Только необходимые"
+    },
+    "paddock": {
+        "title": "Паддок",
+        "budget": "Бюджет",
+        "team": "Команда",
+        "viewAd": "Посмотреть рекламу для получения средств",
+        "logout": "Выйти",
+        "welcome": "Добро пожаловать в",
+        "manageTeam": "Управляйте командой и доминируйте в чемпионате",
+        "needFunds": "Нужны средства?",
+        "watchAd": "Посмотрите рекламу для получения 50 000€ дополнительно",
+        "getReward": "Получить награду",
+        "contentArea": "Область контента Паддока",
+        "readyToAdd": "Готово для добавления функций"
+    },
+    "garaje": {
+        "title": "Гараж"
+    },
+    "pilotos": {
+        "title": "Гонщики",
+        "myPilotos": "Мои Гонщики",
+        "noPiloto": "У вас нет назначенного гонщика.",
+        "editNumber": "редактировать",
+        "saveNumber": "сохранить",
+        "numberTooltip": "Номер можно редактировать только один раз в 24 часа",
+        "numberUpdated": "Номер успешно обновлён",
+        "waitTime": "Вы должны подождать {time}, чтобы редактировать номер снова.",
+        "numberRange": "Номер должен быть от 1 до 99",
+        "connectionError": "Ошибка соединения"
+    },
+    "config": {
+        "title": "Настройки",
+        "subtitle": "Настройте свой игровой опыт",
+        "myAccount": "Мой аккаунт",
+        "username": "Имя пользователя",
+        "email": "Электронная почта",
+        "teamName": "Название команды",
+        "saveChanges": "Сохранить изменения",
+        "language": "Язык",
+        "changePassword": "Изменить пароль",
+        "passwordDesc": "Если вы хотите изменить пароль, мы отправим ссылку на вашу почту.",
+        "requestPassword": "Запросить смену пароля",
+        "currentPassword": "Текущий пароль",
+        "newPassword": "Новый пароль",
+        "confirmPassword": "Подтвердите новый пароль",
+        "updatePassword": "Обновить пароль",
+        "notifications": "Уведомления",
+        "emailNotifications": "Email",
+        "raceNotifications": "Гонки",
+        "newsNotifications": "Новости",
+        "dangerZone": "Опасная зона",
+        "dangerText": "Эти действия необратимы. Убедитесь, что знаете, что делаете.",
+        "deleteAccount": "Удалить мой аккаунт"
+    },
+    "language": {
+        "selector": "Языки"
+    },
+    "attributes": {
+        "ritmo": "Ритм",
+        "concentracion": "Концентрация",
+        "frenada": "Торможение",
+        "aceleracion": "Ускорение",
+        "tecnica": "Техника",
+        "experiencia": "Опыт",
+        "motivacion": "Мотивация",
+        "recuperacion": "Восстановление",
+        "agresividad": "Агрессивность",
+        "talento": "Талант"
+    },
+    "physical": {
+        "estatura": "Рост",
+        "peso": "Вес",
+        "envergadura": "Размах рук"
+    },
+    "buttons": {
+        "back": "НАЗАД",
+        "backToLogin": "НАЗАД КО ВХОДУ",
+        "goToLogin": "К ВХОДУ",
+        "retry": "ПОВТОРИТЬ",
+        "requestNew": "ЗАПРОСИТЬ НОВЫЙ"
+    }
+}

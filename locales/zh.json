@@ -1,0 +1,165 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "description": "专业摩托车管理游戏"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "登录",
+        "email": "电子邮件",
+        "emailOrUser": "邮箱或用户名",
+        "password": "密码",
+        "rememberMe": "保持登录（30天）",
+        "submit": "进入",
+        "forgotPassword": "忘记密码？",
+        "noAccount": "没有账号？",
+        "registerHere": "在此注册"
+    },
+    "register": {
+        "title": "加入车队",
+        "username": "用户名",
+        "teamName": "车队名称",
+        "email": "电子邮件",
+        "password": "密码",
+        "confirmPassword": "确认密码",
+        "submit": "创建账号",
+        "hasAccount": "已有账号？登录",
+        "requirements": {
+            "length": "至少8个字符",
+            "lowercase": "一个小写字母",
+            "uppercase": "一个大写字母",
+            "number": "一个数字",
+            "symbol": "一个符号或标点"
+        },
+        "passwordMatch": "密码匹配",
+        "passwordMismatch": "不匹配"
+    },
+    "forgot": {
+        "title": "恢复访问",
+        "description": "输入您的电子邮件，我们将发送重置密码的链接。",
+        "submit": "发送链接",
+        "backToLogin": "← 返回登录"
+    },
+    "reset": {
+        "title": "设置新密码",
+        "newPassword": "新密码",
+        "submit": "更新"
+    },
+    "messages": {
+        "accountActivated": "账号已激活！",
+        "welcome": "欢迎来到",
+        "redirecting": "正在跳转到围场...",
+        "loginRequired": "您需要登录才能访问。",
+        "accountVerified": "账号已激活！您现在可以登录。",
+        "credentialsIncorrect": "凭据不正确",
+        "credentialsIncorrectMsg": "您输入的电子邮件或密码不正确。",
+        "accountNotVerified": "账号未验证",
+        "accountNotVerifiedMsg": "登录前您需要验证电子邮件。",
+        "accessGranted": "访问已授权",
+        "welcomeUser": "欢迎",
+        "redirectingPaddock": "正在跳转到围场...",
+        "passwordUpdated": "密码已更新",
+        "passwordUpdatedMsg": "您的密码已成功更新。",
+        "emailSent": "电子邮件已发送",
+        "emailSentMsg": "如果该电子邮件已注册，您将收到重置密码的说明。",
+        "linkExpired": "链接已过期",
+        "linkExpiredMsg": "此恢复链接已过期或无效。",
+        "tokenInvalid": "令牌无效",
+        "tokenInvalidMsg": "此验证链接无效或已被使用。",
+        "registrationComplete": "注册完成",
+        "registrationCompleteMsg": "我们已发送验证邮件。",
+        "verifyFailed": "验证失败",
+        "verifyFailedMsg": "我们无法验证您是人类。",
+        "redirectSeconds": "您将在",
+        "seconds": "秒后被重定向..."
+    },
+    "cookies": {
+        "title": "Cookie",
+        "description": "我们使用cookie来改善您的体验。",
+        "acceptAll": "接受全部",
+        "necessaryOnly": "仅必要的"
+    },
+    "paddock": {
+        "title": "围场",
+        "budget": "预算",
+        "team": "车队",
+        "viewAd": "查看广告以获取资金",
+        "logout": "退出",
+        "welcome": "欢迎来到",
+        "manageTeam": "管理您的车队并称霸锦标赛",
+        "needFunds": "需要资金？",
+        "watchAd": "观看广告可获得额外50,000€",
+        "getReward": "获取奖励",
+        "contentArea": "围场内容区域",
+        "readyToAdd": "准备添加功能"
+    },
+    "garaje": {
+        "title": "车库"
+    },
+    "pilotos": {
+        "title": "车手",
+        "myPilotos": "我的车手",
+        "noPiloto": "您还没有分配任何车手。",
+        "editNumber": "编辑",
+        "saveNumber": "保存",
+        "numberTooltip": "号码每24小时只能编辑一次",
+        "numberUpdated": "号码更新成功",
+        "waitTime": "您需要等待 {time} 才能再次编辑号码。",
+        "numberRange": "号码必须在1到99之间",
+        "connectionError": "连接错误"
+    },
+    "config": {
+        "title": "设置",
+        "subtitle": "自定义您的游戏体验",
+        "myAccount": "我的账户",
+        "username": "用户名",
+        "email": "电子邮件",
+        "teamName": "车队名称",
+        "saveChanges": "保存更改",
+        "language": "语言",
+        "changePassword": "更改密码",
+        "passwordDesc": "如果您想更改密码，我们会发送链接到您的邮箱。",
+        "requestPassword": "请求更改密码",
+        "currentPassword": "当前密码",
+        "newPassword": "新密码",
+        "confirmPassword": "确认新密码",
+        "updatePassword": "更新密码",
+        "notifications": "通知",
+        "emailNotifications": "邮件",
+        "raceNotifications": "比赛",
+        "newsNotifications": "新闻",
+        "dangerZone": "危险区域",
+        "dangerText": "这些操作不可逆。请确保您知道自己在做什么。",
+        "deleteAccount": "删除我的账户"
+    },
+    "language": {
+        "selector": "语言"
+    },
+    "attributes": {
+        "ritmo": "节奏",
+        "concentracion": "专注",
+        "frenada": "刹车",
+        "aceleracion": "加速",
+        "tecnica": "技术",
+        "experiencia": "经验",
+        "motivacion": "动力",
+        "recuperacion": "恢复",
+        "agresividad": "侵略性",
+        "talento": "天赋"
+    },
+    "physical": {
+        "estatura": "身高",
+        "peso": "体重",
+        "envergadura": "臂展"
+    },
+    "buttons": {
+        "back": "返回",
+        "backToLogin": "返回登录",
+        "goToLogin": "前往登录",
+        "retry": "重试",
+        "requestNew": "请求新的"
+    }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title data-i18n="meta.title">Login - Moto Pro Manager</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link rel="stylesheet" href="style.css">
+    
+    <!-- Preload recursos críticos -->
+    <link rel="preload" href="logo.png" as="image">
+    <link rel="preload" href="favicon.png" as="image">
+    
+    <script src="js/i18n.js"></script>
+    <script src="background-changer.js"></script>
+    <script src="cookie-consent.js"></script>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcmYx0fAAAAAPV_0T0nefqy2LRMq1myiGQ7P10V"></script>
+</head>
+<body>
+    <!-- Header con logo -->
+    <div class="page-header">
+        <img src="logo.png" alt="Moto Pro Manager" class="logo-serie">
+    </div>
+    
+    <div class="card">
+        <h2 data-i18n="login.title">INICIAR SESIÓN</h2>
+        <form id="loginForm" action="/login" method="POST">
+            <input type="text" name="email" data-i18n-placeholder="login.emailOrUser" placeholder="Email o usuario" required>
+            
+            <div class="password-field">
+                <input type="password" id="loginPass" name="password" data-i18n-placeholder="login.password" placeholder="Contraseña" required>
+                <button type="button" class="toggle-password" onclick="togglePassword('loginPass', this)">👁️</button>
+            </div>
+            
+            <div class="remember-me">
+                <input type="checkbox" id="rememberMe" name="rememberMe">
+                <label for="rememberMe" data-i18n="login.rememberMe">Mantener sesión iniciada (30 días)</label>
+            </div>
+            
+            <button type="submit" id="btnLogin" class="btn-rojo" data-i18n="login.submit">ENTRAR</button>
+        </form>
+        <div class="footer-links">
+            <p><a href="forgot_password.html" data-i18n="login.forgotPassword">¿Olvidaste tu contraseña?</a></p>
+            <p><span data-i18n="login.noAccount">¿No tienes cuenta?</span> <a href="registro_form.html" data-i18n="login.registerHere">Regístrate aquí</a></p>
+        </div>
+    </div>
+    
+    <script>
+        function togglePassword(inputId, btn) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁️';
+            }
+        }
+        
+        // Obtener idioma de las cookies
+        function getCookie(name) {
+            const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+            return match ? decodeURIComponent(match[2]) : null;
+        }
+        
+        const loginPass = document.getElementById('loginPass');
+        const loginForm = document.getElementById('loginForm');
+        loginPass.addEventListener('input', () => loginPass.value = loginPass.value.trim());
+        loginForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            grecaptcha.ready(() => {
+                grecaptcha.execute('6LcmYx0fAAAAAPV_0T0nefqy2LRMq1myiGQ7P10V', {action: 'login'}).then((token) => {
+                    // Añadir token de captcha
+                    const captchaInput = document.createElement('input');
+                    captchaInput.type = 'hidden';
+                    captchaInput.name = 'captchaToken';
+                    captchaInput.value = token;
+                    loginForm.appendChild(captchaInput);
+                    
+                    // Añadir idioma actual de las cookies
+                    const langInput = document.createElement('input');
+                    langInput.type = 'hidden';
+                    langInput.name = 'userLanguage';
+                    langInput.value = getCookie('language') || 'es';
+                    loginForm.appendChild(langInput);
+                    
+                    loginForm.submit();
+                });
+            });
+        });
+        // Mostrar notificaciones traducidas
+        const params = new URLSearchParams(window.location.search);
+        if (params.has('verified')) {
+            const notification = document.createElement('div');
+            notification.className = 'success-notification';
+            notification.innerHTML = '✅ ' + (window.i18n ? window.i18n.t('messages.accountVerified') : '¡Cuenta activada! Ya puedes iniciar sesión.');
+            document.body.prepend(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+        if (params.has('error') && params.get('error') === 'login') {
+            const notification = document.createElement('div');
+            notification.className = 'error-notification';
+            notification.innerHTML = '⚠️ ' + (window.i18n ? window.i18n.t('messages.loginRequired') : 'Debes iniciar sesión para acceder.');
+            document.body.prepend(notification);
+            setTimeout(() => notification.remove(), 5000);
+        }
+    </script>
+    <script src="preload-fondos.js"></script>
+</body>
+</html>

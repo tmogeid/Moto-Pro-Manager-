@@ -1,0 +1,165 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "description": "Juego de gestión de motocicletas profesional"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "INICIAR SESIÓN",
+        "email": "Correo electrónico",
+        "emailOrUser": "Email o usuario",
+        "password": "Contraseña",
+        "rememberMe": "Mantener sesión iniciada (30 días)",
+        "submit": "ENTRAR",
+        "forgotPassword": "¿Olvidaste tu contraseña?",
+        "noAccount": "¿No tienes cuenta?",
+        "registerHere": "Regístrate aquí"
+    },
+    "register": {
+        "title": "ÚNETE A LA PARRILLA",
+        "username": "Nombre de usuario",
+        "teamName": "Nombre de tu Escudería",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "confirmPassword": "Confirmar contraseña",
+        "submit": "CREAR CUENTA",
+        "hasAccount": "¿Ya tienes cuenta? Inicia sesión",
+        "requirements": {
+            "length": "Mínimo 8 caracteres",
+            "lowercase": "Una minúscula",
+            "uppercase": "Una mayúscula",
+            "number": "Un número",
+            "symbol": "Un símbolo o puntuación"
+        },
+        "passwordMatch": "Las contraseñas coinciden",
+        "passwordMismatch": "No coinciden"
+    },
+    "forgot": {
+        "title": "RECUPERAR ACCESO",
+        "description": "Introduce tu email y te enviaremos un enlace para restablecer tu contraseña.",
+        "submit": "ENVIAR ENLACE",
+        "backToLogin": "← Volver al Login"
+    },
+    "reset": {
+        "title": "ESTABLECER NUEVA CLAVE",
+        "newPassword": "Nueva Contraseña",
+        "submit": "ACTUALIZAR"
+    },
+    "messages": {
+        "accountActivated": "¡CUENTA ACTIVADA!",
+        "welcome": "Bienvenido a",
+        "redirecting": "Redirigiendo al Paddock...",
+        "loginRequired": "Debes iniciar sesión para acceder.",
+        "accountVerified": "¡Cuenta activada! Ya puedes iniciar sesión.",
+        "credentialsIncorrect": "CREDENCIALES INCORRECTAS",
+        "credentialsIncorrectMsg": "El email o la contraseña que has introducido no son correctos.",
+        "accountNotVerified": "CUENTA NO VERIFICADA",
+        "accountNotVerifiedMsg": "Debes verificar tu email antes de iniciar sesión.",
+        "accessGranted": "ACCESO CONCEDIDO",
+        "welcomeUser": "Bienvenido",
+        "redirectingPaddock": "Redirigiendo al Paddock...",
+        "passwordUpdated": "CONTRASEÑA ACTUALIZADA",
+        "passwordUpdatedMsg": "Tu contraseña ha sido actualizada correctamente.",
+        "emailSent": "EMAIL ENVIADO",
+        "emailSentMsg": "Si el email está registrado, recibirás instrucciones para restablecer tu contraseña.",
+        "linkExpired": "ENLACE EXPIRADO",
+        "linkExpiredMsg": "Este enlace de recuperación ha expirado o no es válido.",
+        "tokenInvalid": "TOKEN INVÁLIDO",
+        "tokenInvalidMsg": "Este enlace de verificación no es válido o ya ha sido utilizado.",
+        "registrationComplete": "REGISTRO COMPLETADO",
+        "registrationCompleteMsg": "Hemos enviado un email de verificación.",
+        "verifyFailed": "VERIFICACIÓN FALLIDA",
+        "verifyFailedMsg": "No hemos podido verificar que eres humano.",
+        "redirectSeconds": "Serás redirigido en",
+        "seconds": "segundos..."
+    },
+    "cookies": {
+        "title": "Cookies",
+        "description": "Utilizamos cookies para mejorar tu experiencia. Puedes aceptar todas o solo las necesarias.",
+        "acceptAll": "Aceptar todas",
+        "necessaryOnly": "Solo necesarias"
+    },
+    "paddock": {
+        "title": "Paddock",
+        "budget": "Presupuesto",
+        "team": "Escudería",
+        "viewAd": "Ver anuncio para recibir fondos",
+        "logout": "Cerrar sesión",
+        "welcome": "Bienvenido al",
+        "manageTeam": "Gestiona tu escudería y domina el campeonato",
+        "needFunds": "¿Necesitas fondos?",
+        "watchAd": "Visualiza un anuncio para recibir 50.000€ extra",
+        "getReward": "Recibir Recompensa",
+        "contentArea": "Área de contenido del Paddock",
+        "readyToAdd": "Preparado para añadir funcionalidades"
+    },
+    "garaje": {
+        "title": "Garaje"
+    },
+    "pilotos": {
+        "title": "Pilotos",
+        "myPilotos": "Mis Pilotos",
+        "noPiloto": "No tienes ningún piloto asignado.",
+        "editNumber": "editar",
+        "saveNumber": "guardar",
+        "numberTooltip": "El número solo se puede editar una vez cada 24 horas",
+        "numberUpdated": "Número actualizado correctamente",
+        "waitTime": "Debes esperar {time} para poder editar el número nuevamente.",
+        "numberRange": "El número debe estar entre 1 y 99",
+        "connectionError": "Error de conexión"
+    },
+    "config": {
+        "title": "Configuración",
+        "subtitle": "Personaliza tu experiencia de juego",
+        "myAccount": "Mi Cuenta",
+        "username": "Nombre de usuario",
+        "email": "Correo electrónico",
+        "teamName": "Nombre de la escudería",
+        "saveChanges": "Guardar Cambios",
+        "language": "Idioma",
+        "changePassword": "Cambiar Contraseña",
+        "passwordDesc": "Si deseas cambiar tu contraseña, te enviaremos un enlace a tu correo electrónico.",
+        "requestPassword": "Solicitar Cambio de Contraseña",
+        "currentPassword": "Contraseña actual",
+        "newPassword": "Nueva contraseña",
+        "confirmPassword": "Confirmar nueva contraseña",
+        "updatePassword": "Actualizar Contraseña",
+        "notifications": "Notificaciones",
+        "emailNotifications": "Email",
+        "raceNotifications": "Carreras",
+        "newsNotifications": "Noticias",
+        "dangerZone": "Zona Peligrosa",
+        "dangerText": "Estas acciones son irreversibles. Asegúrate de saber lo que estás haciendo.",
+        "deleteAccount": "Eliminar Mi Cuenta"
+    },
+    "language": {
+        "selector": "Idiomas"
+    },
+    "attributes": {
+        "ritmo": "Ritmo",
+        "concentracion": "Concentración",
+        "frenada": "Frenada",
+        "aceleracion": "Aceleración",
+        "tecnica": "Técnica",
+        "experiencia": "Experiencia",
+        "motivacion": "Motivación",
+        "recuperacion": "Recuperación",
+        "agresividad": "Agresividad",
+        "talento": "Talento"
+    },
+    "physical": {
+        "estatura": "Estatura",
+        "peso": "Peso",
+        "envergadura": "Envergadura"
+    },
+    "buttons": {
+        "back": "VOLVER",
+        "backToLogin": "VOLVER AL LOGIN",
+        "goToLogin": "IR AL LOGIN",
+        "retry": "REINTENTAR",
+        "requestNew": "SOLICITAR NUEVO"
+    }
+}
