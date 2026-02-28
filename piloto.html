@@ -593,34 +593,27 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Navegación de pilotos en una línea */
+        /* Navegación de pilotos en una línea - se reparten el ancho */
         .piloto-nav-container {
             display: flex;
-            flex-wrap: nowrap;
+            flex-wrap: wrap;
             gap: 8px;
             margin-bottom: 16px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
-        }
-
-        .piloto-nav-container::-webkit-scrollbar {
-            display: none;
         }
 
         .piloto-nav-btn {
             display: flex;
             align-items: center;
+            justify-content: center;
             gap: 8px;
-            padding: 10px 16px;
+            padding: 10px 12px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid transparent;
             border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
-            white-space: nowrap;
-            flex-shrink: 0;
+            flex: 1;
+            min-width: 0;
         }
 
         .piloto-nav-btn:hover {
@@ -634,8 +627,8 @@
         }
 
         .piloto-nav-avatar {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             background: linear-gradient(135deg, #e10600, #ff6b6b);
             display: flex;
@@ -643,20 +636,25 @@
             justify-content: center;
             font-weight: bold;
             color: white;
-            font-size: 12px;
+            font-size: 11px;
             flex-shrink: 0;
         }
 
         .piloto-nav-nombre {
             font-weight: 500;
             color: white;
-            font-size: 13px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 80px;
         }
 
         .piloto-nav-media {
-            font-size: 11px;
+            font-size: 10px;
             color: #888;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         .piloto-nav-media.high { color: #4caf50; }
@@ -1112,12 +1110,23 @@
             fetch('/api/piloto')
                 .then(res => res.json())
                 .then(data => {
+                    console.log('[PILOTO] Datos recibidos:', data);
+                    
                     const container = document.getElementById('pilotosContainer');
                     const navContainer = document.getElementById('pilotoNavContainer');
                     const noPilotoCard = document.getElementById('noPilotoCard');
 
+                    // Manejar respuesta de error
+                    if (data && data.error) {
+                        container.innerHTML = '';
+                        navContainer.style.display = 'none';
+                        noPilotoCard.style.display = 'block';
+                        return;
+                    }
+
                     if (data && Array.isArray(data) && data.length > 0) {
                         pilotosData = data;
+                        console.log('[PILOTO] Cantidad de pilotos:', pilotosData.length);
                         
                         // Ordenar por media de atributos (de mayor a menor)
                         pilotosData.sort((a, b) => {
@@ -1129,23 +1138,19 @@
                         // Crear todas las tarjetas
                         container.innerHTML = pilotosData.map(p => crearTarjetaPiloto(p)).join('');
                         
-                        // Crear navegación de pilotos (botones en una línea)
-                        if (pilotosData.length > 1) {
-                            navContainer.innerHTML = pilotosData.map((p, index) => {
-                                const media = calcularMediaAtributos(p);
-                                const mediaClass = media >= 70 ? 'high' : media >= 50 ? 'medium' : 'low';
-                                return `
-                                    <button class="piloto-nav-btn ${index === 0 ? 'active' : ''}" onclick="seleccionarPilotoNav(${p.id})">
-                                        <span class="piloto-nav-avatar">${p.nombre.charAt(0).toUpperCase()}</span>
-                                        <span class="piloto-nav-nombre">${p.nombre}</span>
-                                        <span class="piloto-nav-media ${mediaClass}">⭐${media}</span>
-                                    </button>
-                                `;
-                            }).join('');
-                            navContainer.style.display = 'flex';
-                        } else {
-                            navContainer.style.display = 'none';
-                        }
+                        // Crear navegación de pilotos (botones que se reparten el ancho)
+                        navContainer.innerHTML = pilotosData.map((p, index) => {
+                            const media = calcularMediaAtributos(p);
+                            const mediaClass = media >= 70 ? 'high' : media >= 50 ? 'medium' : 'low';
+                            return `
+                                <button class="piloto-nav-btn ${index === 0 ? 'active' : ''}" onclick="seleccionarPilotoNav(${p.id})">
+                                    <span class="piloto-nav-avatar">${p.nombre.charAt(0).toUpperCase()}</span>
+                                    <span class="piloto-nav-nombre">${p.nombre.split(' ')[0]}</span>
+                                    <span class="piloto-nav-media ${mediaClass}">⭐${media}</span>
+                                </button>
+                            `;
+                        }).join('');
+                        navContainer.style.display = 'flex';
                         
                         // Seleccionar el primer piloto por defecto (el de mejor media)
                         selectedPilotoId = pilotosData[0].id;
@@ -1163,7 +1168,7 @@
                         
                         noPilotoCard.style.display = 'none';
                     } else if (data && data.id) {
-                        // Compatibilidad con respuesta de un solo piloto
+                        // Compatibilidad con respuesta de un solo piloto (formato antiguo)
                         pilotosData = [data];
                         container.innerHTML = crearTarjetaPiloto(data);
                         navContainer.style.display = 'none';
