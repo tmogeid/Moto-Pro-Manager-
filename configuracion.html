@@ -191,7 +191,7 @@
             const notifyNews = document.getElementById('notifyNews').checked;
             const messageEl = document.getElementById('saveMessage');
 
-            console.log('[CONFIG] Guardando cuenta con idioma:', language);
+            console.log('[CONFIG] Iniciando guardado de cuenta con idioma:', language);
 
             if (!username || !email) {
                 messageEl.textContent = '❌ El nombre de usuario y email son obligatorios';
@@ -199,39 +199,65 @@
                 return;
             }
 
+            let res;
+            let data;
+
+            // FASE 1: Guardar en servidor
             try {
-                const res = await fetch('/api/update-account', {
+                console.log('[CONFIG] Enviando petición al servidor...');
+                res = await fetch('/api/update-account', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, escuderia, language, notifyEmail, notifyRaces, notifyNews })
                 });
+                console.log('[CONFIG] Respuesta recibida, status:', res.status);
+            } catch (netErr) {
+                console.error('[CONFIG] Error de red:', netErr);
+                messageEl.textContent = '❌ Error de conexión con el servidor';
+                messageEl.className = 'form-message error';
+                return;
+            }
 
-                const data = await res.json();
-                console.log('[CONFIG] Respuesta del servidor:', data);
+            // FASE 2: Parsear respuesta JSON
+            try {
+                data = await res.json();
+                console.log('[CONFIG] Datos del servidor:', data);
+            } catch (parseErr) {
+                console.error('[CONFIG] Error parseando JSON:', parseErr);
+                messageEl.textContent = '❌ Error procesando respuesta del servidor';
+                messageEl.className = 'form-message error';
+                return;
+            }
 
-                if (res.ok) {
-                    messageEl.textContent = '✅ Datos guardados correctamente';
-                    messageEl.className = 'form-message success';
-                    // Actualizar navbar
-                    document.getElementById('userName').innerText = username;
-                    document.getElementById('userTeam').innerText = escuderia || 'Escudería';
+            // FASE 3: Procesar resultado
+            if (res.ok && data.success) {
+                messageEl.textContent = '✅ Datos guardados correctamente';
+                messageEl.className = 'form-message success';
+                
+                // Actualizar navbar
+                try {
                     document.getElementById('userNameMobile').innerText = username;
                     document.getElementById('userTeamMobile').innerText = escuderia || 'Escudería';
-                    // Actualizar idioma visualmente
                     document.documentElement.lang = language;
-                    // Recargar traducciones si existe i18n
-                    if (window.i18n) {
-                        console.log('[CONFIG] Recargando traducciones para:', language);
-                        await window.i18n.loadTranslations(language);
-                        window.i18n.applyTranslations();
-                    }
-                } else {
-                    messageEl.textContent = '❌ ' + (data.error || 'Error al guardar');
-                    messageEl.className = 'form-message error';
+                } catch (navErr) {
+                    console.warn('[CONFIG] Error actualizando navbar:', navErr);
                 }
-            } catch (err) {
-                console.error('[CONFIG] Error:', err);
-                messageEl.textContent = '❌ Error de conexión';
+                
+                // Recargar traducciones en segundo plano (no bloquea el éxito)
+                if (window.i18n && typeof window.i18n.loadTranslations === 'function') {
+                    console.log('[CONFIG] Recargando traducciones para:', language);
+                    window.i18n.loadTranslations(language).then(() => {
+                        if (typeof window.i18n.applyTranslations === 'function') {
+                            window.i18n.applyTranslations();
+                        }
+                        console.log('[CONFIG] Traducciones aplicadas');
+                    }).catch(err => {
+                        console.warn('[CONFIG] Traducciones no recargadas (no crítico):', err.message);
+                    });
+                }
+            } else {
+                // El servidor respondió con error
+                messageEl.textContent = '❌ ' + (data.error || 'Error al guardar');
                 messageEl.className = 'form-message error';
             }
         });
