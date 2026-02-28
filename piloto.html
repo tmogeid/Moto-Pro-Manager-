@@ -580,6 +580,21 @@
             color: #ffc107;
         }
 
+        /* Pérdida de resistencia */
+        .resistencia-warning {
+            background: rgba(33, 150, 243, 0.1);
+            border: 1px solid rgba(33, 150, 243, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 13px;
+            color: #64b5f6;
+        }
+
+        .resistencia-warning strong {
+            color: #2196f3;
+        }
+
         /* Notificaciones */
         .success-notification, .error-notification {
             position: fixed;
@@ -840,7 +855,7 @@
             motivacion: { nombre: 'Motivación', icon: '💪', descripcion: 'Impulso interior que eleva el rendimiento del piloto. Una alta motivación mejora todas las facetas del pilotaje durante la carrera.' },
             recuperacion: { nombre: 'Recuperación', icon: '🏥', descripcion: 'Capacidad de recuperar fatiga entre carreras. Un piloto con alta recuperación descansa más rápido: hasta 3% de fatiga por hora con 99 de atributo.' },
             agresividad: { nombre: 'Agresividad', icon: '🔥', descripcion: 'Tendencia a arriesgar en adelantamientos y defender posiciones. Puede ser ventajosa pero también aumenta el riesgo de incidentes.' },
-            resistencia: { nombre: 'Resistencia', icon: '🛡️', descripcion: 'Capacidad de resistir la fatiga durante las carreras. Un piloto con alta resistencia acumula menos desgaste físico y mental en competición.' },
+            resistencia: { nombre: 'Resistencia', icon: '🛡️', descripcion: 'Capacidad de resistir la fatiga durante las carreras. Un piloto con alta resistencia acumula menos desgaste físico y mental en competición. IMPORTANTE: Este atributo se degrada con la edad: pierde (edad - 19) puntos por temporada a partir de los 20 años.' },
             talento: { nombre: 'Talento', icon: '⭐', descripcion: 'Habilidad innata para destacar en situaciones críticas. El talento se manifiesta en la primera curva, adelantamientos decisivos y condiciones adversas como la lluvia.' }
         };
 
@@ -1196,6 +1211,13 @@
                         <div class="degradacion-warning">
                             ⚠️ Este piloto sufre degradación por edad (${piloto.edad} años).
                             ${piloto.edad >= 35 ? ' Degradación severa.' : piloto.edad >= 31 ? ' Degradación notable.' : ' Degradación leve.'}
+                        </div>
+                    ` : ''}
+                    
+                    <!-- Advertencia de pérdida de resistencia -->
+                    ${piloto.edad >= 20 ? `
+                        <div class="resistencia-warning">
+                            🛡️ Pérdida de resistencia por temporada: <strong>-${Math.max(0, piloto.edad - 19)}</strong> puntos
                         </div>
                     ` : ''}
                 </div>
