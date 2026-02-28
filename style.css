@@ -652,12 +652,7 @@ body.paddock-page {
     max-height: 500px;
 }
 
-/* Wrapper para sub-dropdown de pilotos */
-.nav-mobile-sub-dropdown-wrapper {
-    width: 100%;
-}
-
-/* Sub-toggle para Pilotos dentro de Garaje */
+/* Sub-dropdown para pilotos dentro de Garaje */
 .nav-mobile-sub-toggle {
     display: flex;
     align-items: center;
@@ -675,7 +670,6 @@ body.paddock-page {
     text-transform: none;
     border-radius: 12px;
     margin-bottom: 4px;
-    text-decoration: none;
 }
 
 .nav-mobile-sub-toggle:hover {
@@ -697,7 +691,6 @@ body.paddock-page {
     transform: rotate(180deg);
 }
 
-/* Sub-dropdown contenedor */
 .nav-mobile-sub-dropdown {
     max-height: 0;
     overflow: hidden;
@@ -711,30 +704,17 @@ body.paddock-page {
     max-height: 500px;
 }
 
-/* Items dentro del sub-dropdown */
 .nav-mobile-sub-item {
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 16px 10px 32px !important;
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.8);
-    text-decoration: none;
-    transition: all 0.2s;
-    border-radius: 8px;
-    margin: 2px 4px;
 }
 
-.nav-mobile-sub-item:hover {
-    color: white;
-    background: rgba(255, 255, 255, 0.05);
-}
-
-/* Avatar del piloto en el menú */
 .piloto-menu-avatar {
     width: 24px;
     height: 24px;
-    min-width: 24px;
     border-radius: 50%;
     background: linear-gradient(135deg, #e10600, #ff6b6b);
     display: flex;
@@ -743,17 +723,12 @@ body.paddock-page {
     font-size: 11px;
     font-weight: bold;
     color: white;
-}
-
-.piloto-menu-nombre {
-    flex: 1;
-    font-size: 14px;
+    flex-shrink: 0;
 }
 
 .piloto-menu-media {
+    margin-left: auto;
     font-size: 12px;
-    font-weight: bold;
-    color: rgba(255, 255, 255, 0.6);
 }
 
 .nav-mobile-dropdown-menu .nav-mobile-link {
