@@ -1,0 +1,296 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "pageTitle": "Riders | Moto Pro Manager",
+        "description": "Professional motorcycle management game"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "pageTitle": "Paddock | Moto Pro Manager",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "LOGIN",
+        "pageTitle": "Login | Moto Pro Manager",
+        "email": "Email address",
+        "emailOrUser": "Email or username",
+        "password": "Password",
+        "rememberMe": "Keep me signed in (30 days)",
+        "submit": "ENTER",
+        "forgotPassword": "Forgot your password?",
+        "noAccount": "Don't have an account?",
+        "registerHere": "Register here"
+    },
+    "register": {
+        "title": "JOIN THE GRID",
+        "pageTitle": "Register | Moto Pro Manager",
+        "username": "Username",
+        "teamName": "Your Team Name",
+        "email": "Email address",
+        "password": "Password",
+        "confirmPassword": "Confirm password",
+        "submit": "CREATE ACCOUNT",
+        "hasAccount": "Already have an account? Login",
+        "requirements": {
+            "length": "Minimum 8 characters",
+            "lowercase": "One lowercase letter",
+            "uppercase": "One uppercase letter",
+            "number": "One number",
+            "symbol": "One symbol or punctuation"
+        },
+        "passwordMatch": "Passwords match",
+        "passwordMismatch": "Do not match"
+    },
+    "forgot": {
+        "title": "RECOVER ACCESS",
+        "pageTitle": "Recover Access | Moto Pro Manager",
+        "description": "Enter your email and we'll send you a link to reset your password.",
+        "submit": "SEND LINK",
+        "backToLogin": "← Back to Login"
+    },
+    "reset": {
+        "title": "SET NEW PASSWORD",
+        "pageTitle": "Reset Password | Moto Pro Manager",
+        "newPassword": "New Password",
+        "submit": "UPDATE"
+    },
+    "messages": {
+        "accountActivated": "ACCOUNT ACTIVATED!",
+        "welcome": "Welcome to",
+        "redirecting": "Redirecting to Paddock...",
+        "loginRequired": "You must login to access.",
+        "accountVerified": "Account activated! You can now login.",
+        "credentialsIncorrect": "INCORRECT CREDENTIALS",
+        "credentialsIncorrectMsg": "The email or password you entered is incorrect.",
+        "accountNotVerified": "ACCOUNT NOT VERIFIED",
+        "accountNotVerifiedMsg": "You must verify your email before logging in.",
+        "accessGranted": "ACCESS GRANTED",
+        "welcomeUser": "Welcome",
+        "redirectingPaddock": "Redirecting to Paddock...",
+        "passwordUpdated": "PASSWORD UPDATED",
+        "passwordUpdatedMsg": "Your password has been updated successfully.",
+        "emailSent": "EMAIL SENT",
+        "emailSentMsg": "If the email is registered, you'll receive instructions to reset your password.",
+        "linkExpired": "LINK EXPIRED",
+        "linkExpiredMsg": "This recovery link has expired or is invalid.",
+        "tokenInvalid": "INVALID TOKEN",
+        "tokenInvalidMsg": "This verification link is invalid or has already been used.",
+        "registrationComplete": "REGISTRATION COMPLETE",
+        "registrationCompleteMsg": "We've sent a verification email.",
+        "verifyFailed": "VERIFICATION FAILED",
+        "verifyFailedMsg": "We couldn't verify that you are human.",
+        "redirectSeconds": "You'll be redirected in",
+        "seconds": "seconds..."
+    },
+    "cookies": {
+        "title": "🍪 Cookie Usage",
+        "description": "We use our own cookies only for the game to function: keep your session active and save your preferences. We do not share any personal data with third parties.",
+        "accept": "Accept all",
+        "reject": "Necessary only",
+        "settings": "Configure",
+        "close": "Close"
+    },
+    "paddock": {
+        "title": "Paddock",
+        "pageTitle": "Paddock | Moto Pro Manager",
+        "budget": "Budget",
+        "team": "Team",
+        "viewAd": "View ad to receive funds",
+        "logout": "Logout",
+        "welcome": "Welcome to the",
+        "manageTeam": "Manage your team and dominate the championship",
+        "needFunds": "Need funds?",
+        "watchAd": "Watch an ad to receive €50,000 extra",
+        "getReward": "Get Reward",
+        "contentArea": "Paddock content area",
+        "readyToAdd": "Ready to add features",
+        "sponsorReceived": "Sponsorship received! +€50,000"
+    },
+    "menu": {
+        "paddock": "Paddock",
+        "garaje": "Garage",
+        "pilotos": "Riders",
+        "moto": "Bike",
+        "configuracion": "Settings",
+        "cerrarSesion": "Logout"
+    },
+    "garaje": {
+        "title": "Garage"
+    },
+    "moto": {
+        "title": "Bike"
+    },
+    "pilotos": {
+        "title": "Riders",
+        "pageTitle": "Riders | Moto Pro Manager",
+        "myPilotos": "My Riders",
+        "noPiloto": "You don't have any rider assigned.",
+        "editNumber": "edit",
+        "saveNumber": "save",
+        "numberTooltip": "The number can only be edited once every 24 hours",
+        "numberUpdated": "Number updated successfully",
+        "waitTime": "You must wait {time} to edit the number again.",
+        "numberRange": "The number must be between 1 and 99",
+        "connectionError": "Connection error",
+        "fatiga": "Fatigue",
+        "habilidades": "Skills",
+        "activo": "Active",
+        "lesionado": "Injured",
+        "fallecido": "Deceased",
+        "retirado": "Retired",
+        "anos": "years",
+        "contratar": "Hire a rider from the market to get started.",
+        "noPilotosAsignados": "You have no riders assigned",
+        "conFatiga": "(with fatigue)",
+        "lesion": "Injury",
+        "lesionNoEspec": "Unspecified",
+        "carrerasRestantes": "Races remaining"
+    },
+    "attributes": {
+        "ritmo": {
+            "name": "Pace",
+            "icon": "⏱️",
+            "desc": "The rider's ability to maintain consistent lap times throughout the race. High pace allows better tire management and sustained concentration."
+        },
+        "concentracion": {
+            "name": "Concentration",
+            "icon": "🎯",
+            "desc": "Ability to maintain focus throughout the race. High concentration reduces the probability of making costly errors that could affect the result."
+        },
+        "frenada": {
+            "name": "Braking",
+            "icon": "🛑",
+            "desc": "Skill to brake at the exact point consistently. Enables overtaking in braking zones and better control in tight corners."
+        },
+        "aceleracion": {
+            "name": "Acceleration",
+            "icon": "⚡",
+            "desc": "Ability to exit corners quickly and manage traction. Good acceleration makes the difference on circuits with many slow corners."
+        },
+        "tecnica": {
+            "name": "Technique",
+            "icon": "🔧",
+            "desc": "Mastery of riding and ability to adapt to different conditions. Influences tire management and bike setup."
+        },
+        "experiencia": {
+            "name": "Experience",
+            "icon": "📚",
+            "desc": "Accumulated knowledge of circuits and race situations. Helps make better decisions under pressure and anticipate events."
+        },
+        "motivacion": {
+            "name": "Motivation",
+            "icon": "💪",
+            "desc": "Inner drive that elevates the rider's performance. High motivation improves all aspects of riding during the race."
+        },
+        "recuperacion": {
+            "name": "Recovery",
+            "icon": "🏥",
+            "desc": "Ability to recover fatigue between races. A rider with high recovery rests faster: up to 3% fatigue per hour with 99 attribute."
+        },
+        "agresividad": {
+            "name": "Aggressiveness",
+            "icon": "🔥",
+            "desc": "Tendency to take risks in overtaking and defending positions. Can be advantageous but also increases the risk of incidents."
+        },
+        "resistencia": {
+            "name": "Endurance",
+            "icon": "🛡️",
+            "desc": "Ability to resist fatigue during races. A rider with high endurance accumulates less physical and mental wear during competition."
+        },
+        "talento": {
+            "name": "Talent",
+            "icon": "⭐",
+            "desc": "Innate ability to excel in critical situations. Talent manifests in the first corner, decisive overtakes, and adverse conditions like rain."
+        }
+    },
+    "physical": {
+        "estatura": "Height",
+        "peso": "Weight",
+        "envergadura": "Wingspan",
+        "edad": {
+            "name": "Age",
+            "desc": "The rider's age influences their experience and recovery capacity. Young riders have more improvement potential, while veterans bring experience."
+        },
+        "estaturaInfo": {
+            "name": "Height",
+            "desc": "Height affects top speed and stability. Shorter riders have better aerodynamics, while taller ones have more stability."
+        },
+        "pesoInfo": {
+            "name": "Weight",
+            "desc": "Weight influences acceleration, braking, and control. An optimal weight (65-75kg) balances all advantages without significant penalties."
+        },
+        "envergaduraInfo": {
+            "name": "Wingspan",
+            "desc": "Arm span affects corner control and arm fatigue. Greater wingspan improves control but may increase tiredness."
+        },
+        "bonus": {
+            "velocidad": "km/h speed",
+            "estabilidad": "% stability",
+            "aceleracion": "% acceleration",
+            "frenada": "% braking",
+            "control": "% control",
+            "fatiga": "% fatigue",
+            "controlCurvas": "% corner control",
+            "fatigaBrazos": "% arm fatigue",
+            "riesgoCaida": "% crash risk"
+        }
+    },
+    "training": {
+        "title": "Training",
+        "selectAttribute": "Select attribute to train",
+        "cost": "Cost",
+        "train": "Train",
+        "cancel": "Cancel",
+        "inProgress": "Training",
+        "complete": "Training complete",
+        "noBudget": "Insufficient budget"
+    },
+    "config": {
+        "title": "Settings",
+        "pageTitle": "Settings | Moto Pro Manager",
+        "subtitle": "Customize your game experience",
+        "myAccount": "My Account",
+        "username": "Username",
+        "email": "Email address",
+        "teamName": "Team name",
+        "saveChanges": "Save Changes",
+        "language": "Language",
+        "changePassword": "Change Password",
+        "passwordDesc": "If you want to change your password, we will send a link to your email address.",
+        "requestPassword": "Request Password Change",
+        "currentPassword": "Current password",
+        "newPassword": "New password",
+        "confirmPassword": "Confirm new password",
+        "updatePassword": "Update Password",
+        "notifications": "Notifications",
+        "emailNotifications": "Email",
+        "raceNotifications": "Races",
+        "newsNotifications": "News",
+        "dangerZone": "Danger Zone",
+        "dangerText": "These actions are irreversible. Make sure you know what you're doing.",
+        "deleteAccount": "Delete My Account",
+        "modalTitle": "Are you sure?",
+        "modalText": "This action will permanently delete your account, team, and all associated data. You will not be able to recover this information.",
+        "modalSubtext": "Type DELETE to confirm:",
+        "cancelar": "Cancel",
+        "eliminarCuenta": "Delete Account",
+        "deleteConfirm": "DELETE",
+        "msgUsernameRequired": "Username and email are required",
+        "msgSavedSuccess": "Data saved successfully",
+        "msgSaveError": "Error saving",
+        "msgConnectionError": "Connection error",
+        "msgPasswordSent": "A link has been sent to your email address",
+        "msgPasswordError": "Error requesting",
+        "msgDeleteNotImplemented": "Account deletion function - pending server implementation"
+    },
+    "language": {
+        "selector": "Languages"
+    },
+    "buttons": {
+        "back": "BACK",
+        "backToLogin": "BACK TO LOGIN",
+        "goToLogin": "GO TO LOGIN",
+        "retry": "RETRY",
+        "requestNew": "REQUEST NEW"
+    }
+}

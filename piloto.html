@@ -1,0 +1,1579 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piloto | Moto Pro Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="cookie-consent.js"></script>
+    <script src="background-changer.js"></script>
+    <script src="js/i18n.js"></script>
+    <style>
+        /* Estilos específicos de piloto.html */
+        .piloto-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .piloto-main-card {
+            background: rgba(0, 0, 0, 0.85);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .piloto-header-section {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .piloto-avatar-large {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e10600, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            font-weight: bold;
+            color: white;
+            flex-shrink: 0;
+        }
+
+        .piloto-main-info {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .piloto-main-info h1 {
+            margin: 0 0 8px 0;
+            font-size: 28px;
+            color: white;
+        }
+
+        .piloto-number-display {
+            font-size: 24px;
+            color: #e10600;
+            font-weight: bold;
+        }
+
+        .piloto-meta {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            color: #aaa;
+        }
+
+        .piloto-meta-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .stat-value-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-bar {
+            width: 100px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .stat-bar-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .stat-bar-fill.legendary { background: linear-gradient(90deg, #9c27b0, #e040fb); }
+        .stat-bar-fill.excellent { background: linear-gradient(90deg, #2196f3, #64b5f6); }
+        .stat-bar-fill.good { background: linear-gradient(90deg, #4caf50, #81c784); }
+        .stat-bar-fill.average { background: linear-gradient(90deg, #ffeb3b, #fff176); }
+        .stat-bar-fill.poor { background: linear-gradient(90deg, #f44336, #e57373); }
+        .stat-bar-fill.bad { background: linear-gradient(90deg, #616161, #9e9e9e); }
+
+        .stat-number {
+            font-weight: bold;
+            min-width: 30px;
+            text-align: right;
+        }
+
+        .stat-number.legendary { color: #9c27b0; }
+        .stat-number.excellent { color: #2196f3; }
+        .stat-number.good { color: #4caf50; }
+        .stat-number.average { color: #fbc02d; }
+        .stat-number.poor { color: #f44336; }
+        .stat-number.bad { color: #757575; }
+
+        /* Sección de Habilidades unificada */
+        .habilidades-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .habilidades-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .habilidades-header h3 {
+            margin: 0;
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .habilidades-info-popup {
+            display: none;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(225, 6, 0, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 16px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .habilidades-info-popup.visible {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .info-popup-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .info-nav-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(225, 6, 0, 0.3);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .info-nav-btn:hover {
+            background: rgba(225, 6, 0, 0.5);
+        }
+
+        .info-popup-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #fff;
+            text-align: center;
+            flex: 1;
+        }
+
+        .info-popup-desc {
+            font-size: 13px;
+            color: #ccc;
+            line-height: 1.6;
+            margin: 0 0 12px 0;
+            text-align: center;
+        }
+
+        .info-popup-dots {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .info-popup-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+        }
+
+        .info-close-btn {
+            color: #e10600;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+
+        .info-close-btn:hover {
+            background: rgba(225, 6, 0, 0.2);
+        }
+
+        .info-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.2s;
+        }
+
+        .info-dot.active {
+            background: #e10600;
+            transform: scale(1.2);
+        }
+
+        .habilidades-grid {
+            display: grid;
+            gap: 8px;
+        }
+
+        .fisico-info-popup {
+            display: none;
+            background: rgba(0, 0, 0, 0.9);
+            border: 1px solid rgba(225, 6, 0, 0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 12px;
+            animation: fadeIn 0.2s ease;
+        }
+
+        .fisico-info-popup.visible {
+            display: block;
+        }
+
+        /* Físico */
+        .physical-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .physical-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .physical-stat {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .physical-stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .physical-stat-label {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .physical-bonus {
+            font-size: 12px;
+            margin-top: 6px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .physical-bonus.positive { color: #00c853; }
+        .physical-bonus.negative { color: #ff5252; }
+        .physical-bonus.neutral { color: #888; }
+
+        /* Estado del piloto */
+        .piloto-status-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+
+        .status-badge.activo {
+            background: rgba(0, 200, 83, 0.2);
+            color: #00c853;
+            border: 1px solid rgba(0, 200, 83, 0.3);
+        }
+
+        .status-badge.lesionado {
+            background: rgba(255, 87, 34, 0.2);
+            color: #ff5722;
+            border: 1px solid rgba(255, 87, 34, 0.3);
+        }
+
+        .lesion-info {
+            margin-top: 12px;
+            padding: 12px;
+            background: rgba(255, 87, 34, 0.1);
+            border-radius: 8px;
+            display: none;
+        }
+
+        .lesion-info.visible {
+            display: block;
+        }
+
+        /* Entrenamiento */
+        .training-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 24px;
+        }
+
+        .training-status {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .training-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        .training-attribute {
+            font-weight: 500;
+            color: #e10600;
+        }
+
+        .training-progress {
+            font-size: 14px;
+            color: #888;
+        }
+
+        .btn-train {
+            background: linear-gradient(135deg, #e10600, #ff4444);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-train:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(225, 6, 0, 0.4);
+        }
+
+        .btn-train:disabled {
+            background: #444;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Select de entrenamiento */
+        .train-select-container {
+            display: none;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .train-select-container.visible {
+            display: block;
+        }
+
+        .train-select-row {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .train-select {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .train-cost {
+            color: #ffc107;
+            font-size: 14px;
+        }
+
+        .btn-confirm-train {
+            background: #00c853;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .btn-cancel-train {
+            background: transparent;
+            color: #888;
+            border: 1px solid #444;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        /* Sin piloto */
+        .no-piloto {
+            text-align: center;
+            padding: 60px 20px;
+            color: #888;
+        }
+
+        .no-piloto-icon {
+            font-size: 64px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .edit-link {
+            color: #e10600;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        .info-icon {
+            width: 14px;
+            height: 14px;
+            background: rgba(225, 6, 0, 0.3);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 9px;
+            font-weight: bold;
+            font-style: italic;
+            cursor: pointer;
+            color: white;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .info-icon:hover {
+            background: rgba(225, 6, 0, 0.5);
+            transform: scale(1.1);
+        }
+
+        .info-bubble {
+            position: absolute;
+            background: #222;
+            border: 1px solid #444;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            color: #ccc;
+            width: 200px;
+            z-index: 100;
+            display: none;
+            margin-top: 24px;
+            margin-left: -100px;
+        }
+
+        .info-bubble.show {
+            display: block;
+        }
+
+        .number-input-inline {
+            width: 50px;
+            padding: 2px 4px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(225, 6, 0, 0.5);
+            border-radius: 4px;
+            color: #e10600;
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+            font-family: inherit;
+        }
+
+        .number-input-inline:focus {
+            outline: none;
+            border-color: #e10600;
+            box-shadow: 0 0 5px rgba(225, 6, 0, 0.3);
+        }
+
+        .save-link {
+            color: #00c853;
+            cursor: pointer;
+            font-size: 12px;
+            text-decoration: underline;
+        }
+
+        /* Degradación pendiente */
+        .degradacion-warning {
+            background: rgba(255, 193, 7, 0.1);
+            border: 1px solid rgba(255, 193, 7, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 13px;
+            color: #ffc107;
+        }
+
+        /* Notificaciones */
+        .success-notification, .error-notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 24px;
+            border-radius: 8px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+        }
+
+        .success-notification {
+            background: #00c853;
+            color: white;
+        }
+
+        .error-notification {
+            background: #d50000;
+            color: white;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Submenú de pilotos */
+        .piloto-tabs-container {
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        .piloto-tabs-container.visible {
+            display: block;
+        }
+
+        .piloto-tabs {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .piloto-tab {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            min-width: 180px;
+        }
+
+        .piloto-tab:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(225, 6, 0, 0.3);
+        }
+
+        .piloto-tab.active {
+            background: rgba(225, 6, 0, 0.2);
+            border-color: #e10600;
+        }
+
+        .piloto-tab-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #e10600, #ff6b6b);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .piloto-tab-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .piloto-tab-nombre {
+            font-weight: 500;
+            color: white;
+            font-size: 14px;
+        }
+
+        .piloto-tab-media {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+        }
+
+        .piloto-tab-media-value {
+            font-weight: bold;
+        }
+
+        .piloto-tab-rol {
+            font-size: 11px;
+            color: #888;
+            padding: 2px 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 4px;
+        }
+
+        .piloto-tab.principal .piloto-tab-avatar {
+            background: linear-gradient(135deg, #e10600, #ff6b6b);
+        }
+
+        .piloto-tab.suplente .piloto-tab-avatar {
+            background: linear-gradient(135deg, #2196f3, #64b5f6);
+        }
+
+        .piloto-tab.test .piloto-tab-avatar {
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .piloto-header-section {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .piloto-meta {
+                justify-content: center;
+                flex-wrap: nowrap;
+                overflow-x: auto;
+            }
+
+            .piloto-meta .info-icon {
+                flex-shrink: 0;
+            }
+
+            .attributes-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .piloto-tabs {
+                flex-direction: column;
+            }
+
+            .piloto-tab {
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body class="paddock-page">
+    <!-- NAVBAR -->
+    <nav class="nav-mobile">
+        <div class="nav-mobile-bar">
+            <div class="nav-logo">
+                <img src="favicon.png" alt="Logo" class="nav-logo-img-mobile">
+                <span class="nav-page-title" data-i18n="menu.pilotos">Pilotos</span>
+            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- OVERLAY -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- MENÚ DESPLEGABLE -->
+    <div class="nav-mobile-menu" id="navMobileMenu">
+        <a href="/paddock" class="nav-mobile-link">🏁 <span data-i18n="menu.paddock">Paddock</span></a>
+        <div class="nav-mobile-dropdown">
+            <button class="nav-mobile-dropdown-toggle" id="garajeToggle">
+                🏍️ <span data-i18n="menu.garaje">Garaje</span>
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="nav-mobile-dropdown-menu" id="garajeDropdown">
+                <div id="pilotosMenuContainer">
+                    <!-- Se genera dinámicamente -->
+                </div>
+                <a href="/moto" class="nav-mobile-link nav-mobile-sub">🏍️ <span data-i18n="menu.moto">Moto</span></a>
+            </div>
+        </div>
+        <a href="/configuracion" class="nav-mobile-link">⚙️ <span data-i18n="menu.configuracion">Configuración</span></a>
+        <a href="/logout" class="nav-mobile-link nav-mobile-logout">🚪 <span data-i18n="menu.cerrarSesion">Cerrar Sesión</span></a>
+        <div class="nav-mobile-user">
+            <div class="nav-user-avatar" id="userAvatarMobile">U</div>
+            <div>
+                <div class="nav-user-name" id="userNameMobile">...</div>
+                <div class="nav-user-team" id="userTeamMobile" data-i18n="paddock.team">Escudería</div>
+                <div class="nav-user-money" id="userBudgetMobile">0 €</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="paddock-main">
+        <section class="piloto-section">
+            <h2 class="section-title">👤 <span data-i18n="pilotos.myPilotos">Mis Pilotos</span></h2>
+
+            <!-- Contenedor de pilotos -->
+            <div id="pilotosContainer">
+                <!-- Se cargará dinámicamente -->
+            </div>
+
+            <!-- Template para cuando no hay piloto -->
+            <div class="piloto-main-card no-piloto" id="noPilotoCard" style="display: none;">
+                <div class="no-piloto-icon">👤</div>
+                <h3 data-i18n="pilotos.noPilotosAsignados">No tienes pilotos asignados</h3>
+                <p data-i18n="pilotos.contratar">Contrata un piloto desde el mercado para empezar.</p>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        // Menú hamburguesa
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navOverlay = document.getElementById('navOverlay');
+        const navMobileMenu = document.getElementById('navMobileMenu');
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            navMobileMenu.classList.toggle('active');
+        });
+
+        navOverlay.addEventListener('click', () => {
+            hamburgerBtn.classList.remove('active');
+            navOverlay.classList.remove('active');
+            navMobileMenu.classList.remove('active');
+        });
+
+        // Toggle del dropdown Garaje en móvil
+        const garajeToggle = document.getElementById('garajeToggle');
+        const garajeDropdown = document.getElementById('garajeDropdown');
+
+        garajeToggle.addEventListener('click', () => {
+            garajeDropdown.classList.toggle('show');
+            garajeToggle.classList.toggle('active');
+        });
+
+        // Cargar datos del usuario
+        fetch('/api/user-data')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/index.html?error=login';
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data) {
+                    document.getElementById('userNameMobile').innerText = data.username;
+                    document.getElementById('userTeamMobile').innerText = data.escuderia || 'Escudería';
+                    document.getElementById('userBudgetMobile').innerText = new Intl.NumberFormat('de-DE').format(data.budget) + " €";
+                    document.getElementById('userAvatarMobile').innerText = data.username.charAt(0).toUpperCase();
+                }
+            })
+            .catch(() => {
+                window.location.href = '/index.html?error=login';
+            });
+
+        // Variables globales
+        let pilotosData = [];
+        let budget = 0;
+        let selectedPilotoId = null; // Piloto actualmente visible
+
+        // Función helper para traducciones con fallback
+        function t(key, fallback) {
+            if (window.i18n && window.i18n.t) {
+                const result = window.i18n.t(key);
+                // Si el resultado es igual a la clave, no se encontró traducción
+                if (result !== key) return result;
+            }
+            return fallback || key;
+        }
+
+        // Mapeo de atributos para mostrar (usa traducciones)
+        function getAtributosInfo() {
+            return {
+                ritmo: { nombre: t('attributes.ritmo.name', 'Ritmo'), icon: '⏱️', descripcion: t('attributes.ritmo.desc', 'Capacidad del piloto para mantener tiempos de vuelta consistentes durante toda la carrera.') },
+                concentracion: { nombre: t('attributes.concentracion.name', 'Concentración'), icon: '🎯', descripcion: t('attributes.concentracion.desc', 'Facultad de mantener el enfoque durante toda la carrera.') },
+                frenada: { nombre: t('attributes.frenada.name', 'Frenada'), icon: '🛑', descripcion: t('attributes.frenada.desc', 'Habilidad para frenar en el punto exacto y de manera consistente.') },
+                aceleracion: { nombre: t('attributes.aceleracion.name', 'Aceleración'), icon: '⚡', descripcion: t('attributes.aceleracion.desc', 'Capacidad para salir rápido de las curvas y gestionar la tracción.') },
+                tecnica: { nombre: t('attributes.tecnica.name', 'Técnica'), icon: '🔧', descripcion: t('attributes.tecnica.desc', 'Dominio del pilotaje y capacidad para adaptarse a diferentes condiciones.') },
+                experiencia: { nombre: t('attributes.experiencia.name', 'Experiencia'), icon: '📚', descripcion: t('attributes.experiencia.desc', 'Conocimiento acumulado de circuitos y situaciones de carrera.') },
+                motivacion: { nombre: t('attributes.motivacion.name', 'Motivación'), icon: '💪', descripcion: t('attributes.motivacion.desc', 'Impulso interior que eleva el rendimiento del piloto.') },
+                recuperacion: { nombre: t('attributes.recuperacion.name', 'Recuperación'), icon: '🏥', descripcion: t('attributes.recuperacion.desc', 'Capacidad de recuperar fatiga entre carreras.') },
+                agresividad: { nombre: t('attributes.agresividad.name', 'Agresividad'), icon: '🔥', descripcion: t('attributes.agresividad.desc', 'Tendencia a arriesgar en adelantamientos y defender posiciones.') },
+                resistencia: { nombre: t('attributes.resistencia.name', 'Resistencia'), icon: '🛡️', descripcion: t('attributes.resistencia.desc', 'Capacidad de resistir la fatiga durante las carreras.') },
+                talento: { nombre: t('attributes.talento.name', 'Talento'), icon: '⭐', descripcion: t('attributes.talento.desc', 'Habilidad innata para destacar en situaciones críticas.') }
+            };
+        }
+
+        // Función para calcular media de atributos
+        function calcularMediaAtributos(piloto) {
+            const attrs = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 
+                          'tecnica', 'experiencia', 'motivacion', 'recuperacion', 
+                          'agresividad', 'resistencia', 'talento'];
+            const suma = attrs.reduce((acc, attr) => acc + (piloto[attr] || 50), 0);
+            return Math.round(suma / attrs.length);
+        }
+
+        // Función para obtener clase de color según valor
+        function getStatClass(value) {
+            if (value >= 90) return 'legendary';
+            if (value >= 80) return 'excellent';
+            if (value >= 60) return 'good';
+            if (value >= 40) return 'average';
+            if (value >= 20) return 'poor';
+            return 'bad';
+        }
+
+        // Función para calcular bonificaciones físicas (fórmulas lineales)
+        function calcularBonificacionesFisicas(estatura, peso, envergadura) {
+            const bonificaciones = [];
+            
+            // Base de cálculo: Estatura 175cm, Peso 70kg, Envergadura 170cm
+            
+            // Velocidad punta por estatura: (175 - estatura) × 0.2 km/h
+            const bonusVelocidad = Math.round((175 - estatura) * 0.2);
+            if (Math.abs(bonusVelocidad) >= 0.5) {
+                const texto = bonusVelocidad > 0 ? `+${bonusVelocidad} km/h velocidad` : `${bonusVelocidad} km/h velocidad`;
+                bonificaciones.push({ texto, tipo: bonusVelocidad > 0 ? 'positive' : 'negative' });
+            }
+
+            // Estabilidad por estatura: (estatura - 175) × 0.08%
+            const bonusEstabilidadEst = Math.round((estatura - 175) * 0.08);
+            if (Math.abs(bonusEstabilidadEst) >= 0.5) {
+                const texto = bonusEstabilidadEst > 0 ? `+${bonusEstabilidadEst}% estabilidad` : `${bonusEstabilidadEst}% estabilidad`;
+                bonificaciones.push({ texto, tipo: bonusEstabilidadEst > 0 ? 'positive' : 'negative' });
+            }
+
+            // Aceleración por peso: (70 - peso) × 0.5%
+            const bonusAceleracion = Math.round((70 - peso) * 0.5);
+            if (Math.abs(bonusAceleracion) >= 1) {
+                const texto = bonusAceleracion > 0 ? `+${bonusAceleracion}% aceleración` : `${bonusAceleracion}% aceleración`;
+                bonificaciones.push({ texto, tipo: bonusAceleracion > 0 ? 'positive' : 'negative' });
+            }
+
+            // Frenada por peso: (70 - peso) × 0.3%
+            const bonusFrenada = Math.round((70 - peso) * 0.3);
+            if (Math.abs(bonusFrenada) >= 1) {
+                const texto = bonusFrenada > 0 ? `+${bonusFrenada}% frenada` : `${bonusFrenada}% frenada`;
+                bonificaciones.push({ texto, tipo: bonusFrenada > 0 ? 'positive' : 'negative' });
+            }
+
+            // Control por peso: (peso - 70) × 0.2%
+            const bonusControl = Math.round((peso - 70) * 0.2);
+            if (Math.abs(bonusControl) >= 1) {
+                const texto = bonusControl > 0 ? `+${bonusControl}% control` : `${bonusControl}% control`;
+                bonificaciones.push({ texto, tipo: bonusControl > 0 ? 'positive' : 'negative' });
+            }
+
+            // Fatiga por peso
+            if (peso < 65) {
+                const fatigaExtra = Math.round((65 - peso) * 2);
+                bonificaciones.push({ texto: `+${fatigaExtra}% fatiga`, tipo: 'negative' });
+            } else if (peso > 80) {
+                const fatigaMenos = Math.round((peso - 80) * 1);
+                bonificaciones.push({ texto: `-${fatigaMenos}% fatiga`, tipo: 'positive' });
+            }
+
+            // Control curvas por envergadura: (envergadura - 170) × 0.15%
+            const bonusControlCurvas = Math.round((envergadura - 170) * 0.15);
+            if (Math.abs(bonusControlCurvas) >= 0.5) {
+                const texto = bonusControlCurvas > 0 ? `+${bonusControlCurvas}% control curvas` : `${bonusControlCurvas}% control curvas`;
+                bonificaciones.push({ texto, tipo: bonusControlCurvas > 0 ? 'positive' : 'negative' });
+            }
+
+            // Fatiga brazos por envergadura: (envergadura - 170) × 0.4%
+            const fatigaBrazos = Math.round((envergadura - 170) * 0.4);
+            if (Math.abs(fatigaBrazos) >= 1) {
+                const texto = fatigaBrazos > 0 ? `+${fatigaBrazos}% fatiga brazos` : `${fatigaBrazos}% fatiga brazos`;
+                bonificaciones.push({ texto, tipo: fatigaBrazos > 0 ? 'negative' : 'positive' });
+            }
+
+            // Riesgo caída por estatura baja
+            if (estatura < 175) {
+                const riesgoCaida = Math.round((175 - estatura) * 0.15);
+                if (riesgoCaida > 0) {
+                    bonificaciones.push({ texto: `+${riesgoCaida}% riesgo caída`, tipo: 'negative' });
+                }
+            } else if (estatura > 175) {
+                const riesgoMenos = Math.round((estatura - 175) * 0.15);
+                bonificaciones.push({ texto: `-${riesgoMenos}% riesgo caída`, tipo: 'positive' });
+            }
+
+            return bonificaciones;
+        }
+
+        // Función para calcular coste de entrenamiento
+        function calcularCosteEntrenamiento(valorActual, edad) {
+            let baseEdad;
+            if (edad >= 35) baseEdad = 150000;
+            else if (edad >= 31) baseEdad = 60000;
+            else if (edad >= 27) baseEdad = 25000;
+            else if (edad >= 21) baseEdad = 10000;
+            else baseEdad = 5000;
+
+            const multiplicadorValor = 1 + (valorActual - 50) * 0.02;
+            return Math.floor(baseEdad * multiplicadorValor);
+        }
+
+        // Función para verificar si puede editar número (24 horas)
+        function canEditNumber(lastUpdate) {
+            if (!lastUpdate) return true;
+            const lastUpdateDate = new Date(lastUpdate);
+            const now = new Date();
+            const diffHours = (now - lastUpdateDate) / (1000 * 60 * 60);
+            return diffHours >= 24;
+        }
+
+        // Función para tiempo restante
+        function getTimeRemaining(lastUpdate) {
+            if (!lastUpdate) return null;
+            const lastUpdateDate = new Date(lastUpdate);
+            const nextUpdate = new Date(lastUpdateDate.getTime() + 24 * 60 * 60 * 1000);
+            const now = new Date();
+            const diffMs = nextUpdate - now;
+
+            if (diffMs <= 0) return null;
+
+            const hours = Math.floor(diffMs / (1000 * 60 * 60));
+            const minutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+            return `${hours}h ${minutes}min`;
+        }
+
+        // Función para crear tarjeta de piloto
+        function crearTarjetaPiloto(piloto) {
+            const statClass = getStatClass;
+            const bonificaciones = calcularBonificacionesFisicas(piloto.estatura, piloto.peso, piloto.envergadura);
+            const atributosInfo = getAtributosInfo();
+
+            const estadoClass = piloto.estado || 'activo';
+            const estadoTexto = {
+                'activo': `✅ ${t('pilotos.activo', 'Activo')}`,
+                'lesionado': `🏥 ${t('pilotos.lesionado', 'Lesionado')}`,
+                'fallecido': `💀 ${t('pilotos.fallecido', 'Fallecido')}`,
+                'retirado': `🏳️ ${t('pilotos.retirado', 'Retirado')}`
+            };
+
+            return `
+                <div class="piloto-main-card" data-piloto-id="${piloto.id}">
+                    <!-- Header del piloto -->
+                    <div class="piloto-header-section">
+                        <div class="piloto-avatar-large">${piloto.nombre.charAt(0).toUpperCase()}</div>
+                        <div class="piloto-main-info">
+                            <h1>${piloto.nombre}</h1>
+                            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                                <div class="piloto-number-display" id="numberDisplay-${piloto.id}">
+                                    <span id="numberText-${piloto.id}">#${piloto.numero || '--'}</span>
+                                    <input type="number" id="numberInput-${piloto.id}" class="number-input-inline" value="${piloto.numero || 2}" min="2" max="99" style="display: none;">
+                                </div>
+                                <span class="edit-link" id="editLink-${piloto.id}" onclick="iniciarEdicionNumero(${piloto.id})" style="display: ${piloto.id ? 'inline' : 'none'};">${t('pilotos.editNumber', 'editar')}</span>
+                                <span class="info-icon" id="editInfo-${piloto.id}" onclick="toggleInfoBubble(${piloto.id})">i</span>
+                                <div class="info-bubble" id="infoBubble-${piloto.id}">
+                                    ${t('pilotos.numberTooltip', 'El número solo se puede editar una vez cada 24 horas')}
+                                </div>
+                                <span class="status-badge ${estadoClass}">${estadoTexto[estadoClass]}</span>
+                            </div>
+                            <div class="piloto-meta">
+                                <span class="piloto-meta-item">${piloto.edad} ${t('pilotos.anos', 'años')}</span>
+                                <span class="piloto-meta-item">📏 ${piloto.estatura}cm</span>
+                                <span class="piloto-meta-item">🏋️ ${piloto.peso}kg</span>
+                                <span class="piloto-meta-item">↔️ ${piloto.envergadura}cm</span>
+                                <span class="info-icon" onclick="toggleFisicoInfo(${piloto.id})">i</span>
+                            </div>
+                            <!-- Info popup físico -->
+                            <div class="fisico-info-popup" id="fisicoInfo-${piloto.id}">
+                                <div class="info-popup-header">
+                                    <button class="info-nav-btn" onclick="prevFisico(${piloto.id})">◀</button>
+                                    <span class="info-popup-title" id="fisicoTitle-${piloto.id}">${t('physical.edad.name', 'Edad')}</span>
+                                    <button class="info-nav-btn" onclick="nextFisico(${piloto.id})">▶</button>
+                                </div>
+                                <p class="info-popup-desc" id="fisicoDesc-${piloto.id}">${t('physical.edad.desc', 'La edad del piloto influye en su experiencia y capacidad de recuperación.')}</p>
+                                <div class="info-popup-footer">
+                                    <div class="info-popup-dots" id="fisicoDots-${piloto.id}"></div>
+                                    <span class="info-close-btn" onclick="toggleFisicoInfo(${piloto.id})">✕</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de lesión -->
+                    <div class="lesion-info ${piloto.estado === 'lesionado' ? 'visible' : ''}" id="lesionInfo-${piloto.id}">
+                        <strong>🏥 ${t('pilotos.lesion', 'Lesión')}: ${piloto.lesion_tipo || t('pilotos.lesionNoEspec', 'No especificada')}</strong>
+                        <p>${t('pilotos.carrerasRestantes', 'Carreras restantes')}: ${piloto.lesion_duracion || 0}</p>
+                    </div>
+
+
+
+                    <!-- Habilidades -->
+                    <div class="habilidades-section">
+                        <div class="habilidades-header">
+                            <h3>📊 ${t('pilotos.habilidades', 'Habilidades')}</h3>
+                            <span class="info-icon" onclick="toggleHabilidadesInfo(${piloto.id})">i</span>
+                        </div>
+                        
+                        <!-- Info popup con navegación -->
+                        <div class="habilidades-info-popup" id="habilidadesInfo-${piloto.id}">
+                            <div class="info-popup-header">
+                                <button class="info-nav-btn" onclick="prevHabilidad(${piloto.id})">◀</button>
+                                <span class="info-popup-title" id="infoTitle-${piloto.id}">${atributosInfo.ritmo.nombre}</span>
+                                <button class="info-nav-btn" onclick="nextHabilidad(${piloto.id})">▶</button>
+                            </div>
+                            <p class="info-popup-desc" id="infoDesc-${piloto.id}">${atributosInfo.ritmo.descripcion}</p>
+                            <div class="info-popup-footer">
+                                <div class="info-popup-dots" id="infoDots-${piloto.id}"></div>
+                                <span class="info-close-btn" onclick="toggleHabilidadesInfo(${piloto.id})">✕</span>
+                            </div>
+                        </div>
+                        
+                        <div class="habilidades-grid">
+                            ${['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'resistencia', 'talento'].map(attr => `
+                                <div class="stat-row">
+                                    <span class="stat-label">${atributosInfo[attr].icon} ${atributosInfo[attr].nombre}</span>
+                                    <div class="stat-value-container">
+                                        <div class="stat-bar">
+                                            <div class="stat-bar-fill ${statClass(piloto[attr] || 50)}" style="width: ${piloto[attr] || 50}%"></div>
+                                        </div>
+                                        <span class="stat-number ${statClass(piloto[attr] || 50)}">${piloto[attr] || 50}</span>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Sección de entrenamiento -->
+                    <div class="training-section">
+                        <h3 style="margin: 0 0 12px 0; font-size: 14px; color: #888; text-transform: uppercase;">🏋️ ${t('training.title', 'Entrenamiento')}</h3>
+
+                        <div class="training-status" id="trainingStatus-${piloto.id}">
+                            ${piloto.entrenamiento_atributo ? `
+                                <div class="training-info">
+                                    <span class="training-attribute">${t('training.inProgress', 'Entrenando')}: ${atributosInfo[piloto.entrenamiento_atributo]?.nombre || piloto.entrenamiento_atributo}</span>
+                                    <span class="training-progress">${t('pilotos.carrerasRestantes', 'Carreras restantes')}: ${piloto.entrenamiento_carreras_restantes}</span>
+                                </div>
+                            ` : `
+                                <div class="training-info">
+                                    <span style="color: #888;">${t('training.selectAttribute', 'Selecciona atributo a entrenar')}</span>
+                                </div>
+                                <button class="btn-train" onclick="mostrarSeleccionEntrenamiento(${piloto.id})" ${piloto.estado === 'lesionado' ? 'disabled' : ''}>
+                                    ${piloto.estado === 'lesionado' ? `🔴 ${t('pilotos.lesionado', 'Lesionado')}` : t('training.train', 'Entrenar')}
+                                </button>
+                            `}
+                        </div>
+
+                        <div class="train-select-container" id="trainSelectContainer-${piloto.id}">
+                            <div class="train-select-row">
+                                <select class="train-select" id="trainSelect-${piloto.id}" onchange="actualizarCoste(${piloto.id})">
+                                    <option value="">${t('training.selectAttribute', 'Selecciona atributo...')}</option>
+                                    ${Object.keys(atributosInfo).map(attr => `
+                                        <option value="${attr}" data-valor="${piloto[attr] || 50}">${atributosInfo[attr].icon} ${atributosInfo[attr].nombre} (${piloto[attr] || 50})</option>
+                                    `).join('')}
+                                </select>
+                                <span class="train-cost" id="trainCost-${piloto.id}">-</span>
+                            </div>
+                            <div style="margin-top: 12px; display: flex; gap: 8px;">
+                                <button class="btn-confirm-train" onclick="iniciarEntrenamiento(${piloto.id})">${t('training.train', 'Entrenar')}</button>
+                                <button class="btn-cancel-train" onclick="ocultarSeleccionEntrenamiento(${piloto.id})">${t('training.cancel', 'Cancelar')}</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Advertencia de degradación -->
+                    ${piloto.edad >= 27 ? `
+                        <div class="degradacion-warning">
+                            ⚠️ Este piloto sufre degradación por edad (${piloto.edad} ${t('pilotos.anos', 'años')}).
+                            ${piloto.edad >= 35 ? ' Degradación severa.' : piloto.edad >= 31 ? ' Degradación notable.' : ' Degradación leve.'}
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Función para crear menú de pilotos dinámico en el nav
+        function crearMenuPilotos(pilotos) {
+            const menuContainer = document.getElementById('pilotosMenuContainer');
+            
+            if (pilotos.length === 0) {
+                menuContainer.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
+                return;
+            }
+            
+            if (pilotos.length === 1) {
+                // Solo un piloto: enlace directo
+                menuContainer.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
+            } else {
+                // Más de un piloto: sub-dropdown con lista
+                menuContainer.innerHTML = `
+                    <button class="nav-mobile-sub-toggle" id="pilotosSubToggle">
+                        👤 Pilotos
+                        <span class="dropdown-arrow">▼</span>
+                    </button>
+                    <div class="nav-mobile-sub-dropdown" id="pilotosSubDropdown">
+                        ${pilotos.map(piloto => {
+                            const media = calcularMediaAtributos(piloto);
+                            const statClass = getStatClass(media);
+                            return `
+                                <a href="#" class="nav-mobile-link nav-mobile-sub-item" onclick="seleccionarPilotoNav(${piloto.id}); return false;">
+                                    <span class="piloto-menu-avatar">${piloto.nombre.charAt(0).toUpperCase()}</span>
+                                    <span class="piloto-menu-nombre">${piloto.nombre}</span>
+                                    <span class="piloto-menu-media ${statClass}">⭐${media}</span>
+                                </a>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                
+                // Añadir toggle para el sub-dropdown
+                setTimeout(() => {
+                    const toggle = document.getElementById('pilotosSubToggle');
+                    const dropdown = document.getElementById('pilotosSubDropdown');
+                    if (toggle && dropdown) {
+                        toggle.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            dropdown.classList.toggle('show');
+                            toggle.classList.toggle('active');
+                        });
+                    }
+                }, 0);
+            }
+        }
+        
+        // Función para seleccionar piloto desde el menú nav
+        function seleccionarPilotoNav(pilotoId) {
+            selectedPilotoId = pilotoId;
+            
+            // Cerrar el menú dropdown
+            const dropdown = document.getElementById('pilotosDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+            
+            // Mostrar solo el piloto seleccionado
+            document.querySelectorAll('[data-piloto-id]').forEach(card => {
+                if (parseInt(card.dataset.pilotoId) === pilotoId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+            
+            // Actualizar tabs activos si existen
+            document.querySelectorAll('.piloto-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            const tabs = document.querySelectorAll('.piloto-tab');
+            const tabIndex = pilotosData.findIndex(p => p.id === pilotoId);
+            if (tabs[tabIndex]) tabs[tabIndex].classList.add('active');
+        }
+
+        // Función para seleccionar un piloto
+        function seleccionarPiloto(pilotoId) {
+            selectedPilotoId = pilotoId;
+            
+            // Actualizar tabs activos
+            document.querySelectorAll('.piloto-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Mostrar solo el piloto seleccionado
+            document.querySelectorAll('[data-piloto-id]').forEach(card => {
+                if (parseInt(card.dataset.pilotoId) === pilotoId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Cargar pilotos
+        function cargarPilotos() {
+            fetch('/api/piloto')
+                .then(res => res.json())
+                .then(data => {
+                    const container = document.getElementById('pilotosContainer');
+                    const noPilotoCard = document.getElementById('noPilotoCard');
+
+                    if (data && Array.isArray(data) && data.length > 0) {
+                        pilotosData = data;
+                        
+                        // Ordenar por media de atributos (de mayor a menor)
+                        pilotosData.sort((a, b) => {
+                            const mediaA = calcularMediaAtributos(a);
+                            const mediaB = calcularMediaAtributos(b);
+                            return mediaB - mediaA;
+                        });
+                        
+                        // Crear todas las tarjetas
+                        container.innerHTML = pilotosData.map(p => crearTarjetaPiloto(p)).join('');
+                        
+                        // Crear menú de pilotos en el nav
+                        crearMenuPilotos(pilotosData);
+                        
+                        // Seleccionar el primer piloto por defecto
+                        selectedPilotoId = pilotosData[0].id;
+                        
+                        // Si hay más de un piloto, mostrar solo el seleccionado
+                        if (pilotosData.length > 1) {
+                            document.querySelectorAll('[data-piloto-id]').forEach(card => {
+                                if (parseInt(card.dataset.pilotoId) === selectedPilotoId) {
+                                    card.style.display = 'block';
+                                } else {
+                                    card.style.display = 'none';
+                                }
+                            });
+                        }
+                        
+                        noPilotoCard.style.display = 'none';
+                    } else if (data && data.id) {
+                        // Compatibilidad con respuesta de un solo piloto
+                        pilotosData = [data];
+                        container.innerHTML = crearTarjetaPiloto(data);
+                        crearMenuPilotos(pilotosData);
+                        noPilotoCard.style.display = 'none';
+                    } else {
+                        container.innerHTML = '';
+                        crearMenuPilotos([]);
+                        noPilotoCard.style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error('Error al cargar pilotos:', err);
+                    document.getElementById('noPilotoCard').style.display = 'block';
+                });
+        }
+
+        // Funciones de edición de número
+        function toggleInfoBubble(pilotoId) {
+            const bubble = document.getElementById(`infoBubble-${pilotoId}`);
+            bubble.classList.toggle('show');
+        }
+
+        // Sistema de navegación de habilidades
+        const habilidadesOrden = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'resistencia', 'talento'];
+        const habilidadesIndex = {};
+
+        function toggleHabilidadesInfo(pilotoId) {
+            const popup = document.getElementById(`habilidadesInfo-${pilotoId}`);
+            const isVisible = popup.classList.contains('visible');
+            
+            if (isVisible) {
+                popup.classList.remove('visible');
+            } else {
+                // Inicializar en la primera habilidad
+                if (!habilidadesIndex[pilotoId]) {
+                    habilidadesIndex[pilotoId] = 0;
+                }
+                actualizarInfoHabilidad(pilotoId);
+                popup.classList.add('visible');
+            }
+        }
+
+        function actualizarInfoHabilidad(pilotoId) {
+            const atributosInfo = getAtributosInfo();
+            const index = habilidadesIndex[pilotoId] || 0;
+            const attrKey = habilidadesOrden[index];
+            const info = atributosInfo[attrKey];
+            
+            const titleEl = document.getElementById(`infoTitle-${pilotoId}`);
+            const descEl = document.getElementById(`infoDesc-${pilotoId}`);
+            const dotsEl = document.getElementById(`infoDots-${pilotoId}`);
+            
+            if (titleEl) titleEl.textContent = `${info.icon} ${info.nombre}`;
+            if (descEl) descEl.textContent = info.descripcion;
+            
+            // Actualizar dots
+            if (dotsEl) {
+                dotsEl.innerHTML = habilidadesOrden.map((_, i) => 
+                    `<span class="info-dot ${i === index ? 'active' : ''}"></span>`
+                ).join('');
+            }
+        }
+
+        function prevHabilidad(pilotoId) {
+            event.stopPropagation();
+            const currentIndex = habilidadesIndex[pilotoId] || 0;
+            habilidadesIndex[pilotoId] = currentIndex > 0 ? currentIndex - 1 : habilidadesOrden.length - 1;
+            actualizarInfoHabilidad(pilotoId);
+        }
+
+        function nextHabilidad(pilotoId) {
+            event.stopPropagation();
+            const currentIndex = habilidadesIndex[pilotoId] || 0;
+            habilidadesIndex[pilotoId] = currentIndex < habilidadesOrden.length - 1 ? currentIndex + 1 : 0;
+            actualizarInfoHabilidad(pilotoId);
+        }
+
+        // Sistema de navegación de atributos físicos
+        const fisicoOrden = ['edad', 'estatura', 'peso', 'envergadura'];
+        function getFisicoInfo() {
+            return {
+                edad: { nombre: t('physical.edad.name', 'Edad'), descripcion: t('physical.edad.desc', 'La edad del piloto influye en su experiencia y capacidad de recuperación.') },
+                estatura: { nombre: t('physical.estaturaInfo.name', 'Estatura'), descripcion: t('physical.estaturaInfo.desc', 'La estatura afecta la velocidad punta y la estabilidad.') },
+                peso: { nombre: t('physical.pesoInfo.name', 'Peso'), descripcion: t('physical.pesoInfo.desc', 'El peso influye en la aceleración, frenada y control.') },
+                envergadura: { nombre: t('physical.envergaduraInfo.name', 'Envergadura'), descripcion: t('physical.envergaduraInfo.desc', 'La envergadura de brazos afecta el control en curvas y la fatiga de brazos.') }
+            };
+        }
+        const fisicoIndex = {};
+
+        function toggleFisicoInfo(pilotoId) {
+            const popup = document.getElementById(`fisicoInfo-${pilotoId}`);
+            const isVisible = popup.classList.contains('visible');
+
+            if (isVisible) {
+                popup.classList.remove('visible');
+            } else {
+                if (!fisicoIndex[pilotoId]) {
+                    fisicoIndex[pilotoId] = 0;
+                }
+                actualizarInfoFisico(pilotoId);
+                popup.classList.add('visible');
+            }
+        }
+
+        function actualizarInfoFisico(pilotoId) {
+            const fisicoInfo = getFisicoInfo();
+            const index = fisicoIndex[pilotoId] || 0;
+            const attrKey = fisicoOrden[index];
+            const info = fisicoInfo[attrKey];
+
+            const titleEl = document.getElementById(`fisicoTitle-${pilotoId}`);
+            const descEl = document.getElementById(`fisicoDesc-${pilotoId}`);
+            const dotsEl = document.getElementById(`fisicoDots-${pilotoId}`);
+
+            if (titleEl) titleEl.textContent = info.nombre;
+            if (descEl) descEl.textContent = info.descripcion;
+
+            if (dotsEl) {
+                dotsEl.innerHTML = fisicoOrden.map((_, i) =>
+                    `<span class="info-dot ${i === index ? 'active' : ''}"></span>`
+                ).join('');
+            }
+        }
+
+        function prevFisico(pilotoId) {
+            event.stopPropagation();
+            const currentIndex = fisicoIndex[pilotoId] || 0;
+            fisicoIndex[pilotoId] = currentIndex > 0 ? currentIndex - 1 : fisicoOrden.length - 1;
+            actualizarInfoFisico(pilotoId);
+        }
+
+        function nextFisico(pilotoId) {
+            event.stopPropagation();
+            const currentIndex = fisicoIndex[pilotoId] || 0;
+            fisicoIndex[pilotoId] = currentIndex < fisicoOrden.length - 1 ? currentIndex + 1 : 0;
+            actualizarInfoFisico(pilotoId);
+        }
+
+        function iniciarEdicionNumero(pilotoId) {
+            const piloto = pilotosData.find(p => p.id === pilotoId);
+            if (!piloto) return;
+
+            if (!canEditNumber(piloto.numero_updated_at)) {
+                const timeRemaining = getTimeRemaining(piloto.numero_updated_at);
+                alert(`Debes esperar ${timeRemaining} para poder editar el número nuevamente.`);
+                return;
+            }
+
+            // Ocultar texto del número, mostrar input
+            const numberText = document.getElementById(`numberText-${pilotoId}`);
+            const numberInput = document.getElementById(`numberInput-${pilotoId}`);
+            const editLink = document.getElementById(`editLink-${pilotoId}`);
+            
+            numberText.style.display = 'none';
+            numberInput.style.display = 'inline';
+            numberInput.value = piloto.numero || 2;
+            editLink.textContent = 'guardar';
+            editLink.onclick = () => guardarNumero(pilotoId);
+            numberInput.focus();
+            numberInput.select();
+        }
+
+        function cancelarEdicionNumero(pilotoId) {
+            const numberText = document.getElementById(`numberText-${pilotoId}`);
+            const numberInput = document.getElementById(`numberInput-${pilotoId}`);
+            const editLink = document.getElementById(`editLink-${pilotoId}`);
+            
+            numberText.style.display = 'inline';
+            numberInput.style.display = 'none';
+            editLink.textContent = 'editar';
+            editLink.onclick = () => iniciarEdicionNumero(pilotoId);
+        }
+
+        async function guardarNumero(pilotoId) {
+            const newNumber = parseInt(document.getElementById(`numberInput-${pilotoId}`).value);
+
+            if (!newNumber || newNumber < 2 || newNumber > 99) {
+                alert('El número debe estar entre 2 y 99');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/update-piloto-numero', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ numero: newNumber })
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const piloto = pilotosData.find(p => p.id === pilotoId);
+                    if (piloto) {
+                        piloto.numero = newNumber;
+                        piloto.numero_updated_at = new Date().toISOString();
+                    }
+                    // Actualizar UI inline
+                    const numberText = document.getElementById(`numberText-${pilotoId}`);
+                    const numberInput = document.getElementById(`numberInput-${pilotoId}`);
+                    const editLink = document.getElementById(`editLink-${pilotoId}`);
+                    
+                    numberText.textContent = `#${newNumber}`;
+                    numberText.style.display = 'inline';
+                    numberInput.style.display = 'none';
+                    editLink.textContent = 'editar';
+                    editLink.onclick = () => iniciarEdicionNumero(pilotoId);
+                    
+                    showNotification('Número actualizado correctamente', 'success');
+                } else {
+                    alert(result.error || 'Error al actualizar el número');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Error de conexión');
+            }
+        }
+
+        // Funciones de entrenamiento
+        function mostrarSeleccionEntrenamiento(pilotoId) {
+            document.getElementById(`trainSelectContainer-${pilotoId}`).classList.add('visible');
+        }
+
+        function ocultarSeleccionEntrenamiento(pilotoId) {
+            document.getElementById(`trainSelectContainer-${pilotoId}`).classList.remove('visible');
+        }
+
+        function actualizarCoste(pilotoId) {
+            const select = document.getElementById(`trainSelect-${pilotoId}`);
+            const costSpan = document.getElementById(`trainCost-${pilotoId}`);
+            const piloto = pilotosData.find(p => p.id === pilotoId);
+
+            if (!select.value || !piloto) {
+                costSpan.textContent = '-';
+                return;
+            }
+
+            const valorActual = piloto[select.value];
+            const coste = calcularCosteEntrenamiento(valorActual, piloto.edad);
+            costSpan.textContent = `${new Intl.NumberFormat('de-DE').format(coste)} €`;
+        }
+
+        async function iniciarEntrenamiento(pilotoId) {
+            const select = document.getElementById(`trainSelect-${pilotoId}`);
+            const atributo = select.value;
+
+            if (!atributo) {
+                alert('Selecciona un atributo para entrenar');
+                return;
+            }
+
+            // Aquí iría la llamada a la API de entrenamiento
+            alert('Funcionalidad de entrenamiento en desarrollo');
+        }
+
+        // Notificación
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = type === 'success' ? 'success-notification' : 'error-notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Cerrar info bubbles al hacer clic fuera
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.info-icon')) {
+                document.querySelectorAll('.info-bubble.show').forEach(b => b.classList.remove('show'));
+            }
+        });
+
+        // Inicializar - esperar a que i18n esté listo
+        function iniciarCargaPilotos() {
+            // Si i18n ya está listo, cargar pilotos directamente
+            if (window.i18n && window.i18n.isReady && window.i18n.isReady()) {
+                cargarPilotos();
+                return;
+            }
+            // Si no, esperar el evento i18nReady
+            document.addEventListener('i18nReady', () => {
+                cargarPilotos();
+            }, { once: true });
+        }
+
+        iniciarCargaPilotos();
+    </script>
+<script src="preload-fondos.js"></script>
+</body>
+</html>

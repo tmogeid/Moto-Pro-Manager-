@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paddock | Moto Pro Manager</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="favicon.png" type="image/png">
+    <script src="cookie-consent.js"></script>
+    <script src="background-changer.js"></script>
+    <script src="js/i18n.js"></script>
+</head>
+<body class="paddock-page">
+    <!-- NAVBAR -->
+    <nav class="nav-mobile">
+        <div class="nav-mobile-bar">
+            <div class="nav-logo">
+                <img src="favicon.png" alt="Logo" class="nav-logo-img-mobile">
+                <span class="nav-page-title">Paddock</span>
+            </div>
+            <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- OVERLAY -->
+    <div class="nav-overlay" id="navOverlay"></div>
+
+    <!-- MENÚ DESPLEGABLE -->
+    <div class="nav-mobile-menu" id="navMobileMenu">
+        <a href="/paddock" class="nav-mobile-link">🏁 Paddock</a>
+        <div class="nav-mobile-dropdown">
+            <button class="nav-mobile-dropdown-toggle" id="garajeToggle">
+                🏍️ Garaje
+                <span class="dropdown-arrow">▼</span>
+            </button>
+            <div class="nav-mobile-dropdown-menu" id="garajeDropdown">
+                <div id="pilotosMenuContainer">
+                    <!-- Se genera dinámicamente con nav-menu.js -->
+                </div>
+                <a href="/moto" class="nav-mobile-link nav-mobile-sub">🏍️ Moto</a>
+            </div>
+        </div>
+        <a href="/configuracion" class="nav-mobile-link">⚙️ Configuración</a>
+        <a href="/logout" class="nav-mobile-link nav-mobile-logout">🚪 Cerrar Sesión</a>
+        <div class="nav-mobile-user">
+            <div class="nav-user-avatar" id="userAvatarMobile">U</div>
+            <div>
+                <div class="nav-user-name" id="userNameMobile">...</div>
+                <div class="nav-user-team" id="userTeamMobile">Escudería</div>
+                <div class="nav-user-money" id="userBudgetMobile">0 €</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="paddock-main">
+        <div id="successAlert" class="alert">✅ ¡Patrocinio recibido! +50.000€</div>
+
+        <!-- Área de contenido preparada para funcionalidades -->
+        <div class="paddock-content">
+            <div class="paddock-placeholder">
+                <div class="placeholder-icon">🏁</div>
+                <p>Área de contenido del Paddock</p>
+                <span>Preparado para añadir funcionalidades</span>
+            </div>
+        </div>
+
+        <!-- Sección de patrocinador -->
+        <div class="ad-section">
+            <img src="logo.png" width="80" alt="Moto Pro">
+            <h4>¿Necesitas fondos?</h4>
+            <p>Visualiza un anuncio para recibir 50.000€ extra.</p>
+            <a href="/ver-anuncio" class="btn-bonus">📺 Recibir Recompensa</a>
+        </div>
+    </main>
+
+    <script>
+        // Menú hamburguesa
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const navOverlay = document.getElementById('navOverlay');
+        const navMobileMenu = document.getElementById('navMobileMenu');
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('active');
+            navOverlay.classList.toggle('active');
+            navMobileMenu.classList.toggle('active');
+        });
+
+        navOverlay.addEventListener('click', () => {
+            hamburgerBtn.classList.remove('active');
+            navOverlay.classList.remove('active');
+            navMobileMenu.classList.remove('active');
+        });
+
+        // Toggle del dropdown Garaje en móvil
+        const garajeToggle = document.getElementById('garajeToggle');
+        const garajeDropdown = document.getElementById('garajeDropdown');
+        
+        garajeToggle.addEventListener('click', () => {
+            garajeDropdown.classList.toggle('show');
+            garajeToggle.classList.toggle('active');
+        });
+
+        // Cargar datos del usuario
+        fetch('/api/user-data')
+            .then(res => {
+                if (!res.ok) {
+                    window.location.href = '/index.html?error=login';
+                    return null;
+                }
+                return res.json();
+            })
+            .then(data => {
+                if (data) {
+                    document.getElementById('userNameMobile').innerText = data.username;
+                    document.getElementById('userTeamMobile').innerText = data.escuderia || 'Escudería';
+                    document.getElementById('userBudgetMobile').innerText = new Intl.NumberFormat('de-DE').format(data.budget) + " €";
+                    document.getElementById('userAvatarMobile').innerText = data.username.charAt(0).toUpperCase();
+                }
+            })
+            .catch(() => {
+                window.location.href = '/index.html?error=login';
+            });
+
+        // Mostrar alerta de éxito
+        if (window.location.search.includes('success')) {
+            document.getElementById('successAlert').style.display = 'block';
+        }
+    </script>
+<script src="preload-fondos.js"></script>
+</body>
+</html>

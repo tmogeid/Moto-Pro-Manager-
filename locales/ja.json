@@ -1,0 +1,296 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "pageTitle": "ライダー | Moto Pro Manager",
+        "description": "プロフェッショナルバイク管理ゲーム"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "pageTitle": "パドック | Moto Pro Manager",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "ログイン",
+        "pageTitle": "ログイン | Moto Pro Manager",
+        "email": "メールアドレス",
+        "emailOrUser": "メールまたはユーザー名",
+        "password": "パスワード",
+        "rememberMe": "ログイン状態を保持（30日間）",
+        "submit": "ログイン",
+        "forgotPassword": "パスワードをお忘れですか？",
+        "noAccount": "アカウントをお持ちでないですか？",
+        "registerHere": "こちらから登録"
+    },
+    "register": {
+        "title": "グリッドに参加",
+        "pageTitle": "登録 | Moto Pro Manager",
+        "username": "ユーザー名",
+        "teamName": "チーム名",
+        "email": "メールアドレス",
+        "password": "パスワード",
+        "confirmPassword": "パスワード確認",
+        "submit": "アカウント作成",
+        "hasAccount": "すでにアカウントをお持ちですか？ ログイン",
+        "requirements": {
+            "length": "8文字以上",
+            "lowercase": "小文字を1つ",
+            "uppercase": "大文字を1つ",
+            "number": "数字を1つ",
+            "symbol": "記号または句読点を1つ"
+        },
+        "passwordMatch": "パスワードが一致しました",
+        "passwordMismatch": "一致しません"
+    },
+    "forgot": {
+        "title": "アクセスを回復",
+        "pageTitle": "アクセス回復 | Moto Pro Manager",
+        "description": "メールアドレスを入力すると、パスワードリセットのリンクを送信します。",
+        "submit": "リンクを送信",
+        "backToLogin": "← ログインに戻る"
+    },
+    "reset": {
+        "title": "新しいパスワードを設定",
+        "pageTitle": "パスワードリセット | Moto Pro Manager",
+        "newPassword": "新しいパスワード",
+        "submit": "更新"
+    },
+    "messages": {
+        "accountActivated": "アカウントが有効化されました！",
+        "welcome": "ようこそ",
+        "redirecting": "パドックにリダイレクト中...",
+        "loginRequired": "アクセスするにはログインが必要です。",
+        "accountVerified": "アカウントが有効化されました！ログインできます。",
+        "credentialsIncorrect": "認証情報が正しくありません",
+        "credentialsIncorrectMsg": "メールまたはパスワードが正しくありません。",
+        "accountNotVerified": "アカウントが確認されていません",
+        "accountNotVerifiedMsg": "ログインする前にメールを確認してください。",
+        "accessGranted": "アクセスが許可されました",
+        "welcomeUser": "ようこそ",
+        "redirectingPaddock": "パドックにリダイレクト中...",
+        "passwordUpdated": "パスワードが更新されました",
+        "passwordUpdatedMsg": "パスワードが正常に更新されました。",
+        "emailSent": "メールが送信されました",
+        "emailSentMsg": "メールが登録されている場合、パスワードリセットの手順が送信されます。",
+        "linkExpired": "リンクが期限切れです",
+        "linkExpiredMsg": "このリカバリーリンクは期限切れまたは無効です。",
+        "tokenInvalid": "トークンが無効です",
+        "tokenInvalidMsg": "この確認リンクは無効または既に使用されています。",
+        "registrationComplete": "登録完了",
+        "registrationCompleteMsg": "確認メールを送信しました。",
+        "verifyFailed": "確認に失敗しました",
+        "verifyFailedMsg": "あなたが人間であることを確認できませんでした。",
+        "redirectSeconds": "リダイレクトまで",
+        "seconds": "秒..."
+    },
+    "cookies": {
+        "title": "🍪 Cookieの使用",
+        "description": "ゲームの機能のために独自のCookieのみを使用しています：セッションを維持し、設定を保存します。個人データを第三者と共有しません。",
+        "accept": "すべて受け入れる",
+        "reject": "必要なもののみ",
+        "settings": "設定",
+        "close": "閉じる"
+    },
+    "paddock": {
+        "title": "パドック",
+        "pageTitle": "パドック | Moto Pro Manager",
+        "budget": "予算",
+        "team": "チーム",
+        "viewAd": "資金を受け取るために広告を見る",
+        "logout": "ログアウト",
+        "welcome": "ようこそ",
+        "manageTeam": "チームを管理して選手権を支配しよう",
+        "needFunds": "資金が必要ですか？",
+        "watchAd": "広告を見て追加で50,000€を受け取る",
+        "getReward": "報酬を受け取る",
+        "contentArea": "パドックコンテンツエリア",
+        "readyToAdd": "機能を追加する準備ができました",
+        "sponsorReceived": "スポンサーシップ受領！+50,000€"
+    },
+    "menu": {
+        "paddock": "パドック",
+        "garaje": "ガレージ",
+        "pilotos": "ライダー",
+        "moto": "バイク",
+        "configuracion": "設定",
+        "cerrarSesion": "ログアウト"
+    },
+    "garaje": {
+        "title": "ガレージ"
+    },
+    "moto": {
+        "title": "バイク"
+    },
+    "pilotos": {
+        "title": "ライダー",
+        "pageTitle": "ライダー | Moto Pro Manager",
+        "myPilotos": "マイライダー",
+        "noPiloto": "ライダーが割り当てられていません。",
+        "editNumber": "編集",
+        "saveNumber": "保存",
+        "numberTooltip": "番号は24時間に1回のみ編集できます",
+        "numberUpdated": "番号が正常に更新されました",
+        "waitTime": "番号を再度編集するには{time}お待ちください。",
+        "numberRange": "番号は1から99の間である必要があります",
+        "connectionError": "接続エラー",
+        "fatiga": "疲労",
+        "habilidades": "スキル",
+        "activo": "アクティブ",
+        "lesionado": "怪我",
+        "fallecido": "死亡",
+        "retirado": "引退",
+        "anos": "歳",
+        "contratar": "始めるために市場からライダーを雇用してください。",
+        "noPilotosAsignados": "ライダーが割り当てられていません",
+        "conFatiga": "（疲労あり）",
+        "lesion": "怪我",
+        "lesionNoEspec": "未指定",
+        "carrerasRestantes": "残りレース数"
+    },
+    "attributes": {
+        "ritmo": {
+            "name": "ペース",
+            "icon": "⏱️",
+            "desc": "レース全体で一貫したラップタイムを維持するライダーの能力。高いペースはタイヤ管理と集中力維持に役立ちます。"
+        },
+        "concentracion": {
+            "name": "集中力",
+            "icon": "🎯",
+            "desc": "レース全体で集中を維持する能力。高い集中力は結果に影響する高価なミスの可能性を減らします。"
+        },
+        "frenada": {
+            "name": "ブレーキ",
+            "icon": "🛑",
+            "desc": "正確なポイントで一貫してブレーキするスキル。ブレーキングゾーンでの追い越しとタイトコーナーでの優れたコントロールを可能にします。"
+        },
+        "aceleracion": {
+            "name": "加速",
+            "icon": "⚡",
+            "desc": "コーナーから素早く脱出しトラクションを管理する能力。良い加速は低速コーナーが多いサーキットで違いを生みます。"
+        },
+        "tecnica": {
+            "name": "テクニック",
+            "icon": "🔧",
+            "desc": "ライディングの熟練と異なるコンディションへの適応能力。タイヤ管理とバイクセットアップに影響します。"
+        },
+        "experiencia": {
+            "name": "経験",
+            "icon": "📚",
+            "desc": "サーキットとレース状況の蓄積された知識。プレッシャー下でのより良い判断とイベントの予測に役立ちます。"
+        },
+        "motivacion": {
+            "name": "モチベーション",
+            "icon": "💪",
+            "desc": "ライダーのパフォーマンスを高める内なる駆動力。高いモチベーションはレース中のライディングのすべての側面を改善します。"
+        },
+        "recuperacion": {
+            "name": "回復",
+            "icon": "🏥",
+            "desc": "レース間で疲労を回復する能力。高い回復力を持つライダーはより速く休憩します：99の属性で最大3%の疲労/時間。"
+        },
+        "agresividad": {
+            "name": "アグレッシブ",
+            "icon": "🔥",
+            "desc": "追い越しとポジション防御でリスクを取る傾向。有利になることもありますが、インシデントのリスクも増加します。"
+        },
+        "resistencia": {
+            "name": "持久力",
+            "icon": "🛡️",
+            "desc": "レース中の疲労に耐える能力。高い持久力を持つライダーは競技中の身体的・精神的摩耗が少なくなります。"
+        },
+        "talento": {
+            "name": "才能",
+            "icon": "⭐",
+            "desc": "重要な状況で卓越する生まれつきの能力。才能は最初のコーナー、決定的な追い越し、雨のような悪条件で発揮されます。"
+        }
+    },
+    "physical": {
+        "estatura": "身長",
+        "peso": "体重",
+        "envergadura": "腕の長さ",
+        "edad": {
+            "name": "年齢",
+            "desc": "ライダーの年齢は経験と回復力に影響します。若いライダーはより多くの改善の可能性を持ち、ベテランは経験をもたらします。"
+        },
+        "estaturaInfo": {
+            "name": "身長",
+            "desc": "身長は最高速度と安定性に影響します。低いライダーはより良い空気力学を持ち、高いライダーはより多くの安定性を持ちます。"
+        },
+        "pesoInfo": {
+            "name": "体重",
+            "desc": "体重は加速、ブレーキ、コントロールに影響します。最適な体重（65-75kg）は大きなペナルティなしですべての利点をバランスさせます。"
+        },
+        "envergaduraInfo": {
+            "name": "腕の長さ",
+            "desc": "腕の長さはコーナーコントロールと腕の疲労に影響します。より長い腕の長さはコントロールを改善しますが、疲労を増加させる可能性があります。"
+        },
+        "bonus": {
+            "velocidad": "km/h 速度",
+            "estabilidad": "% 安定性",
+            "aceleracion": "% 加速",
+            "frenada": "% ブレーキ",
+            "control": "% コントロール",
+            "fatiga": "% 疲労",
+            "controlCurvas": "% コーナーコントロール",
+            "fatigaBrazos": "% 腕の疲労",
+            "riesgoCaida": "% 転倒リスク"
+        }
+    },
+    "training": {
+        "title": "トレーニング",
+        "selectAttribute": "トレーニングする属性を選択",
+        "cost": "コスト",
+        "train": "トレーニング",
+        "cancel": "キャンセル",
+        "inProgress": "トレーニング中",
+        "complete": "トレーニング完了",
+        "noBudget": "予算不足"
+    },
+    "config": {
+        "title": "設定",
+        "pageTitle": "設定 | Moto Pro Manager",
+        "subtitle": "ゲーム体験をカスタマイズ",
+        "myAccount": "マイアカウント",
+        "username": "ユーザー名",
+        "email": "メールアドレス",
+        "teamName": "チーム名",
+        "saveChanges": "変更を保存",
+        "language": "言語",
+        "changePassword": "パスワード変更",
+        "passwordDesc": "パスワードを変更したい場合、メールにリンクを送信します。",
+        "requestPassword": "パスワード変更をリクエスト",
+        "currentPassword": "現在のパスワード",
+        "newPassword": "新しいパスワード",
+        "confirmPassword": "新しいパスワードを確認",
+        "updatePassword": "パスワードを更新",
+        "notifications": "通知",
+        "emailNotifications": "メール",
+        "raceNotifications": "レース",
+        "newsNotifications": "ニュース",
+        "dangerZone": "危険区域",
+        "dangerText": "これらの操作は取り消せません。何をしているか確認してください。",
+        "deleteAccount": "アカウントを削除",
+        "modalTitle": "本当によろしいですか？",
+        "modalText": "この操作はアカウント、チーム、および関連するすべてのデータを完全に削除します。この情報を復元することはできません。",
+        "modalSubtext": "確認のためELIMINARと入力してください：",
+        "cancelar": "キャンセル",
+        "eliminarCuenta": "アカウント削除",
+        "deleteConfirm": "ELIMINAR",
+        "msgUsernameRequired": "ユーザー名とメールは必須です",
+        "msgSavedSuccess": "データが正常に保存されました",
+        "msgSaveError": "保存エラー",
+        "msgConnectionError": "接続エラー",
+        "msgPasswordSent": "メールアドレスにリンクが送信されました",
+        "msgPasswordError": "リクエストエラー",
+        "msgDeleteNotImplemented": "アカウント削除機能 - サーバー実装待ち"
+    },
+    "language": {
+        "selector": "言語"
+    },
+    "buttons": {
+        "back": "戻る",
+        "backToLogin": "ログインに戻る",
+        "goToLogin": "ログインへ",
+        "retry": "再試行",
+        "requestNew": "新しいものをリクエスト"
+    }
+}

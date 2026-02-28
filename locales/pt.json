@@ -1,0 +1,296 @@
+{
+    "meta": {
+        "title": "Moto Pro Manager",
+        "pageTitle": "Pilotos | Moto Pro Manager",
+        "description": "Jogo de gestão de motocicletas profissional"
+    },
+    "header": {
+        "title": "Moto Pro",
+        "pageTitle": "Paddock | Moto Pro Manager",
+        "titleSpan": "Manager"
+    },
+    "login": {
+        "title": "ENTRAR",
+        "pageTitle": "Entrar | Moto Pro Manager",
+        "email": "Endereço de email",
+        "emailOrUser": "Email ou usuário",
+        "password": "Senha",
+        "rememberMe": "Manter-me conectado (30 dias)",
+        "submit": "ENTRAR",
+        "forgotPassword": "Esqueceu sua senha?",
+        "noAccount": "Não tem uma conta?",
+        "registerHere": "Registre-se aqui"
+    },
+    "register": {
+        "title": "JUNTE-SE AO GRID",
+        "pageTitle": "Registrar | Moto Pro Manager",
+        "username": "Nome de usuário",
+        "teamName": "Nome da sua Equipe",
+        "email": "Endereço de email",
+        "password": "Senha",
+        "confirmPassword": "Confirmar senha",
+        "submit": "CRIAR CONTA",
+        "hasAccount": "Já tem uma conta? Entrar",
+        "requirements": {
+            "length": "Mínimo 8 caracteres",
+            "lowercase": "Uma letra minúscula",
+            "uppercase": "Uma letra maiúscula",
+            "number": "Um número",
+            "symbol": "Um símbolo ou pontuação"
+        },
+        "passwordMatch": "As senhas coincidem",
+        "passwordMismatch": "Não coincidem"
+    },
+    "forgot": {
+        "title": "RECUPERAR ACESSO",
+        "pageTitle": "Recuperar Acesso | Moto Pro Manager",
+        "description": "Digite seu email e enviaremos um link para redefinir sua senha.",
+        "submit": "ENVIAR LINK",
+        "backToLogin": "← Voltar ao Login"
+    },
+    "reset": {
+        "title": "DEFINIR NOVA SENHA",
+        "pageTitle": "Redefinir Senha | Moto Pro Manager",
+        "newPassword": "Nova Senha",
+        "submit": "ATUALIZAR"
+    },
+    "messages": {
+        "accountActivated": "CONTA ATIVADA!",
+        "welcome": "Bem-vindo ao",
+        "redirecting": "Redirecionando ao Paddock...",
+        "loginRequired": "Você deve entrar para acessar.",
+        "accountVerified": "Conta ativada! Você já pode entrar.",
+        "credentialsIncorrect": "CREDENCIAIS INCORRETAS",
+        "credentialsIncorrectMsg": "O email ou senha que você digitou está incorreto.",
+        "accountNotVerified": "CONTA NÃO VERIFICADA",
+        "accountNotVerifiedMsg": "Você deve verificar seu email antes de entrar.",
+        "accessGranted": "ACESSO CONCEDIDO",
+        "welcomeUser": "Bem-vindo",
+        "redirectingPaddock": "Redirecionando ao Paddock...",
+        "passwordUpdated": "SENHA ATUALIZADA",
+        "passwordUpdatedMsg": "Sua senha foi atualizada com sucesso.",
+        "emailSent": "EMAIL ENVIADO",
+        "emailSentMsg": "Se o email estiver registrado, você receberá instruções para redefinir sua senha.",
+        "linkExpired": "LINK EXPIRADO",
+        "linkExpiredMsg": "Este link de recuperação expirou ou é inválido.",
+        "tokenInvalid": "TOKEN INVÁLIDO",
+        "tokenInvalidMsg": "Este link de verificação é inválido ou já foi usado.",
+        "registrationComplete": "REGISTRO COMPLETO",
+        "registrationCompleteMsg": "Enviamos um email de verificação.",
+        "verifyFailed": "VERIFICAÇÃO FALHOU",
+        "verifyFailedMsg": "Não foi possível verificar que você é humano.",
+        "redirectSeconds": "Você será redirecionado em",
+        "seconds": "segundos..."
+    },
+    "cookies": {
+        "title": "🍪 Uso de Cookies",
+        "description": "Usamos apenas cookies próprios para o funcionamento do jogo: manter sua sessão ativa e salvar suas preferências. Não compartilhamos dados pessoais com terceiros.",
+        "accept": "Aceitar todos",
+        "reject": "Apenas necessários",
+        "settings": "Configurar",
+        "close": "Fechar"
+    },
+    "paddock": {
+        "title": "Paddock",
+        "pageTitle": "Paddock | Moto Pro Manager",
+        "budget": "Orçamento",
+        "team": "Equipe",
+        "viewAd": "Ver anúncio para receber fundos",
+        "logout": "Sair",
+        "welcome": "Bem-vindo ao",
+        "manageTeam": "Gerencie sua equipe e domine o campeonato",
+        "needFunds": "Precisa de fundos?",
+        "watchAd": "Assista um anúncio para receber €50.000 extra",
+        "getReward": "Receber Recompensa",
+        "contentArea": "Área de conteúdo do Paddock",
+        "readyToAdd": "Preparado para adicionar funcionalidades",
+        "sponsorReceived": "Patrocínio recebido! +€50.000"
+    },
+    "menu": {
+        "paddock": "Paddock",
+        "garaje": "Garagem",
+        "pilotos": "Pilotos",
+        "moto": "Moto",
+        "configuracion": "Configurações",
+        "cerrarSesion": "Sair"
+    },
+    "garaje": {
+        "title": "Garagem"
+    },
+    "moto": {
+        "title": "Moto"
+    },
+    "pilotos": {
+        "title": "Pilotos",
+        "pageTitle": "Pilotos | Moto Pro Manager",
+        "myPilotos": "Meus Pilotos",
+        "noPiloto": "Você não tem nenhum piloto atribuído.",
+        "editNumber": "editar",
+        "saveNumber": "salvar",
+        "numberTooltip": "O número só pode ser editado uma vez a cada 24 horas",
+        "numberUpdated": "Número atualizado com sucesso",
+        "waitTime": "Você deve esperar {time} para editar o número novamente.",
+        "numberRange": "O número deve estar entre 1 e 99",
+        "connectionError": "Erro de conexão",
+        "fatiga": "Fadiga",
+        "habilidades": "Habilidades",
+        "ativo": "Ativo",
+        "lesionado": "Lesionado",
+        "fallecido": "Falecido",
+        "retirado": "Aposentado",
+        "anos": "anos",
+        "contratar": "Contrate um piloto do mercado para começar.",
+        "noPilotosAsignados": "Nenhum piloto atribuído",
+        "conFatiga": "(com fadiga)",
+        "lesion": "Lesão",
+        "lesionNoEspec": "Não especificada",
+        "carrerasRestantes": "Corridas restantes"
+    },
+    "attributes": {
+        "ritmo": {
+            "name": "Ritmo",
+            "icon": "⏱️",
+            "desc": "A capacidade do piloto de manter tempos de volta consistentes durante toda a corrida. Um ritmo alto permite melhor gestão de pneus e concentração sustentada."
+        },
+        "concentracion": {
+            "name": "Concentração",
+            "icon": "🎯",
+            "desc": "Capacidade de manter o foco durante toda a corrida. Uma alta concentração reduz a probabilidade de cometer erros custosos que possam afetar o resultado."
+        },
+        "frenada": {
+            "name": "Frenagem",
+            "icon": "🛑",
+            "desc": "Habilidade de frear no ponto exato de forma consistente. Permite ultrapassagens na zona de frenagem e melhor controle em curvas fechadas."
+        },
+        "aceleracion": {
+            "name": "Aceleração",
+            "icon": "⚡",
+            "desc": "Capacidade de sair rápido das curvas e gerir a tração. Uma boa aceleração faz a diferença em circuitos com muitas curvas lentas."
+        },
+        "tecnica": {
+            "name": "Técnica",
+            "icon": "🔧",
+            "desc": "Domínio da pilotagem e capacidade de se adaptar a diferentes condições. Influencia a gestão de pneus e setup da moto."
+        },
+        "experiencia": {
+            "name": "Experiência",
+            "icon": "📚",
+            "desc": "Conhecimento acumulado de circuitos e situações de corrida. Ajuda a tomar melhores decisões sob pressão e antecipar eventos."
+        },
+        "motivacion": {
+            "name": "Motivação",
+            "icon": "💪",
+            "desc": "Impulso interior que eleva o desempenho do piloto. Uma alta motivação melhora todas as facetas da pilotagem durante a corrida."
+        },
+        "recuperacion": {
+            "name": "Recuperação",
+            "icon": "🏥",
+            "desc": "Capacidade de recuperar fadiga entre corridas. Um piloto com alta recuperação descansa mais rápido: até 3% de fadiga por hora com atributo 99."
+        },
+        "agresividad": {
+            "name": "Agressividade",
+            "icon": "🔥",
+            "desc": "Tendência a arriscar em ultrapassagens e defender posições. Pode ser vantajosa, mas também aumenta o risco de incidentes."
+        },
+        "resistencia": {
+            "name": "Resistência",
+            "icon": "🛡️",
+            "desc": "Capacidade de resistir à fadiga durante as corridas. Um piloto com alta resistência acumula menos desgaste físico e mental em competição."
+        },
+        "talento": {
+            "name": "Talento",
+            "icon": "⭐",
+            "desc": "Habilidade inata para se destacar em situações críticas. O talento se manifesta na primeira curva, ultrapassagens decisivas e condições adversas como chuva."
+        }
+    },
+    "physical": {
+        "estatura": "Estatura",
+        "peso": "Peso",
+        "envergadura": "Envergadura",
+        "edad": {
+            "name": "Idade",
+            "desc": "A idade do piloto influencia sua experiência e capacidade de recuperação. Pilotos jovens têm mais potencial de melhoria, enquanto veteranos trazem experiência."
+        },
+        "estaturaInfo": {
+            "name": "Estatura",
+            "desc": "A estatura afeta a velocidade máxima e estabilidade. Pilotos mais baixos têm melhor aerodinâmica, enquanto os mais altos têm mais estabilidade."
+        },
+        "pesoInfo": {
+            "name": "Peso",
+            "desc": "O peso influencia aceleração, frenagem e controle. Um peso ideal (65-75kg) equilibra todas as vantagens sem penalizações significativas."
+        },
+        "envergaduraInfo": {
+            "name": "Envergadura",
+            "desc": "A envergadura dos braços afeta o controle em curvas e a fadiga dos braços. Uma maior envergadura melhora o controle, mas pode aumentar o cansaço."
+        },
+        "bonus": {
+            "velocidad": "km/h velocidade",
+            "estabilidade": "% estabilidade",
+            "aceleracion": "% aceleração",
+            "frenada": "% frenagem",
+            "control": "% controle",
+            "fatiga": "% fadiga",
+            "controlCurvas": "% controle curvas",
+            "fatigaBrazos": "% fadiga braços",
+            "riesgoCaida": "% risco de queda"
+        }
+    },
+    "training": {
+        "title": "Treinamento",
+        "selectAttribute": "Selecione atributo para treinar",
+        "cost": "Custo",
+        "train": "Treinar",
+        "cancel": "Cancelar",
+        "inProgress": "Treinando",
+        "complete": "Treinamento concluído",
+        "noBudget": "Orçamento insuficiente"
+    },
+    "config": {
+        "title": "Configurações",
+        "pageTitle": "Configurações | Moto Pro Manager",
+        "subtitle": "Personalize sua experiência de jogo",
+        "myAccount": "Minha Conta",
+        "username": "Nome de usuário",
+        "email": "Endereço de email",
+        "teamName": "Nome da equipe",
+        "saveChanges": "Salvar Alterações",
+        "language": "Idioma",
+        "changePassword": "Alterar Senha",
+        "passwordDesc": "Se você deseja alterar sua senha, enviaremos um link para seu email.",
+        "requestPassword": "Solicitar Alteração de Senha",
+        "currentPassword": "Senha atual",
+        "newPassword": "Nova senha",
+        "confirmPassword": "Confirmar nova senha",
+        "updatePassword": "Atualizar Senha",
+        "notifications": "Notificações",
+        "emailNotifications": "Email",
+        "raceNotifications": "Corridas",
+        "newsNotifications": "Notícias",
+        "dangerZone": "Zona de Perigo",
+        "dangerText": "Estas ações são irreversíveis. Certifique-se de saber o que está fazendo.",
+        "deleteAccount": "Excluir Minha Conta",
+        "modalTitle": "Tem certeza?",
+        "modalText": "Esta ação excluirá permanentemente sua conta, equipe e todos os dados associados. Você não poderá recuperar estas informações.",
+        "modalSubtext": "Digite ELIMINAR para confirmar:",
+        "cancelar": "Cancelar",
+        "eliminarCuenta": "Excluir Conta",
+        "deleteConfirm": "ELIMINAR",
+        "msgUsernameRequired": "Nome de usuário e email são obrigatórios",
+        "msgSavedSuccess": "Dados salvos com sucesso",
+        "msgSaveError": "Erro ao salvar",
+        "msgConnectionError": "Erro de conexão",
+        "msgPasswordSent": "Um link foi enviado para seu endereço de email",
+        "msgPasswordError": "Erro ao solicitar",
+        "msgDeleteNotImplemented": "Função de exclusão de conta - pendente de implementação no servidor"
+    },
+    "language": {
+        "selector": "Idiomas"
+    },
+    "buttons": {
+        "back": "VOLTAR",
+        "backToLogin": "VOLTAR AO LOGIN",
+        "goToLogin": "IR AO LOGIN",
+        "retry": "TENTAR NOVAMENTE",
+        "requestNew": "SOLICITAR NOVO"
+    }
+}
