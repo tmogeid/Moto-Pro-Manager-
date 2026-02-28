@@ -593,51 +593,49 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        /* Submenú de pilotos */
-        .piloto-tabs-container {
-            background: rgba(0, 0, 0, 0.7);
-            border-radius: 12px;
-            padding: 12px;
-            margin-bottom: 20px;
+        /* Navegación de pilotos en una línea */
+        .piloto-nav-container {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 8px;
+            margin-bottom: 16px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+
+        .piloto-nav-container::-webkit-scrollbar {
             display: none;
         }
 
-        .piloto-tabs-container.visible {
-            display: block;
-        }
-
-        .piloto-tabs {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
-
-        .piloto-tab {
+        .piloto-nav-btn {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
+            gap: 8px;
+            padding: 10px 16px;
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid transparent;
-            border-radius: 10px;
+            border-radius: 25px;
             cursor: pointer;
             transition: all 0.2s ease;
-            min-width: 180px;
+            white-space: nowrap;
+            flex-shrink: 0;
         }
 
-        .piloto-tab:hover {
+        .piloto-nav-btn:hover {
             background: rgba(255, 255, 255, 0.1);
             border-color: rgba(225, 6, 0, 0.3);
         }
 
-        .piloto-tab.active {
+        .piloto-nav-btn.active {
             background: rgba(225, 6, 0, 0.2);
             border-color: #e10600;
         }
 
-        .piloto-tab-avatar {
-            width: 40px;
-            height: 40px;
+        .piloto-nav-avatar {
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             background: linear-gradient(135deg, #e10600, #ff6b6b);
             display: flex;
@@ -645,48 +643,25 @@
             justify-content: center;
             font-weight: bold;
             color: white;
-            font-size: 16px;
+            font-size: 12px;
             flex-shrink: 0;
         }
 
-        .piloto-tab-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-
-        .piloto-tab-nombre {
+        .piloto-nav-nombre {
             font-weight: 500;
             color: white;
-            font-size: 14px;
+            font-size: 13px;
         }
 
-        .piloto-tab-media {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 12px;
-        }
-
-        .piloto-tab-media-value {
+        .piloto-nav-media {
+            font-size: 11px;
+            color: #888;
             font-weight: bold;
         }
 
-        .piloto-tab-rol {
-            font-size: 11px;
-            color: #888;
-            padding: 2px 6px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-        }
-
-        .piloto-tab.principal .piloto-tab-avatar {
-            background: linear-gradient(135deg, #e10600, #ff6b6b);
-        }
-
-        .piloto-tab.suplente .piloto-tab-avatar {
-            background: linear-gradient(135deg, #2196f3, #64b5f6);
-        }
+        .piloto-nav-media.high { color: #4caf50; }
+        .piloto-nav-media.medium { color: #ffeb3b; }
+        .piloto-nav-media.low { color: #f44336; }
 
         .piloto-tab.test .piloto-tab-avatar {
             background: linear-gradient(135deg, #ff9800, #ffb74d);
@@ -751,9 +726,7 @@
                 <span class="dropdown-arrow">▼</span>
             </button>
             <div class="nav-mobile-dropdown-menu" id="garajeDropdown">
-                <div id="pilotosMenuContainer">
-                    <!-- Se genera dinámicamente -->
-                </div>
+                <a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>
                 <a href="/moto" class="nav-mobile-link nav-mobile-sub">🏍️ Moto</a>
             </div>
         </div>
@@ -772,6 +745,11 @@
     <!-- CONTENIDO PRINCIPAL -->
     <main class="paddock-main">
         <section class="piloto-section">
+            <!-- Navegación de pilotos (botones en una línea) -->
+            <div id="pilotoNavContainer" class="piloto-nav-container" style="display: none;">
+                <!-- Se genera dinámicamente -->
+            </div>
+
             <!-- Contenedor de pilotos -->
             <div id="pilotosContainer">
                 <!-- Se cargará dinámicamente -->
@@ -1109,81 +1087,6 @@
             `;
         }
 
-        // Función para crear menú de pilotos dinámico en el nav
-        function crearMenuPilotos(pilotos) {
-            const menuContainer = document.getElementById('pilotosMenuContainer');
-            
-            if (pilotos.length === 0) {
-                menuContainer.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
-                return;
-            }
-            
-            if (pilotos.length === 1) {
-                // Solo un piloto: enlace directo
-                menuContainer.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
-            } else {
-                // Más de un piloto: sub-dropdown con lista
-                menuContainer.innerHTML = `
-                    <button class="nav-mobile-sub-toggle" id="pilotosSubToggle">
-                        👤 Pilotos
-                        <span class="dropdown-arrow">▼</span>
-                    </button>
-                    <div class="nav-mobile-sub-dropdown" id="pilotosSubDropdown">
-                        ${pilotos.map(piloto => {
-                            const media = calcularMediaAtributos(piloto);
-                            const statClass = getStatClass(media);
-                            return `
-                                <a href="#" class="nav-mobile-link nav-mobile-sub-item" onclick="seleccionarPilotoNav(${piloto.id}); return false;">
-                                    <span class="piloto-menu-avatar">${piloto.nombre.charAt(0).toUpperCase()}</span>
-                                    <span class="piloto-menu-nombre">${piloto.nombre}</span>
-                                    <span class="piloto-menu-media ${statClass}">⭐${media}</span>
-                                </a>
-                            `;
-                        }).join('')}
-                    </div>
-                `;
-                
-                // Añadir toggle para el sub-dropdown
-                setTimeout(() => {
-                    const toggle = document.getElementById('pilotosSubToggle');
-                    const dropdown = document.getElementById('pilotosSubDropdown');
-                    if (toggle && dropdown) {
-                        toggle.addEventListener('click', (e) => {
-                            e.stopPropagation();
-                            dropdown.classList.toggle('show');
-                            toggle.classList.toggle('active');
-                        });
-                    }
-                }, 0);
-            }
-        }
-        
-        // Función para seleccionar piloto desde el menú nav
-        function seleccionarPilotoNav(pilotoId) {
-            selectedPilotoId = pilotoId;
-            
-            // Cerrar el menú dropdown
-            const dropdown = document.getElementById('pilotosDropdown');
-            if (dropdown) dropdown.classList.remove('show');
-            
-            // Mostrar solo el piloto seleccionado
-            document.querySelectorAll('[data-piloto-id]').forEach(card => {
-                if (parseInt(card.dataset.pilotoId) === pilotoId) {
-                    card.style.display = 'block';
-                } else {
-                    card.style.display = 'none';
-                }
-            });
-            
-            // Actualizar tabs activos si existen
-            document.querySelectorAll('.piloto-tab').forEach(tab => {
-                tab.classList.remove('active');
-            });
-            const tabs = document.querySelectorAll('.piloto-tab');
-            const tabIndex = pilotosData.findIndex(p => p.id === pilotoId);
-            if (tabs[tabIndex]) tabs[tabIndex].classList.add('active');
-        }
-
         // Función para seleccionar un piloto
         function seleccionarPiloto(pilotoId) {
             selectedPilotoId = pilotoId;
@@ -1210,6 +1113,7 @@
                 .then(res => res.json())
                 .then(data => {
                     const container = document.getElementById('pilotosContainer');
+                    const navContainer = document.getElementById('pilotoNavContainer');
                     const noPilotoCard = document.getElementById('noPilotoCard');
 
                     if (data && Array.isArray(data) && data.length > 0) {
@@ -1225,10 +1129,25 @@
                         // Crear todas las tarjetas
                         container.innerHTML = pilotosData.map(p => crearTarjetaPiloto(p)).join('');
                         
-                        // Crear menú de pilotos en el nav
-                        crearMenuPilotos(pilotosData);
+                        // Crear navegación de pilotos (botones en una línea)
+                        if (pilotosData.length > 1) {
+                            navContainer.innerHTML = pilotosData.map((p, index) => {
+                                const media = calcularMediaAtributos(p);
+                                const mediaClass = media >= 70 ? 'high' : media >= 50 ? 'medium' : 'low';
+                                return `
+                                    <button class="piloto-nav-btn ${index === 0 ? 'active' : ''}" onclick="seleccionarPilotoNav(${p.id})">
+                                        <span class="piloto-nav-avatar">${p.nombre.charAt(0).toUpperCase()}</span>
+                                        <span class="piloto-nav-nombre">${p.nombre}</span>
+                                        <span class="piloto-nav-media ${mediaClass}">⭐${media}</span>
+                                    </button>
+                                `;
+                            }).join('');
+                            navContainer.style.display = 'flex';
+                        } else {
+                            navContainer.style.display = 'none';
+                        }
                         
-                        // Seleccionar el primer piloto por defecto
+                        // Seleccionar el primer piloto por defecto (el de mejor media)
                         selectedPilotoId = pilotosData[0].id;
                         
                         // Si hay más de un piloto, mostrar solo el seleccionado
@@ -1247,11 +1166,11 @@
                         // Compatibilidad con respuesta de un solo piloto
                         pilotosData = [data];
                         container.innerHTML = crearTarjetaPiloto(data);
-                        crearMenuPilotos(pilotosData);
+                        navContainer.style.display = 'none';
                         noPilotoCard.style.display = 'none';
                     } else {
                         container.innerHTML = '';
-                        crearMenuPilotos([]);
+                        navContainer.style.display = 'none';
                         noPilotoCard.style.display = 'block';
                     }
                 })
@@ -1259,6 +1178,26 @@
                     console.error('Error al cargar pilotos:', err);
                     document.getElementById('noPilotoCard').style.display = 'block';
                 });
+        }
+
+        // Función para seleccionar piloto desde la navegación
+        function seleccionarPilotoNav(pilotoId) {
+            selectedPilotoId = pilotoId;
+            
+            // Actualizar botones activos
+            document.querySelectorAll('.piloto-nav-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.currentTarget.classList.add('active');
+            
+            // Mostrar solo el piloto seleccionado
+            document.querySelectorAll('[data-piloto-id]').forEach(card => {
+                if (parseInt(card.dataset.pilotoId) === pilotoId) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         // Funciones de edición de número
