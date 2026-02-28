@@ -82,6 +82,15 @@
             gap: 6px;
         }
 
+        .resistencia-degradacion {
+            font-size: 11px;
+            color: #ff9800;
+            background: rgba(255, 152, 0, 0.15);
+            padding: 4px 8px;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
         .stat-row {
             display: flex;
             justify-content: space-between;
@@ -844,6 +853,12 @@
             return Math.round(suma / attrs.length);
         }
 
+        // Función para calcular degradación de resistencia por edad
+        function calcularDegradacionResistencia(edad) {
+            if (edad < 20) return 0;
+            return edad - 19;
+        }
+
         // Función para calcular penalización por fatiga
         function calcularPenalizacionFatiga(fatiga) {
             if (fatiga < 50) return 0;
@@ -1069,6 +1084,7 @@
                                 <span class="piloto-meta-item">🏋️ ${piloto.peso}kg</span>
                                 <span class="piloto-meta-item">↔️ ${piloto.envergadura}cm</span>
                                 <span class="info-icon" onclick="toggleFisicoInfo(${piloto.id})">i</span>
+                                ${piloto.edad >= 20 ? `<span class="resistencia-degradacion">📉 -${calcularDegradacionResistencia(piloto.edad)} Resistencia/temporada</span>` : ''}
                             </div>
                             <!-- Info popup físico -->
                             <div class="fisico-info-popup" id="fisicoInfo-${piloto.id}">
