@@ -452,7 +452,7 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
                 edad, fecha_nacimiento,
                 lesion_tipo, lesion_inicio, lesion_duracion,
                 entrenador_id, entrenamiento_atributo, entrenamiento_carreras_restantes,
-                rol, estado, created_at, updated_at
+                rol, estado, fatiga, created_at, updated_at
             FROM pilotos WHERE user_id = ?`,
             [req.session.userId]
         );
