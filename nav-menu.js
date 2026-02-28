@@ -92,8 +92,8 @@
             // Generar HTML del menú
             container.innerHTML = generatePilotosMenuHTML(pilotosData);
 
-            // Inicializar el sub-dropdown si hay múltiples pilotos
-            if (pilotosData.length > 1) {
+            // Inicializar el sub-dropdown SIEMPRE que haya pilotos
+            if (pilotosData.length >= 1) {
                 initPilotosSubDropdown();
             }
 
@@ -105,6 +105,7 @@
 
     /**
      * Genera el HTML del menú de pilotos
+     * SIEMPRE es un sub-dropdown (incluso con 1 piloto)
      * @param {Array} pilotos - Lista de pilotos
      * @returns {string} HTML del menú
      */
@@ -114,20 +115,7 @@
             return '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
         }
 
-        if (pilotos.length === 1) {
-            // 1 piloto: link directo a la página de pilotos
-            const piloto = pilotos[0];
-            const media = calcularMedia(piloto);
-            return `
-                <a href="/piloto" class="nav-mobile-link nav-mobile-sub piloto-single-link">
-                    <span class="piloto-menu-avatar">${piloto.nombre.charAt(0).toUpperCase()}</span>
-                    <span class="piloto-menu-nombre">👤 ${piloto.nombre}</span>
-                    <span class="piloto-menu-media">${media}</span>
-                </a>
-            `;
-        }
-
-        // 2+ pilotos: sub-dropdown
+        // SIEMPRE sub-dropdown (incluso con 1 piloto)
         let html = `
             <button class="nav-mobile-sub-toggle" id="pilotosToggle">
                 👤 Pilotos
