@@ -665,64 +665,29 @@
         .piloto-nav-media.medium { color: #ffeb3b; }
         .piloto-nav-media.low { color: #f44336; }
 
-        /* Barra de fatiga */
-        .fatiga-section {
-            width: 100%;
-            margin: 12px 0;
+        /* Indicador de fatiga compacto */
+        .fatiga-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            margin-left: 8px;
         }
 
-        .fatiga-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 6px;
-        }
+        .fatiga-indicator.fatiga-blue { color: #2196f3; background: rgba(33, 150, 243, 0.15); }
+        .fatiga-indicator.fatiga-green { color: #4caf50; background: rgba(76, 175, 80, 0.15); }
+        .fatiga-indicator.fatiga-yellow { color: #ffeb3b; background: rgba(255, 235, 59, 0.15); }
+        .fatiga-indicator.fatiga-orange { color: #ff9800; background: rgba(255, 152, 0, 0.15); }
+        .fatiga-indicator.fatiga-red { color: #f44336; background: rgba(244, 67, 54, 0.15); }
 
         .fatiga-label {
-            font-size: 12px;
-            color: #888;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            font-weight: 500;
         }
 
         .fatiga-value {
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        .fatiga-bar {
-            width: 100%;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-        }
-
-        .fatiga-bar-fill {
-            height: 100%;
-            border-radius: 4px;
-            transition: width 0.3s ease;
-        }
-
-        .fatiga-green { background: linear-gradient(90deg, #4caf50, #81c784); }
-        .fatiga-yellow { background: linear-gradient(90deg, #ffeb3b, #fff176); }
-        .fatiga-orange { background: linear-gradient(90deg, #ff9800, #ffb74d); }
-        .fatiga-red { background: linear-gradient(90deg, #f44336, #e57373); }
-
-        .fatiga-green-text { color: #4caf50; }
-        .fatiga-yellow-text { color: #ffeb3b; }
-        .fatiga-orange-text { color: #ff9800; }
-        .fatiga-red-text { color: #f44336; }
-
-        .fatiga-penalty {
-            font-size: 11px;
-            color: #888;
-            margin-top: 4px;
-        }
-
-        .fatiga-penalty span {
-            color: #f44336;
             font-weight: bold;
         }
 
@@ -907,10 +872,20 @@
 
         // Función para obtener color de fatiga
         function getFatigaClass(fatiga) {
+            if (fatiga <= 5) return 'fatiga-blue';
             if (fatiga < 50) return 'fatiga-green';
             if (fatiga < 75) return 'fatiga-yellow';
             if (fatiga < 90) return 'fatiga-orange';
             return 'fatiga-red';
+        }
+
+        // Función para obtener emoji de fatiga
+        function getFatigaEmoji(fatiga) {
+            if (fatiga <= 5) return '🔵';
+            if (fatiga < 50) return '🟢';
+            if (fatiga < 75) return '🟡';
+            if (fatiga < 90) return '🟠';
+            return '🔴';
         }
 
         // Función para obtener clase de color según valor
@@ -1046,7 +1021,7 @@
             // Calcular fatiga y penalización
             const fatiga = piloto.fatiga || 0;
             const fatigaClass = getFatigaClass(fatiga);
-            const fatigaTextClass = fatigaClass + '-text';
+            const fatigaEmoji = getFatigaEmoji(fatiga);
             const penalizacion = calcularPenalizacionFatiga(fatiga);
             
             // Función para aplicar penalización a atributos
@@ -1081,20 +1056,12 @@
                                     El número solo se puede editar una vez cada 24 horas
                                 </div>
                                 <span class="status-badge ${estadoClass}">${estadoTexto[estadoClass]}</span>
+                                <span class="fatiga-indicator ${fatigaClass}">
+                                    <span class="fatiga-label">Fatiga:</span>
+                                    <span class="fatiga-value">${fatiga}%</span>
+                                    <span>${fatigaEmoji}</span>
+                                </span>
                             </div>
-                            
-                            <!-- Barra de fatiga -->
-                            <div class="fatiga-section">
-                                <div class="fatiga-header">
-                                    <span class="fatiga-label">😴 Fatiga</span>
-                                    <span class="fatiga-value ${fatigaTextClass}">${fatiga}%</span>
-                                </div>
-                                <div class="fatiga-bar">
-                                    <div class="fatiga-bar-fill ${fatigaClass}" style="width: ${fatiga}%"></div>
-                                </div>
-                                ${penalizacion > 0 ? `<div class="fatiga-penalty">⚠️ Penalización: <span>-${penalizacion}%</span> a habilidades</div>` : ''}
-                            </div>
-                            
                             <div class="piloto-meta">
                                 <span class="piloto-meta-item">${piloto.edad} años</span>
                                 <span class="piloto-meta-item">📏 ${piloto.estatura}cm</span>
