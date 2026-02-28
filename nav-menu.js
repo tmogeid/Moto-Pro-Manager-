@@ -4,9 +4,7 @@
  * Este script maneja:
  * 1. Menú hamburguesa (abrir/cerrar)
  * 2. Dropdown de Garaje
- * 3. Menú dinámico de Pilotos:
- *    - 1 piloto: link directo a /piloto
- *    - 2+ pilotos: sub-dropdown con cada piloto
+ * 3. Menú dinámico de Pilotos SIEMPRE como sub-dropdown
  */
 
 (function() {
@@ -117,11 +115,12 @@
 
         // SIEMPRE sub-dropdown (incluso con 1 piloto)
         let html = `
-            <button class="nav-mobile-sub-toggle" id="pilotosToggle">
-                👤 Pilotos
-                <span class="dropdown-arrow">▼</span>
-            </button>
-            <div class="nav-mobile-sub-dropdown" id="pilotosSubDropdown">
+            <div class="nav-mobile-sub-dropdown-wrapper">
+                <button class="nav-mobile-sub-toggle" id="pilotosToggle" type="button">
+                    👤 Pilotos
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-mobile-sub-dropdown" id="pilotosSubDropdown">
         `;
 
         pilotos.forEach(piloto => {
@@ -136,45 +135,52 @@
             `;
         });
 
-        html += '</div>';
+        html += '</div></div>';
         return html;
     }
 
     /**
-     * Inicializa el sub-dropdown de pilotos (para cualquier cantidad de pilotos)
+     * Inicializa el sub-dropdown de pilotos
      */
     function initPilotosSubDropdown() {
-        const pilotosToggle = document.getElementById('pilotosToggle');
-        const pilotosSubDropdown = document.getElementById('pilotosSubDropdown');
+        // Pequeño delay para asegurar que el DOM está listo
+        setTimeout(() => {
+            const pilotosToggle = document.getElementById('pilotosToggle');
+            const pilotosSubDropdown = document.getElementById('pilotosSubDropdown');
 
-        console.log('[NAV-MENU] initPilotosSubDropdown - Toggle:', pilotosToggle, 'Dropdown:', pilotosSubDropdown);
+            console.log('[NAV-MENU] initPilotosSubDropdown - Toggle:', !!pilotosToggle, 'Dropdown:', !!pilotosSubDropdown);
 
-        if (!pilotosToggle || !pilotosSubDropdown) {
-            console.warn('[NAV-MENU] No se encontraron elementos del sub-dropdown');
-            return;
-        }
-
-        pilotosToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            console.log('[NAV-MENU] Click en Pilotos toggle');
-            
-            const isOpen = pilotosSubDropdown.classList.contains('show');
-            
-            if (isOpen) {
-                pilotosSubDropdown.classList.remove('show');
-                pilotosToggle.classList.remove('active');
-            } else {
-                pilotosSubDropdown.classList.add('show');
-                pilotosToggle.classList.add('active');
+            if (!pilotosToggle || !pilotosSubDropdown) {
+                console.warn('[NAV-MENU] No se encontraron elementos del sub-dropdown');
+                return;
             }
-            
-            console.log('[NAV-MENU] Sub-dropdown estado:', isOpen ? 'cerrado' : 'abierto');
-        });
 
-        console.log('[NAV-MENU] Sub-dropdown de Pilotos inicializado correctamente');
+            // Remover listeners previos clonando el elemento
+            const newToggle = pilotosToggle.cloneNode(true);
+            pilotosToggle.parentNode.replaceChild(newToggle, pilotosToggle);
+
+            // Agregar nuevo listener
+            newToggle.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                
+                console.log('[NAV-MENU] Click en Pilotos toggle');
+                
+                const dropdown = document.getElementById('pilotosSubDropdown');
+                const isOpen = dropdown.classList.contains('show');
+                
+                if (isOpen) {
+                    dropdown.classList.remove('show');
+                    this.classList.remove('active');
+                } else {
+                    dropdown.classList.add('show');
+                    this.classList.add('active');
+                }
+            });
+
+            console.log('[NAV-MENU] Sub-dropdown de Pilotos inicializado correctamente');
+        }, 100);
     }
 
     /**
