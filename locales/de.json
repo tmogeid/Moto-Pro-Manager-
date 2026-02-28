@@ -94,10 +94,22 @@
         "watchAd": "Schauen Sie eine Anzeige für zusätzliche 50.000€",
         "getReward": "Belohnung erhalten",
         "contentArea": "Paddock-Inhaltsbereich",
-        "readyToAdd": "Bereit zum Hinzufügen von Funktionen"
+        "readyToAdd": "Bereit zum Hinzufügen von Funktionen",
+        "sponsorReceived": "Sponsoring erhalten! +50.000€"
+    },
+    "menu": {
+        "paddock": "Paddock",
+        "garaje": "Garage",
+        "pilotos": "Fahrer",
+        "moto": "Motorrad",
+        "configuracion": "Einstellungen",
+        "cerrarSesion": "Abmelden"
     },
     "garaje": {
         "title": "Garage"
+    },
+    "moto": {
+        "title": "Motorrad"
     },
     "pilotos": {
         "title": "Fahrer",
@@ -109,7 +121,14 @@
         "numberUpdated": "Nummer erfolgreich aktualisiert",
         "waitTime": "Sie müssen {time} warten, um die Nummer erneut zu bearbeiten.",
         "numberRange": "Die Nummer muss zwischen 1 und 99 liegen",
-        "connectionError": "Verbindungsfehler"
+        "connectionError": "Verbindungsfehler",
+        "fatiga": "Ermüdung",
+        "habilidades": "Fähigkeiten",
+        "activo": "Aktiv",
+        "lesionado": "Verletzt",
+        "anos": "Jahre",
+        "contratar": "Stellen Sie einen Fahrer vom Markt ein.",
+        "noPilotosAsignados": "Sie haben keine Fahrer zugewiesen"
     },
     "config": {
         "title": "Einstellungen",

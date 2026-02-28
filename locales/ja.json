@@ -94,10 +94,22 @@
         "watchAd": "広告を見て追加で50,000€を受け取る",
         "getReward": "報酬を受け取る",
         "contentArea": "パドックコンテンツエリア",
-        "readyToAdd": "機能を追加する準備ができました"
+        "readyToAdd": "機能を追加する準備ができました",
+        "sponsorReceived": "スポンサーシップ受領！+50,000€"
+    },
+    "menu": {
+        "paddock": "パドック",
+        "garaje": "ガレージ",
+        "pilotos": "ライダー",
+        "moto": "バイク",
+        "configuracion": "設定",
+        "cerrarSesion": "ログアウト"
     },
     "garaje": {
         "title": "ガレージ"
+    },
+    "moto": {
+        "title": "バイク"
     },
     "pilotos": {
         "title": "ライダー",
@@ -109,7 +121,14 @@
         "numberUpdated": "番号が正常に更新されました",
         "waitTime": "番号を再度編集するには{time}お待ちください。",
         "numberRange": "番号は1から99の間である必要があります",
-        "connectionError": "接続エラー"
+        "connectionError": "接続エラー",
+        "fatiga": "疲労",
+        "habilidades": "スキル",
+        "activo": "アクティブ",
+        "lesionado": "負傷",
+        "anos": "歳",
+        "contratar": "市場からライダーを雇用してください。",
+        "noPilotosAsignados": "ライダーが割り当てられていません"
     },
     "config": {
         "title": "設定",

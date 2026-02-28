@@ -94,10 +94,22 @@
         "watchAd": "Assista um anúncio para receber €50.000 extra",
         "getReward": "Receber Recompensa",
         "contentArea": "Área de conteúdo do Paddock",
-        "readyToAdd": "Preparado para adicionar funcionalidades"
+        "readyToAdd": "Preparado para adicionar funcionalidades",
+        "sponsorReceived": "Patrocínio recebido! +€50.000"
+    },
+    "menu": {
+        "paddock": "Paddock",
+        "garaje": "Garagem",
+        "pilotos": "Pilotos",
+        "moto": "Moto",
+        "configuracion": "Configurações",
+        "cerrarSesion": "Sair"
     },
     "garaje": {
         "title": "Garagem"
+    },
+    "moto": {
+        "title": "Moto"
     },
     "pilotos": {
         "title": "Pilotos",
@@ -109,7 +121,14 @@
         "numberUpdated": "Número atualizado com sucesso",
         "waitTime": "Você deve esperar {time} para editar o número novamente.",
         "numberRange": "O número deve estar entre 1 e 99",
-        "connectionError": "Erro de conexão"
+        "connectionError": "Erro de conexão",
+        "fatiga": "Fadiga",
+        "habilidades": "Habilidades",
+        "ativo": "Ativo",
+        "lesionado": "Lesionado",
+        "anos": "anos",
+        "contratar": "Contrate um piloto do mercado para começar.",
+        "noPilotosAsignados": "Você não tem pilotos atribuídos"
     },
     "config": {
         "title": "Configurações",

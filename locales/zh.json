@@ -94,10 +94,22 @@
         "watchAd": "观看广告可获得额外50,000€",
         "getReward": "获取奖励",
         "contentArea": "围场内容区域",
-        "readyToAdd": "准备添加功能"
+        "readyToAdd": "准备添加功能",
+        "sponsorReceived": "赞助已收到！+50,000€"
+    },
+    "menu": {
+        "paddock": "围场",
+        "garaje": "车库",
+        "pilotos": "车手",
+        "moto": "摩托车",
+        "configuracion": "设置",
+        "cerrarSesion": "退出"
     },
     "garaje": {
         "title": "车库"
+    },
+    "moto": {
+        "title": "摩托车"
     },
     "pilotos": {
         "title": "车手",
@@ -109,7 +121,14 @@
         "numberUpdated": "号码更新成功",
         "waitTime": "您需要等待 {time} 才能再次编辑号码。",
         "numberRange": "号码必须在1到99之间",
-        "connectionError": "连接错误"
+        "connectionError": "连接错误",
+        "fatiga": "疲劳",
+        "habilidades": "技能",
+        "activo": "活跃",
+        "lesionado": "受伤",
+        "anos": "岁",
+        "contratar": "从市场雇佣一名车手。",
+        "noPilotosAsignados": "您没有分配车手"
     },
     "config": {
         "title": "设置",
