@@ -141,20 +141,40 @@
     }
 
     /**
-     * Inicializa el sub-dropdown de pilotos (para 2+ pilotos)
+     * Inicializa el sub-dropdown de pilotos (para cualquier cantidad de pilotos)
      */
     function initPilotosSubDropdown() {
         const pilotosToggle = document.getElementById('pilotosToggle');
         const pilotosSubDropdown = document.getElementById('pilotosSubDropdown');
 
-        if (!pilotosToggle || !pilotosSubDropdown) return;
+        console.log('[NAV-MENU] initPilotosSubDropdown - Toggle:', pilotosToggle, 'Dropdown:', pilotosSubDropdown);
+
+        if (!pilotosToggle || !pilotosSubDropdown) {
+            console.warn('[NAV-MENU] No se encontraron elementos del sub-dropdown');
+            return;
+        }
 
         pilotosToggle.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            pilotosSubDropdown.classList.toggle('show');
-            pilotosToggle.classList.toggle('active');
+            e.stopImmediatePropagation();
+            
+            console.log('[NAV-MENU] Click en Pilotos toggle');
+            
+            const isOpen = pilotosSubDropdown.classList.contains('show');
+            
+            if (isOpen) {
+                pilotosSubDropdown.classList.remove('show');
+                pilotosToggle.classList.remove('active');
+            } else {
+                pilotosSubDropdown.classList.add('show');
+                pilotosToggle.classList.add('active');
+            }
+            
+            console.log('[NAV-MENU] Sub-dropdown estado:', isOpen ? 'cerrado' : 'abierto');
         });
+
+        console.log('[NAV-MENU] Sub-dropdown de Pilotos inicializado correctamente');
     }
 
     /**

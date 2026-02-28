@@ -658,7 +658,7 @@ body.paddock-page {
     align-items: center;
     justify-content: space-between;
     width: 100%;
-    padding: 12px 24px;
+    padding: 14px 16px 14px 24px;
     background: none;
     border: none;
     color: rgba(255, 255, 255, 0.8);
@@ -667,6 +667,9 @@ body.paddock-page {
     cursor: pointer;
     transition: all 0.2s;
     font-family: inherit;
+    text-transform: none;
+    border-radius: 12px;
+    margin-bottom: 4px;
 }
 
 .nav-mobile-sub-toggle:hover {
@@ -674,8 +677,13 @@ body.paddock-page {
     background: rgba(255, 255, 255, 0.05);
 }
 
+.nav-mobile-sub-toggle.active {
+    color: white;
+    background: rgba(225, 6, 0, 0.2);
+}
+
 .nav-mobile-sub-toggle .dropdown-arrow {
-    font-size: 8px;
+    font-size: 10px;
     transition: transform 0.2s;
 }
 
@@ -687,17 +695,20 @@ body.paddock-page {
     max-height: 0;
     overflow: hidden;
     transition: max-height 0.3s ease;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    margin-bottom: 4px;
 }
 
 .nav-mobile-sub-dropdown.show {
-    max-height: 300px;
+    max-height: 500px;
 }
 
 .nav-mobile-sub-item {
     display: flex;
     align-items: center;
     gap: 10px;
-    padding: 10px 32px !important;
+    padding: 10px 16px 10px 32px !important;
     font-size: 13px;
 }
 
