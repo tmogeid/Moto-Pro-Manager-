@@ -447,7 +447,7 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
                 id, nombre, numero, user_id, numero_updated_at,
                 ritmo, concentracion, frenada, aceleracion,
                 tecnica, experiencia, motivacion,
-                recuperacion, agresividad, talento,
+                recuperacion, agresividad, resistencia, talento,
                 estatura, peso, envergadura,
                 edad, fecha_nacimiento,
                 lesion_tipo, lesion_inicio, lesion_duracion,

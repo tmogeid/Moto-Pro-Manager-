@@ -829,8 +829,9 @@
             tecnica: { nombre: 'Técnica', icon: '🔧', descripcion: 'Dominio del pilotaje y capacidad para adaptarse a diferentes condiciones. Influye en la gestión de neumáticos y el setup de la moto.' },
             experiencia: { nombre: 'Experiencia', icon: '📚', descripcion: 'Conocimiento acumulado de circuitos y situaciones de carrera. Ayuda a tomar mejores decisiones bajo presión y anticipar eventos.' },
             motivacion: { nombre: 'Motivación', icon: '💪', descripcion: 'Impulso interior que eleva el rendimiento del piloto. Una alta motivación mejora todas las facetas del pilotaje durante la carrera.' },
-            recuperacion: { nombre: 'Recuperación', icon: '🏥', descripcion: 'Capacidad de volver a competir tras lesiones o malos resultados. Un piloto con buena recuperación vuelve antes y en mejores condiciones.' },
+            recuperacion: { nombre: 'Recuperación', icon: '🏥', descripcion: 'Capacidad de recuperar fatiga entre carreras. Un piloto con alta recuperación descansa más rápido: hasta 3% de fatiga por hora con 99 de atributo.' },
             agresividad: { nombre: 'Agresividad', icon: '🔥', descripcion: 'Tendencia a arriesgar en adelantamientos y defender posiciones. Puede ser ventajosa pero también aumenta el riesgo de incidentes.' },
+            resistencia: { nombre: 'Resistencia', icon: '🛡️', descripcion: 'Capacidad de resistir la fatiga durante las carreras. Un piloto con alta resistencia acumula menos desgaste físico y mental en competición.' },
             talento: { nombre: 'Talento', icon: '⭐', descripcion: 'Habilidad innata para destacar en situaciones críticas. El talento se manifiesta en la primera curva, adelantamientos decisivos y condiciones adversas como la lluvia.' }
         };
 
@@ -838,7 +839,7 @@
         function calcularMediaAtributos(piloto) {
             const attrs = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 
                           'tecnica', 'experiencia', 'motivacion', 'recuperacion', 
-                          'agresividad', 'talento'];
+                          'agresividad', 'resistencia', 'talento'];
             const suma = attrs.reduce((acc, attr) => acc + (piloto[attr] || 50), 0);
             return Math.round(suma / attrs.length);
         }
@@ -1115,8 +1116,8 @@
                         </div>
                         
                         <div class="habilidades-grid">
-                            ${['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'talento'].map(attr => {
-                                const valorReal = piloto[attr];
+                            ${['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'resistencia', 'talento'].map(attr => {
+                                const valorReal = piloto[attr] || 50;
                                 const valorEfectivo = atributoConFatiga(valorReal);
                                 const hayPenalizacion = valorReal !== valorEfectivo;
                                 return `
@@ -1161,8 +1162,8 @@
                             <div class="train-select-row">
                                 <select class="train-select" id="trainSelect-${piloto.id}" onchange="actualizarCoste(${piloto.id})">
                                     <option value="">Selecciona atributo...</option>
-                                    ${Object.keys(atributosInfo).map(attr => `
-                                        <option value="${attr}" data-valor="${piloto[attr]}">${atributosInfo[attr].icon} ${atributosInfo[attr].nombre} (${piloto[attr]})</option>
+                                    ${['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'resistencia', 'talento'].map(attr => `
+                                        <option value="${attr}" data-valor="${piloto[attr] || 50}">${atributosInfo[attr].icon} ${atributosInfo[attr].nombre} (${piloto[attr] || 50})</option>
                                     `).join('')}
                                 </select>
                                 <span class="train-cost" id="trainCost-${piloto.id}">-</span>
@@ -1312,7 +1313,7 @@
         }
 
         // Sistema de navegación de habilidades
-        const habilidadesOrden = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'talento'];
+        const habilidadesOrden = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 'tecnica', 'experiencia', 'motivacion', 'recuperacion', 'agresividad', 'resistencia', 'talento'];
         const habilidadesIndex = {};
 
         function toggleHabilidadesInfo(pilotoId) {
