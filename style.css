@@ -1803,3 +1803,107 @@ body.ad-page p {
         text-align: center;
     }
 }
+
+/* ===========================================
+   SUB-DROPDOWN DE PILOTOS (NUEVO)
+   =========================================== */
+
+.pilotos-dropdown-wrapper {
+    width: 100%;
+}
+
+.nav-mobile-sub-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 14px 16px 14px 24px;
+    background: transparent;
+    border: none;
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    text-align: left;
+}
+
+.nav-mobile-sub-toggle:hover {
+    color: white;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.nav-mobile-sub-toggle.active {
+    color: white;
+    background: rgba(225, 6, 0, 0.25);
+}
+
+.nav-mobile-sub-toggle .dropdown-arrow {
+    font-size: 10px;
+    transition: transform 0.3s ease;
+    opacity: 0.7;
+}
+
+.nav-mobile-sub-toggle.active .dropdown-arrow {
+    transform: rotate(180deg);
+    opacity: 1;
+}
+
+.nav-mobile-sub-dropdown {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease-out;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    margin: 0 4px 8px 4px;
+}
+
+.nav-mobile-sub-dropdown.show {
+    max-height: 400px;
+}
+
+.nav-mobile-sub-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px !important;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8) !important;
+    text-decoration: none !important;
+    transition: all 0.2s ease;
+    border-radius: 8px;
+    margin: 2px 4px;
+}
+
+.nav-mobile-sub-item:hover {
+    color: white !important;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.piloto-avatar {
+    width: 26px;
+    height: 26px;
+    min-width: 26px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e10600, #ff4444);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: bold;
+    color: white;
+}
+
+.piloto-nombre {
+    flex: 1;
+    font-size: 14px;
+}
+
+.piloto-media {
+    font-size: 13px;
+    font-weight: bold;
+    color: #4caf50;
+}

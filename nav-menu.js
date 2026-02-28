@@ -4,200 +4,189 @@
  * Este script maneja:
  * 1. Menú hamburguesa (abrir/cerrar)
  * 2. Dropdown de Garaje
- * 3. Menú dinámico de Pilotos:
- *    - 1 piloto: link directo a /piloto
- *    - 2+ pilotos: sub-dropdown con cada piloto
+ * 3. Menú de Pilotos SIEMPRE como sub-dropdown desplegable
  */
 
 (function() {
     'use strict';
 
-    // Estado global
     let pilotosData = [];
 
-    /**
-     * Inicializa el menú de navegación
-     */
-    function initNavMenu() {
-        initHamburgerMenu();
-        initGarajeDropdown();
-        loadPilotosMenu();
+    // Inicializar cuando el DOM esté listo
+    document.addEventListener('DOMContentLoaded', init);
+
+    function init() {
+        console.log('[NAV] Inicializando menú...');
+        initHamburger();
+        initGaraje();
+        loadPilotos();
     }
 
     /**
-     * Menú hamburguesa
+     * Menú hamburguesa principal
      */
-    function initHamburgerMenu() {
-        const hamburgerBtn = document.getElementById('hamburgerBtn');
-        const navOverlay = document.getElementById('navOverlay');
-        const navMobileMenu = document.getElementById('navMobileMenu');
+    function initHamburger() {
+        const btn = document.getElementById('hamburgerBtn');
+        const overlay = document.getElementById('navOverlay');
+        const menu = document.getElementById('navMobileMenu');
 
-        if (!hamburgerBtn || !navOverlay || !navMobileMenu) return;
+        if (!btn || !overlay || !menu) {
+            console.warn('[NAV] Elementos de hamburger no encontrados');
+            return;
+        }
 
-        hamburgerBtn.addEventListener('click', () => {
-            hamburgerBtn.classList.toggle('active');
-            navOverlay.classList.toggle('active');
-            navMobileMenu.classList.toggle('active');
+        btn.addEventListener('click', () => {
+            btn.classList.toggle('active');
+            overlay.classList.toggle('active');
+            menu.classList.toggle('active');
         });
 
-        navOverlay.addEventListener('click', () => {
-            hamburgerBtn.classList.remove('active');
-            navOverlay.classList.remove('active');
-            navMobileMenu.classList.remove('active');
+        overlay.addEventListener('click', () => {
+            btn.classList.remove('active');
+            overlay.classList.remove('active');
+            menu.classList.remove('active');
         });
+
+        console.log('[NAV] Hamburger inicializado');
     }
 
     /**
      * Dropdown de Garaje
      */
-    function initGarajeDropdown() {
-        const garajeToggle = document.getElementById('garajeToggle');
-        const garajeDropdown = document.getElementById('garajeDropdown');
+    function initGaraje() {
+        const toggle = document.getElementById('garajeToggle');
+        const dropdown = document.getElementById('garajeDropdown');
 
-        if (!garajeToggle || !garajeDropdown) return;
+        if (!toggle || !dropdown) {
+            console.warn('[NAV] Elementos de Garaje no encontrados');
+            return;
+        }
 
-        garajeToggle.addEventListener('click', () => {
-            garajeDropdown.classList.toggle('show');
-            garajeToggle.classList.toggle('active');
+        toggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            dropdown.classList.toggle('show');
+            toggle.classList.toggle('active');
+            console.log('[NAV] Garaje toggled');
         });
+
+        console.log('[NAV] Garaje inicializado');
     }
 
     /**
-     * Carga los pilotos y genera el menú dinámico
+     * Carga pilotos y genera el sub-dropdown
      */
-    async function loadPilotosMenu() {
+    async function loadPilotos() {
         const container = document.getElementById('pilotosMenuContainer');
         if (!container) {
-            console.warn('[NAV-MENU] No se encontró el contenedor pilotosMenuContainer');
+            console.warn('[NAV] Contenedor pilotosMenuContainer no encontrado');
             return;
         }
 
         try {
-            const response = await fetch('/api/pilotos');
-            if (!response.ok) {
-                console.warn('[NAV-MENU] Error al cargar pilotos');
-                // Mostrar link simple como fallback
-                container.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
-                return;
-            }
+            const res = await fetch('/api/pilotos');
+            if (!res.ok) throw new Error('Error API');
+            
+            pilotosData = await res.json();
+            if (!Array.isArray(pilotosData)) pilotosData = [];
 
-            pilotosData = await response.json();
+            console.log('[NAV] Pilotos cargados:', pilotosData.length);
 
-            if (!Array.isArray(pilotosData)) {
-                pilotosData = [];
-            }
+            // Generar menú
+            container.innerHTML = generateMenu(pilotosData);
 
-            console.log('[NAV-MENU] Pilotos cargados:', pilotosData.length);
+            // SIEMPRE inicializar el toggle (incluso con 1 piloto)
+            initPilotosToggle();
 
-            // Generar HTML del menú
-            container.innerHTML = generatePilotosMenuHTML(pilotosData);
-
-            // Inicializar el sub-dropdown SIEMPRE que haya pilotos
-            if (pilotosData.length >= 1) {
-                initPilotosSubDropdown();
-            }
-
-        } catch (error) {
-            console.error('[NAV-MENU] Error:', error);
+        } catch (err) {
+            console.error('[NAV] Error:', err);
             container.innerHTML = '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
         }
     }
 
     /**
      * Genera el HTML del menú de pilotos
-     * SIEMPRE es un sub-dropdown (incluso con 1 piloto)
-     * @param {Array} pilotos - Lista de pilotos
-     * @returns {string} HTML del menú
+     * SIEMPRE es un sub-dropdown desplegable
      */
-    function generatePilotosMenuHTML(pilotos) {
+    function generateMenu(pilotos) {
         if (pilotos.length === 0) {
-            // Sin pilotos: link simple
             return '<a href="/piloto" class="nav-mobile-link nav-mobile-sub">👤 Pilotos</a>';
         }
 
-        // SIEMPRE sub-dropdown (incluso con 1 piloto)
+        // SIEMPRE crear sub-dropdown
         let html = `
-            <button class="nav-mobile-sub-toggle" id="pilotosToggle">
-                👤 Pilotos
-                <span class="dropdown-arrow">▼</span>
-            </button>
-            <div class="nav-mobile-sub-dropdown" id="pilotosSubDropdown">
+            <div class="pilotos-dropdown-wrapper">
+                <button class="nav-mobile-sub-toggle" id="pilotosToggle" type="button">
+                    <span>👤 Pilotos</span>
+                    <span class="dropdown-arrow">▼</span>
+                </button>
+                <div class="nav-mobile-sub-dropdown" id="pilotosDropdown">
         `;
 
-        pilotos.forEach(piloto => {
-            const media = calcularMedia(piloto);
-            
+        pilotos.forEach(p => {
+            const media = calcMedia(p);
             html += `
-                <a href="/piloto?id=${piloto.id}" class="nav-mobile-link nav-mobile-sub-item">
-                    <span class="piloto-menu-avatar">${piloto.nombre.charAt(0).toUpperCase()}</span>
-                    <span class="piloto-menu-nombre">${piloto.nombre}</span>
-                    <span class="piloto-menu-media">${media}</span>
+                <a href="/piloto?id=${p.id}" class="nav-mobile-link nav-mobile-sub-item">
+                    <span class="piloto-avatar">${p.nombre.charAt(0).toUpperCase()}</span>
+                    <span class="piloto-nombre">${p.nombre}</span>
+                    <span class="piloto-media">${media}</span>
                 </a>
             `;
         });
 
-        html += '</div>';
+        html += '</div></div>';
         return html;
     }
 
     /**
-     * Inicializa el sub-dropdown de pilotos (para cualquier cantidad de pilotos)
+     * Inicializa el toggle del sub-dropdown de pilotos
      */
-    function initPilotosSubDropdown() {
-        const pilotosToggle = document.getElementById('pilotosToggle');
-        const pilotosSubDropdown = document.getElementById('pilotosSubDropdown');
+    function initPilotosToggle() {
+        // Usar setTimeout para asegurar que el DOM está listo
+        setTimeout(() => {
+            const toggle = document.getElementById('pilotosToggle');
+            const dropdown = document.getElementById('pilotosDropdown');
 
-        console.log('[NAV-MENU] initPilotosSubDropdown - Toggle:', pilotosToggle, 'Dropdown:', pilotosSubDropdown);
+            console.log('[NAV] initPilotosToggle:', { toggle: !!toggle, dropdown: !!dropdown });
 
-        if (!pilotosToggle || !pilotosSubDropdown) {
-            console.warn('[NAV-MENU] No se encontraron elementos del sub-dropdown');
-            return;
-        }
-
-        pilotosToggle.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            
-            console.log('[NAV-MENU] Click en Pilotos toggle');
-            
-            const isOpen = pilotosSubDropdown.classList.contains('show');
-            
-            if (isOpen) {
-                pilotosSubDropdown.classList.remove('show');
-                pilotosToggle.classList.remove('active');
-            } else {
-                pilotosSubDropdown.classList.add('show');
-                pilotosToggle.classList.add('active');
+            if (!toggle || !dropdown) {
+                console.warn('[NAV] No se encontraron elementos del toggle de pilotos');
+                return;
             }
-            
-            console.log('[NAV-MENU] Sub-dropdown estado:', isOpen ? 'cerrado' : 'abierto');
-        });
 
-        console.log('[NAV-MENU] Sub-dropdown de Pilotos inicializado correctamente');
+            // Click handler
+            toggle.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                
+                const isOpen = dropdown.classList.contains('show');
+                
+                if (isOpen) {
+                    dropdown.classList.remove('show');
+                    toggle.classList.remove('active');
+                } else {
+                    dropdown.classList.add('show');
+                    toggle.classList.add('active');
+                }
+                
+                console.log('[NAV] Pilotos dropdown:', isOpen ? 'cerrado' : 'abierto');
+            };
+
+            console.log('[NAV] Toggle de pilotos inicializado correctamente');
+        }, 50);
     }
 
     /**
-     * Calcula la media de atributos de un piloto
-     * @param {Object} piloto 
-     * @returns {number} Media redondeada
+     * Calcula la media de atributos
      */
-    function calcularMedia(piloto) {
+    function calcMedia(piloto) {
         const attrs = ['ritmo', 'concentracion', 'frenada', 'aceleracion', 
                       'tecnica', 'experiencia', 'motivacion', 'recuperacion', 
                       'agresividad', 'talento'];
-        const suma = attrs.reduce((acc, attr) => acc + (piloto[attr] || 50), 0);
-        return Math.round(suma / attrs.length);
+        const sum = attrs.reduce((acc, a) => acc + (piloto[a] || 50), 0);
+        return Math.round(sum / attrs.length);
     }
 
-    // Auto-inicializar cuando el DOM esté listo
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initNavMenu);
-    } else {
-        initNavMenu();
-    }
-
-    // Exponer función para recargar el menú si es necesario
-    window.recargarMenuPilotos = loadPilotosMenu;
+    // Exponer para recarga manual
+    window.recargarPilotosMenu = loadPilotos;
 
 })();
