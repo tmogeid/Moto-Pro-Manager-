@@ -471,7 +471,7 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
     }
 });
 
-// --- API: AVATAR DEL PILOTO (imagen PNG desde BD) ---
+// --- API: AVATAR DEL PILOTO (imagen PNG desde BD como base64) ---
 app.get('/api/piloto-avatar/:id', async (req, res) => {
     try {
         const pilotoId = req.params.id;
@@ -492,10 +492,13 @@ app.get('/api/piloto-avatar/:id', async (req, res) => {
             return res.redirect('/img/default-avatar.png');
         }
         
+        // El avatar está guardado como base64 string, convertir a binario para servir
+        const avatarBuffer = Buffer.from(avatar, 'base64');
+        
         // Servir la imagen PNG
         res.setHeader('Content-Type', 'image/png');
         res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 día de caché
-        res.send(avatar);
+        res.send(avatarBuffer);
         
     } catch (e) {
         console.error("ERROR OBTENIENDO AVATAR:", e);
@@ -602,7 +605,7 @@ app.get('/api/is-admin', requireAuth, async (req, res) => {
     }
 });
 
-// --- API ADMIN: AÑADIR CAMPO AVATAR A PILOTOS (LONGBLOB para imágenes binarias) ---
+// --- API ADMIN: AÑADIR CAMPO AVATAR A PILOTOS (LONGTEXT para TiDB) ---
 app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
     try {
         // Verificar que es admin
@@ -612,20 +615,14 @@ app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
         
-        // Intentar añadir la columna si no existe (LONGBLOB para imágenes binarias)
+        // Intentar añadir la columna si no existe (LONGTEXT para TiDB - guarda base64)
         try {
-            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGBLOB NULL');
-            res.json({ success: true, message: 'Columna avatar añadida (LONGBLOB)' });
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
+            res.json({ success: true, message: 'Columna avatar añadida (LONGTEXT para base64)' });
         } catch (alterErr) {
-            // Si la columna ya existe, verificar si es LONGTEXT y convertirla
+            // Si la columna ya existe, ignorar el error
             if (alterErr.code === 'ER_DUP_FIELDNAME' || alterErr.message.includes('Duplicate column')) {
-                // Intentar convertir a LONGBLOB si es LONGTEXT
-                try {
-                    await db.execute('ALTER TABLE pilotos MODIFY COLUMN avatar LONGBLOB NULL');
-                    res.json({ success: true, message: 'Columna avatar convertida a LONGBLOB' });
-                } catch (modifyErr) {
-                    res.json({ success: true, message: 'La columna avatar ya existe' });
-                }
+                res.json({ success: true, message: 'La columna avatar ya existe' });
             } else {
                 throw alterErr;
             }
@@ -699,7 +696,7 @@ app.get('/api/admin/pilotos-sin-avatar', requireAuth, async (req, res) => {
     }
 });
 
-// --- API ADMIN: GUARDAR AVATAR INDIVIDUAL (PNG binario) ---
+// --- API ADMIN: GUARDAR AVATAR INDIVIDUAL (PNG en base64 para TiDB) ---
 app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
     try {
         // Verificar que es admin
@@ -715,24 +712,22 @@ app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Faltan datos' });
         }
         
-        // Convertir base64 a Buffer binario
+        // Guardar como string base64 (TiDB no soporta LONGBLOB binario)
         // El formato viene como: data:image/png;base64,iVBORw0KGgo...
-        let avatarBuffer;
+        let avatarBase64;
         if (avatar.startsWith('data:image')) {
-            // Extraer solo la parte base64
-            const base64Data = avatar.split(',')[1];
-            avatarBuffer = Buffer.from(base64Data, 'base64');
+            // Extraer solo la parte base64 (sin el prefijo)
+            avatarBase64 = avatar.split(',')[1];
         } else {
-            // Si ya es base64 puro
-            avatarBuffer = Buffer.from(avatar, 'base64');
+            avatarBase64 = avatar;
         }
         
-        console.log(`[AVATAR] Guardando imagen binaria para piloto ${pilotoId}, tamaño: ${avatarBuffer.length} bytes`);
+        console.log(`[AVATAR] Guardando base64 para piloto ${pilotoId}, tamaño: ${avatarBase64.length} caracteres`);
         
-        // Guardar avatar como LONGBLOB (Buffer)
+        // Guardar avatar como LONGTEXT (string base64)
         await db.execute(
             'UPDATE pilotos SET avatar = ? WHERE id = ?',
-            [avatarBuffer, pilotoId]
+            [avatarBase64, pilotoId]
         );
         
         res.json({ success: true });
@@ -753,9 +748,9 @@ app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
         
-        // Asegurar que existe la columna avatar (LONGBLOB)
+        // Asegurar que existe la columna avatar (LONGTEXT para TiDB)
         try {
-            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGBLOB NULL');
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
         } catch (alterErr) {
             // Ignorar si ya existe
         }
