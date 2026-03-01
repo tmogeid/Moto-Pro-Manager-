@@ -137,11 +137,11 @@
             
             <div class="admin-tools">
                 <div class="admin-tool">
-                    <h3>🖼️ Avatares de Pilotos 3D</h3>
-                    <p>Genera avatares 3D realistas con Three.js. Incluyen iluminación profesional, sombras y geometría detallada basada en edad y peso.</p>
+                    <h3>🖼️ Avatares de Pilotos</h3>
+                    <p>Genera avatares de retrato estilo ilustración con SVG. Incluyen diferentes tipos de cara, estilos de pelo, barba, gafas y más según edad y peso.</p>
                     <div id="avatarStatusInfo" class="admin-status-info"></div>
                     <button class="btn-admin" id="btnGenerateAvatars" onclick="checkAndGenerateAvatars()">
-                        🎨 Generar Avatares 3D
+                        🎨 Generar Avatares
                     </button>
                     <div id="avatarStatus" class="admin-status"></div>
                 </div>
@@ -162,7 +162,7 @@
             <div class="modal-box modal-progress">
                 <button class="modal-close-btn" id="progressCloseBtn" onclick="closeProgressModal()" style="display: none;">✕</button>
                 <div class="modal-icon" id="progressIcon">⏳</div>
-                <h3 class="modal-title" id="progressTitle">Generando Avatares 3D</h3>
+                <h3 class="modal-title" id="progressTitle">Generando Avatares</h3>
                 <p class="modal-text" id="progressText">Procesando pilotos...</p>
                 
                 <div class="progress-container" id="progressContainer">
@@ -377,86 +377,8 @@
         }
         
         // ========================================
-        // SISTEMA DE AVATARES 3D CON THREE.JS
+        // SISTEMA DE AVATARES 2D ESTILO RETRATO
         // ========================================
-        
-        let THREE = null;
-        let avatarScene = null;
-        let avatarCamera = null;
-        let avatarRenderer = null;
-        
-        // Cargar Three.js dinámicamente
-        async function loadThreeJS() {
-            if (THREE) return;
-            
-            return new Promise((resolve, reject) => {
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
-                script.onload = () => {
-                    THREE = window.THREE;
-                    console.log('[AVATAR] Three.js cargado');
-                    resolve();
-                };
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-        
-        // Inicializar escena 3D
-        function initThreeScene() {
-            if (avatarScene) return;
-            
-            // Escena
-            avatarScene = new THREE.Scene();
-            avatarScene.background = null;
-            
-            // Cámara ortográfica para vista frontal
-            const aspect = 1;
-            const frustumSize = 2.5;
-            avatarCamera = new THREE.OrthographicCamera(
-                frustumSize * aspect / -2,
-                frustumSize * aspect / 2,
-                frustumSize / 2,
-                frustumSize / -2,
-                0.1, 100
-            );
-            avatarCamera.position.set(0, 0, 5);
-            avatarCamera.lookAt(0, 0, 0);
-            
-            // Renderer con alpha para fondo transparente
-            avatarRenderer = new THREE.WebGLRenderer({ 
-                antialias: true, 
-                alpha: true,
-                preserveDrawingBuffer: true 
-            });
-            avatarRenderer.setSize(256, 256);
-            avatarRenderer.setPixelRatio(1);
-            avatarRenderer.shadowMap.enabled = true;
-            avatarRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            
-            // Iluminación tipo estudio fotográfico
-            // Key light (luz principal)
-            const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-            keyLight.position.set(2, 3, 5);
-            keyLight.castShadow = true;
-            avatarScene.add(keyLight);
-            
-            // Fill light (luz de relleno)
-            const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
-            fillLight.position.set(-3, 1, 3);
-            avatarScene.add(fillLight);
-            
-            // Rim/back light (luz de contorno)
-            const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
-            rimLight.position.set(0, 2, -3);
-            avatarScene.add(rimLight);
-            
-            // Luz ambiental suave
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
-            avatarScene.add(ambientLight);
-            
-            console.log('[AVATAR] Escena 3D inicializada');
-        }
         
         // Generador determinista
         class SeededRandom {
@@ -473,386 +395,444 @@
             int(min, max) {
                 return Math.floor(this.range(min, max + 1));
             }
+            pick(arr) {
+                return arr[this.int(0, arr.length - 1)];
+            }
         }
         
-        // Crear avatar 3D para un piloto
+        // Crear avatar 2D estilo retrato de calidad
         function createAvatar3D(piloto) {
             const rng = new SeededRandom(piloto.id * 1000);
             const edad = piloto.edad || 25;
             const peso = piloto.peso || 70;
             
-            // Limpiar escena
-            while (avatarScene.children.length > 4) {
-                const obj = avatarScene.children[avatarScene.children.length - 1];
-                avatarScene.remove(obj);
-                if (obj.geometry) obj.geometry.dispose();
-                if (obj.material) {
-                    if (Array.isArray(obj.material)) {
-                        obj.material.forEach(m => m.dispose());
-                    } else {
-                        obj.material.dispose();
-                    }
-                }
-            }
-            
-            const group = new THREE.Group();
-            
-            // Colores de piel
-            const skinColors = [0xf5d0c5, 0xe8beac, 0xd4a574, 0xc68642, 0x8d5524, 0xf1c27d, 0xffdbac, 0xc9a66b];
-            const skinColor = skinColors[rng.int(0, skinColors.length - 1)];
+            // Colores de piel con más variedad
+            const skinTones = [
+                { base: '#f5d0c5', shadow: '#e8bfb0', highlight: '#fff0eb' },
+                { base: '#e8beac', shadow: '#d4a895', highlight: '#f5d8c8' },
+                { base: '#d4a574', shadow: '#c09060', highlight: '#e8ba8a' },
+                { base: '#c68642', shadow: '#a86d30', highlight: '#daa05a' },
+                { base: '#8d5524', shadow: '#70401a', highlight: '#a86d35' },
+                { base: '#f1c27d', shadow: '#d4a865', highlight: '#ffd4a0' },
+                { base: '#ffdbac', shadow: '#e8c495', highlight: '#fff0d8' },
+                { base: '#c9a66b', shadow: '#b08a50', highlight: '#e0c080' }
+            ];
+            const skin = rng.pick(skinTones);
             
             // Factor de peso para forma de cara
-            const weightFactor = (peso - 70) / 30;
-            const faceWidth = 1 + weightFactor * 0.12;
-            const faceHeight = 1.15 - weightFactor * 0.03;
+            const weightFactor = Math.max(-1, Math.min(1, (peso - 70) / 25));
+            const faceWidth = 42 + weightFactor * 8;
+            const jawWidth = 30 + weightFactor * 10;
             
-            // === CABEZA ===
-            const headGeometry = new THREE.SphereGeometry(0.85, 48, 48);
-            headGeometry.scale(faceWidth, faceHeight, 0.9);
+            // Color de pelo según edad
+            let hairColor, hairShadow;
+            if (edad >= 50) {
+                hairColor = rng.next() < 0.6 ? '#c0c0c0' : (rng.next() < 0.5 ? '#a0a0a0' : '#808080');
+                hairShadow = '#909090';
+            } else if (edad >= 40) {
+                hairColor = rng.next() < 0.35 ? '#a0a0a0' : rng.pick(['#2a1a0a', '#3d2817', '#1a1a1a', '#4a3020']);
+                hairShadow = '#1a1a1a';
+            } else {
+                const hairColors = ['#0a0a0a', '#1a1008', '#2a1a0a', '#3d2817', '#4a3020', '#6b4423', '#8b5a2b', '#a0522d', '#d4a574'];
+                hairColor = rng.pick(hairColors);
+                hairShadow = '#0a0a0a';
+            }
             
-            const headMaterial = new THREE.MeshStandardMaterial({
-                color: skinColor,
-                roughness: 0.7,
-                metalness: 0.0
-            });
-            const head = new THREE.Mesh(headGeometry, headMaterial);
-            head.castShadow = true;
-            head.receiveShadow = true;
-            group.add(head);
+            // Color de ojos
+            const eyeColors = ['#3d2314', '#4a3020', '#2a1a0a', '#1a3a5c', '#0d4a7a', '#2e5a3a', '#4a6a2a'];
+            const eyeColor = rng.pick(eyeColors);
             
-            // === CUELLO ===
-            const neckGeometry = new THREE.CylinderGeometry(0.28, 0.32, 0.35, 24);
-            const neck = new THREE.Mesh(neckGeometry, headMaterial);
-            neck.position.y = -0.95;
-            neck.castShadow = true;
-            group.add(neck);
+            // Estilo de pelo
+            const hairStyle = rng.int(0, 6);
+            const isBald = edad >= 45 ? rng.next() < 0.25 : (edad >= 35 ? rng.next() < 0.1 : rng.next() < 0.02);
             
-            // === OREJAS ===
-            const earGeometry = new THREE.SphereGeometry(0.12, 16, 16);
-            earGeometry.scale(0.5, 1, 0.7);
+            // Características faciales
+            const hasGlasses = edad >= 35 && rng.next() < (edad - 30) * 0.03;
+            const hasBeard = edad >= 25 && rng.next() < Math.min(0.6, (edad - 20) * 0.02);
+            const beardStyle = hasBeard ? rng.int(0, 3) : -1;
+            const hasMustache = edad >= 25 && rng.next() < 0.25;
             
-            const leftEar = new THREE.Mesh(earGeometry, headMaterial);
-            leftEar.position.set(-0.85 * faceWidth, 0.05, 0);
-            leftEar.rotation.y = -0.2;
-            group.add(leftEar);
+            // Tipo de cara
+            const faceShapes = ['oval', 'round', 'square', 'heart', 'oblong'];
+            const faceShape = rng.pick(faceShapes);
             
-            const rightEar = new THREE.Mesh(earGeometry, headMaterial);
-            rightEar.position.set(0.85 * faceWidth, 0.05, 0);
-            rightEar.rotation.y = 0.2;
-            group.add(rightEar);
+            // Generar SVG
+            let svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 250" width="200" height="250">`;
             
-            // === OJOS ===
-            const eyeWhiteMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
-            const eyeColors = [0x4a3728, 0x5d4037, 0x3e2723, 0x1a237e, 0x0d47a1, 0x2e7d32];
-            const irisColor = eyeColors[rng.int(0, eyeColors.length - 1)];
-            const irisMaterial = new THREE.MeshStandardMaterial({ color: irisColor, roughness: 0.2 });
-            const pupilMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1 });
+            // Definiciones (gradientes, filtros)
+            svg += `<defs>
+                <radialGradient id="skinGrad" cx="40%" cy="30%" r="70%">
+                    <stop offset="0%" stop-color="${skin.highlight}"/>
+                    <stop offset="50%" stop-color="${skin.base}"/>
+                    <stop offset="100%" stop-color="${skin.shadow}"/>
+                </radialGradient>
+                <radialGradient id="hairGrad" cx="50%" cy="30%" r="80%">
+                    <stop offset="0%" stop-color="${hairColor}"/>
+                    <stop offset="100%" stop-color="${hairShadow}"/>
+                </radialGradient>
+                <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.2"/>
+                </filter>
+                <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+                    <feGaussianBlur in="SourceAlpha" stdDeviation="2"/>
+                    <feOffset dx="0" dy="1" result="offsetblur"/>
+                    <feComponentTransfer><feFuncA type="linear" slope="0.3"/></feComponentTransfer>
+                    <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+            </defs>`;
+            
+            // Fondo circular
+            svg += `<circle cx="100" cy="115" r="95" fill="#f0f0f0"/>`;
+            
+            // Cuello
+            const neckWidth = 25 + weightFactor * 5;
+            svg += `<ellipse cx="100" cy="220" rx="${neckWidth}" ry="35" fill="url(#skinGrad)"/>`;
+            svg += `<rect x="${100 - neckWidth}" y="185" width="${neckWidth * 2}" height="40" fill="${skin.base}"/>`;
+            
+            // Forma de la cara según tipo
+            let facePath;
+            const fw = faceWidth;
+            const jw = jawWidth;
+            switch(faceShape) {
+                case 'oval':
+                    facePath = `M100,35 C${55 - weightFactor*3},35 ${35 - weightFactor*5},75 ${35 - weightFactor*5},115 C${35 - weightFactor*5},160 ${60 - weightFactor*4},195 100,200 C${140 + weightFactor*4},195 ${165 + weightFactor*5},160 ${165 + weightFactor*5},115 C${165 + weightFactor*5},75 ${145 + weightFactor*3},35 100,35`;
+                    break;
+                case 'round':
+                    facePath = `M100,40 C${55 - weightFactor*4},40 ${40 - weightFactor*5},90 ${40 - weightFactor*5},115 C${40 - weightFactor*5},165 ${70 - weightFactor*3},195 100,195 C${130 + weightFactor*3},195 ${160 + weightFactor*5},165 ${160 + weightFactor*5},115 C${160 + weightFactor*5},90 ${145 + weightFactor*4},40 100,40`;
+                    break;
+                case 'square':
+                    facePath = `M100,38 C${60 - weightFactor*3},38 ${42 - weightFactor*4},70 ${42 - weightFactor*4},115 L${50 - weightFactor*2},195 C${70 - weightFactor*3},198 100,200 100,200 C100,200 ${130 + weightFactor*3},198 ${150 + weightFactor*2},195 L${158 + weightFactor*4},115 C${158 + weightFactor*4},70 ${140 + weightFactor*3},38 100,38`;
+                    break;
+                case 'heart':
+                    facePath = `M100,35 C${55 - weightFactor*3},35 ${38 - weightFactor*4},80 ${38 - weightFactor*4},110 C${38 - weightFactor*4},130 ${45 - weightFactor*3},150 ${60 - weightFactor*2},175 C${75 - weightFactor},190 100,200 100,200 C100,200 ${125 + weightFactor},190 ${140 + weightFactor*2},175 C${155 + weightFactor*3},150 ${162 + weightFactor*4},130 ${162 + weightFactor*4},110 C${162 + weightFactor*4},80 ${145 + weightFactor*3},35 100,35`;
+                    break;
+                default: // oblong
+                    facePath = `M100,30 C${60 - weightFactor*3},30 ${45 - weightFactor*4},85 ${45 - weightFactor*4},115 C${45 - weightFactor*4},165 ${70 - weightFactor*3},200 100,205 C${130 + weightFactor*3},200 ${155 + weightFactor*4},165 ${155 + weightFactor*4},115 C${155 + weightFactor*4},85 ${140 + weightFactor*3},30 100,30`;
+            }
+            svg += `<path d="${facePath}" fill="url(#skinGrad)" filter="url(#shadow)"/>`;
+            
+            // Orejas
+            const earY = 100 + rng.int(-5, 5);
+            svg += `<ellipse cx="${58 - weightFactor*2}" cy="${earY}" rx="12" ry="18" fill="${skin.base}"/>`;
+            svg += `<ellipse cx="${58 - weightFactor*2}" cy="${earY}" rx="7" ry="12" fill="${skin.shadow}"/>`;
+            svg += `<ellipse cx="${142 + weightFactor*2}" cy="${earY}" rx="12" ry="18" fill="${skin.base}"/>`;
+            svg += `<ellipse cx="${142 + weightFactor*2}" cy="${earY}" rx="7" ry="12" fill="${skin.shadow}"/>`;
+            
+            // PELO (si no es calvo)
+            if (!isBald) {
+                svg += generateHairStyle(hairStyle, hairColor, hairShadow, fw, weightFactor, rng);
+            } else if (edad >= 35) {
+                // Pelo lateral para calvos
+                svg += `<ellipse cx="${65 - weightFactor*2}" cy="60" rx="20" ry="25" fill="url(#hairGrad)"/>`;
+                svg += `<ellipse cx="${135 + weightFactor*2}" cy="60" rx="20" ry="25" fill="url(#hairGrad)"/>`;
+            }
+            
+            // Líneas de expresión (arrugas según edad)
+            if (edad >= 35) {
+                const wrinkleOpacity = Math.min(0.4, (edad - 30) * 0.01);
+                // Líneas de la frente
+                svg += `<path d="M75,55 Q100,${52 - (edad-35)*0.1} 125,55" stroke="${skin.shadow}" stroke-width="0.5" fill="none" opacity="${wrinkleOpacity}"/>`;
+                if (edad >= 45) {
+                    svg += `<path d="M80,62 Q100,${59 - (edad-45)*0.1} 120,62" stroke="${skin.shadow}" stroke-width="0.5" fill="none" opacity="${wrinkleOpacity * 0.7}"/>`;
+                }
+                // Patas de gallo
+                svg += `<path d="M55,95 Q50,100 45,108" stroke="${skin.shadow}" stroke-width="0.8" fill="none" opacity="${wrinkleOpacity}"/>`;
+                svg += `<path d="M145,95 Q150,100 155,108" stroke="${skin.shadow}" stroke-width="0.8" fill="none" opacity="${wrinkleOpacity}"/>`;
+            }
+            
+            // Cejas con personalidad
+            const eyebrowStyle = rng.int(0, 3);
+            const eyebrowY = 75 + rng.int(-3, 3);
+            const eyebrowColor = edad >= 50 ? '#808080' : (edad >= 40 ? rng.pick(['#3a3a3a', '#4a4a4a', '#2a1a0a']) : '#1a0a00');
+            svg += generateEyebrows(eyebrowStyle, eyebrowY, eyebrowColor, rng);
+            
+            // Ojos detallados
+            const eyeY = 95 + rng.int(-3, 3);
+            const eyeSpacing = 28 + rng.int(-3, 3);
+            const eyeShape = rng.int(0, 2);
+            svg += generateEyes(eyeY, eyeSpacing, eyeColor, eyeShape, skin, rng);
+            
+            // Gafas
+            if (hasGlasses) {
+                svg += generateGlasses(eyeY, eyeSpacing, rng);
+            }
+            
+            // Nariz
+            const noseStyle = rng.int(0, 3);
+            svg += generateNose(noseStyle, skin, rng, peso);
+            
+            // Barba/bigote
+            if (hasMustache) {
+                svg += generateMustache(beardStyle, hairColor, hairShadow, rng);
+            }
+            if (hasBeard && beardStyle >= 0) {
+                svg += generateBeard(beardStyle, hairColor, hairShadow, weightFactor, rng);
+            }
+            
+            // Boca
+            const mouthY = 155 + rng.int(-5, 5);
+            const mouthStyle = rng.int(0, 2);
+            svg += generateMouth(mouthY, mouthStyle, skin, rng);
+            
+            // Mejillas sonrojadas si peso alto
+            if (peso > 85) {
+                svg += `<ellipse cx="${70 - weightFactor}" cy="135" rx="15" ry="10" fill="#ffb6c1" opacity="0.2"/>`;
+                svg += `<ellipse cx="${130 + weightFactor}" cy="135" rx="15" ry="10" fill="#ffb6c1" opacity="0.2"/>`;
+            }
+            
+            svg += `</svg>`;
+            
+            // Convertir SVG a PNG via canvas
+            return svgToPngBase64(svg);
+        }
+        
+        // Funciones auxiliares para generar partes del avatar
+        function generateHairStyle(style, color, shadow, fw, weightFactor, rng) {
+            let svg = '';
+            switch(style) {
+                case 0: // Pelo corto moderno
+                    svg += `<ellipse cx="100" cy="50" rx="${fw + 5}" ry="35" fill="url(#hairGrad)"/>`;
+                    svg += `<path d="M${60 - weightFactor*2},35 Q100,20 ${140 + weightFactor*2},35 Q100,25 ${60 - weightFactor*2},35" fill="url(#hairGrad)"/>`;
+                    break;
+                case 1: // Flequillo
+                    svg += `<ellipse cx="100" cy="45" rx="${fw + 8}" ry="40" fill="url(#hairGrad)"/>`;
+                    svg += `<path d="M${65 - weightFactor*2},55 Q75,85 ${90 - weightFactor},65 Q100,95 ${110 + weightFactor},65 Q125,85 ${135 + weightFactor*2},55" fill="url(#hairGrad)"/>`;
+                    break;
+                case 2: // Pelo hacia atrás
+                    svg += `<ellipse cx="100" cy="42" rx="${fw}" ry="32" fill="url(#hairGrad)"/>`;
+                    svg += `<path d="M${58 - weightFactor*2},60 Q100,30 ${142 + weightFactor*2},60" fill="url(#hairGrad)"/>`;
+                    break;
+                case 3: // Pelo lateral/raya al lado
+                    svg += `<ellipse cx="100" cy="48" rx="${fw + 6}" ry="38" fill="url(#hairGrad)"/>`;
+                    svg += `<path d="M${65 - weightFactor*2},40 Q85,60 ${95 - weightFactor},45 Q100,70 ${130 + weightFactor*2},50" fill="url(#hairGrad)"/>`;
+                    break;
+                case 4: // Pelo largo
+                    svg += `<ellipse cx="100" cy="45" rx="${fw + 10}" ry="45" fill="url(#hairGrad)"/>`;
+                    svg += `<path d="M${55 - weightFactor*3},50 Q50,120 ${60 - weightFactor*2},180" stroke="url(#hairGrad)" stroke-width="25" fill="none"/>`;
+                    svg += `<path d="M${145 + weightFactor*3},50 Q150,120 ${140 + weightFactor*2},180" stroke="url(#hairGrad)" stroke-width="25" fill="none"/>`;
+                    break;
+                case 5: // Afro/voluminoso
+                    svg += `<circle cx="100" cy="55" r="${fw + 15}" fill="url(#hairGrad)"/>`;
+                    svg += `<circle cx="85" cy="40" r="20" fill="url(#hairGrad)"/>`;
+                    svg += `<circle cx="115" cy="40" r="20" fill="url(#hairGrad)"/>`;
+                    svg += `<circle cx="100" cy="30" r="18" fill="url(#hairGrad)"/>`;
+                    break;
+                case 6: // Rapado/cepillado
+                    svg += `<ellipse cx="100" cy="50" rx="${fw}" ry="25" fill="${color}" opacity="0.7"/>`;
+                    break;
+            }
+            return svg;
+        }
+        
+        function generateEyebrows(style, y, color, rng) {
+            let svg = '';
+            const thickness = 3 + rng.int(0, 3);
+            switch(style) {
+                case 0: // Normal
+                    svg += `<path d="M65,${y} Q80,${y-5} 85,${y}" stroke="${color}" stroke-width="${thickness}" fill="none" stroke-linecap="round"/>`;
+                    svg += `<path d="M115,${y} Q120,${y-5} 135,${y}" stroke="${color}" stroke-width="${thickness}" fill="none" stroke-linecap="round"/>`;
+                    break;
+                case 1: // Arqueadas
+                    svg += `<path d="M68,${y+3} Q77,${y-8} 88,${y+2}" stroke="${color}" stroke-width="${thickness}" fill="none" stroke-linecap="round"/>`;
+                    svg += `<path d="M112,${y+2} Q123,${y-8} 132,${y+3}" stroke="${color}" stroke-width="${thickness}" fill="none" stroke-linecap="round"/>`;
+                    break;
+                case 2: // Rectas
+                    svg += `<line x1="65" y1="${y}" x2="90" y2="${y}" stroke="${color}" stroke-width="${thickness}" stroke-linecap="round"/>`;
+                    svg += `<line x1="110" y1="${y}" x2="135" y2="${y}" stroke="${color}" stroke-width="${thickness}" stroke-linecap="round"/>`;
+                    break;
+                case 3: // Más gruesas/pobladas
+                    svg += `<path d="M62,${y+2} Q77,${y-4} 90,${y+1}" stroke="${color}" stroke-width="${thickness + 2}" fill="none" stroke-linecap="round"/>`;
+                    svg += `<path d="M110,${y+1} Q123,${y-4} 138,${y+2}" stroke="${color}" stroke-width="${thickness + 2}" fill="none" stroke-linecap="round"/>`;
+                    break;
+            }
+            return svg;
+        }
+        
+        function generateEyes(y, spacing, eyeColor, shape, skin, rng) {
+            let svg = '';
+            const leftX = 100 - spacing;
+            const rightX = 100 + spacing;
+            
+            // Cuencas de los ojos
+            svg += `<ellipse cx="${leftX}" cy="${y}" rx="14" ry="9" fill="${skin.shadow}" opacity="0.3"/>`;
+            svg += `<ellipse cx="${rightX}" cy="${y}" rx="14" ry="9" fill="${skin.shadow}" opacity="0.3"/>`;
+            
+            // Forma del ojo
+            let eyePath;
+            switch(shape) {
+                case 0: // Almendrado
+                    eyePath = `M${leftX-10},${y} Q${leftX},${y-7} ${leftX+10},${y} Q${leftX},${y+6} ${leftX-10},${y}`;
+                    break;
+                case 1: // Redondo
+                    eyePath = `M${leftX-10},${y} Q${leftX-10},${y-8} ${leftX},${y-8} Q${leftX+10},${y-8} ${leftX+10},${y} Q${leftX+10},${y+8} ${leftX},${y+8} Q${leftX-10},${y+8} ${leftX-10},${y}`;
+            eyePath = `M${leftX-10},${y} Q${leftX-12},${y-7} ${leftX},${y-7} Q${leftX+12},${y-7} ${leftX+10},${y}`;
+            break;
+                default: // Normal
+                    eyePath = `M${leftX-11},${y} Q${leftX},${y-6} ${leftX+11},${y} Q${leftX},${y+5} ${leftX-11},${y}`;
+            }
+            
+            // Blancos de los ojos
+            svg += `<ellipse cx="${leftX}" cy="${y}" rx="11" ry="7" fill="white"/>`;
+            svg += `<ellipse cx="${rightX}" cy="${y}" rx="11" ry="7" fill="white"/>`;
+            
+            // Iris
+            const irisSize = 5 + rng.int(0, 2);
+            svg += `<circle cx="${leftX}" cy="${y}" r="${irisSize}" fill="${eyeColor}"/>`;
+            svg += `<circle cx="${rightX}" cy="${y}" r="${irisSize}" fill="${eyeColor}"/>`;
+            
+            // Pupilas
+            svg += `<circle cx="${leftX}" cy="${y}" r="2.5" fill="black"/>`;
+            svg += `<circle cx="${rightX}" cy="${y}" r="2.5" fill="black"/>`;
+            
+            // Brillos
+            svg += `<circle cx="${leftX + 2}" cy="${y - 2}" r="1.5" fill="white"/>`;
+            svg += `<circle cx="${rightX + 2}" cy="${y - 2}" r="1.5" fill="white"/>`;
             
             // Párpados
-            const eyelidMaterial = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.8 });
+            svg += `<path d="M${leftX-12},${y-1} Q${leftX},${y-8} ${leftX+12},${y-1}" stroke="${skin.shadow}" stroke-width="1.5" fill="none"/>`;
+            svg += `<path d="M${rightX-12},${y-1} Q${rightX},${y-8} ${rightX+12},${y-1}" stroke="${skin.shadow}" stroke-width="1.5" fill="none"/>`;
             
-            [-0.28, 0.28].forEach((xPos, idx) => {
-                // Cuenco del ojo
-                const eyeSocket = new THREE.SphereGeometry(0.14, 24, 24);
-                const socket = new THREE.Mesh(eyeSocket, headMaterial);
-                socket.position.set(xPos, 0.12, 0.72);
-                socket.scale.set(1, 0.7, 0.5);
-                group.add(socket);
-                
-                // Blanco del ojo
-                const eyeWhiteGeom = new THREE.SphereGeometry(0.11, 24, 24);
-                const eyeWhite = new THREE.Mesh(eyeWhiteGeom, eyeWhiteMaterial);
-                eyeWhite.position.set(xPos, 0.12, 0.76);
-                group.add(eyeWhite);
-                
-                // Iris
-                const irisGeom = new THREE.SphereGeometry(0.07, 24, 24);
-                const iris = new THREE.Mesh(irisGeom, irisMaterial);
-                iris.position.set(xPos, 0.12, 0.85);
-                group.add(iris);
-                
-                // Pupila
-                const pupilGeom = new THREE.SphereGeometry(0.035, 16, 16);
-                const pupil = new THREE.Mesh(pupilGeom, pupilMaterial);
-                pupil.position.set(xPos, 0.12, 0.9);
-                group.add(pupil);
-                
-                // Brillo
-                const shineGeom = new THREE.SphereGeometry(0.018, 8, 8);
-                const shineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
-                const shine = new THREE.Mesh(shineGeom, shineMaterial);
-                shine.position.set(xPos + 0.025, 0.135, 0.92);
-                group.add(shine);
-                
-                // Párpado superior
-                const eyelidGeom = new THREE.SphereGeometry(0.13, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2);
-                const eyelid = new THREE.Mesh(eyelidGeom, eyelidMaterial);
-                eyelid.position.set(xPos, 0.12, 0.74);
-                eyelid.rotation.x = Math.PI;
-                group.add(eyelid);
-            });
+            // Pestañas superiores
+            svg += `<path d="M${leftX-10},${y-5} L${leftX-12},${y-9} M${leftX-5},${y-7} L${leftX-5},${y-11} M${leftX},${y-7} L${leftX},${y-11} M${leftX+5},${y-7} L${leftX+5},${y-11} M${leftX+10},${y-5} L${leftX+12},${y-9}" stroke="black" stroke-width="1" fill="none"/>`;
+            svg += `<path d="M${rightX-10},${y-5} L${rightX-12},${y-9} M${rightX-5},${y-7} L${rightX-5},${y-11} M${rightX},${y-7} L${rightX},${y-11} M${rightX+5},${y-7} L${rightX+5},${y-11} M${rightX+10},${y-5} L${rightX+12},${y-9}" stroke="black" stroke-width="1" fill="none"/>`;
             
-            // === CEJAS ===
-            const eyebrowColor = edad >= 50 ? 0x808080 : 0x3e2723;
-            const eyebrowMaterial = new THREE.MeshStandardMaterial({ color: eyebrowColor, roughness: 0.9 });
-            
-            const eyebrowGeom = new THREE.BoxGeometry(0.18, 0.04, 0.06);
-            const leftEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
-            leftEyebrow.position.set(-0.28, 0.32, 0.78);
-            leftEyebrow.rotation.z = 0.1;
-            group.add(leftEyebrow);
-            
-            const rightEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
-            rightEyebrow.position.set(0.28, 0.32, 0.78);
-            rightEyebrow.rotation.z = -0.1;
-            group.add(rightEyebrow);
-            
-            // === NARIZ ===
-            const noseGroup = new THREE.Group();
-            
-            // Puente de la nariz
-            const noseBridgeGeom = new THREE.BoxGeometry(0.08, 0.22, 0.15);
-            const noseBridge = new THREE.Mesh(noseBridgeGeom, headMaterial);
-            noseBridge.position.set(0, 0, 0.75);
-            noseGroup.add(noseBridge);
-            
-            // Punta de la nariz
-            const noseTipGeom = new THREE.SphereGeometry(0.08, 16, 16);
-            const noseTip = new THREE.Mesh(noseTipGeom, headMaterial);
-            noseTip.position.set(0, -0.12, 0.82);
-            noseTip.scale.set(1, 0.7, 0.8);
-            noseGroup.add(noseTip);
-            
-            // Alares (laterales de la nariz)
-            const nostrilGeom = new THREE.SphereGeometry(0.045, 12, 12);
-            const leftNostril = new THREE.Mesh(nostrilGeom, headMaterial);
-            leftNostril.position.set(-0.06, -0.15, 0.78);
-            noseGroup.add(leftNostril);
-            
-            const rightNostril = new THREE.Mesh(nostrilGeom, headMaterial);
-            rightNostril.position.set(0.06, -0.15, 0.78);
-            noseGroup.add(rightNostril);
-            
-            group.add(noseGroup);
-            
-            // === BOCA ===
-            const lipColor = 0xc17f7f;
-            const lipMaterial = new THREE.MeshStandardMaterial({ color: lipColor, roughness: 0.4 });
-            
-            // Labio superior
-            const upperLipGeom = new THREE.TorusGeometry(0.08, 0.02, 8, 16, Math.PI);
-            const upperLip = new THREE.Mesh(upperLipGeom, lipMaterial);
-            upperLip.position.set(0, -0.38, 0.75);
-            upperLip.rotation.x = Math.PI;
-            upperLip.scale.set(1.4, 1, 1);
-            group.add(upperLip);
-            
-            // Labio inferior
-            const lowerLipGeom = new THREE.TorusGeometry(0.09, 0.025, 8, 16, Math.PI);
-            const lowerLip = new THREE.Mesh(lowerLipGeom, lipMaterial);
-            lowerLip.position.set(0, -0.45, 0.72);
-            lowerLip.scale.set(1.3, 1, 0.8);
-            group.add(lowerLip);
-            
-            // === PELO ===
-            addHair3D(group, rng, edad, faceWidth, faceHeight, THREE);
-            
-            // === GAFAS (según edad) ===
-            if (edad >= 35 && rng.next() < (edad - 30) * 0.025) {
-                addGlasses3D(group, rng, THREE);
-            }
-            
-            // === MEJILLAS (si peso alto) ===
-            if (peso > 80) {
-                const cheekSize = 0.1 + (peso - 80) * 0.003;
-                const cheekGeom = new THREE.SphereGeometry(cheekSize, 16, 16);
-                
-                const leftCheek = new THREE.Mesh(cheekGeom, headMaterial);
-                leftCheek.position.set(-0.4, -0.15, 0.65);
-                leftCheek.scale.set(1.2, 0.8, 0.6);
-                group.add(leftCheek);
-                
-                const rightCheek = new THREE.Mesh(cheekGeom, headMaterial);
-                rightCheek.position.set(0.4, -0.15, 0.65);
-                rightCheek.scale.set(1.2, 0.8, 0.6);
-                group.add(rightCheek);
-            }
-            
-            // Añadir a escena y renderizar
-            avatarScene.add(group);
-            avatarRenderer.render(avatarScene, avatarCamera);
-            
-            // Obtener imagen como base64
-            const dataUrl = avatarRenderer.domElement.toDataURL('image/png');
-            
-            // Limpiar
-            avatarScene.remove(group);
-            
-            return dataUrl;
+            return svg;
         }
         
-        // Añadir pelo 3D
-        function addHair3D(group, rng, edad, faceWidth, faceHeight, THREE) {
-            // Color de pelo según edad
-            let hairColor;
-            if (edad >= 50) {
-                hairColor = rng.next() < 0.7 ? 0xc0c0c0 : 0x808080;
-            } else if (edad >= 40) {
-                hairColor = rng.next() < 0.4 ? 0x808080 : 0x3e2723;
-            } else if (edad >= 30) {
-                const colors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524];
-                hairColor = rng.next() < 0.15 ? 0x808080 : colors[rng.int(0, colors.length - 1)];
-            } else {
-                const colors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524, 0xd4a574];
-                hairColor = colors[rng.int(0, colors.length - 1)];
+        function generateNose(style, skin, rng, peso) {
+            let svg = '';
+            const noseY = 120;
+            const noseWidth = 8 + (peso - 70) * 0.1;
+            
+            switch(style) {
+                case 0: // Nariz recta
+                    svg += `<path d="M100,${noseY - 20} L100,${noseY + 10} M${100 - noseWidth},${noseY + 8} Q100,${noseY + 15} ${100 + noseWidth},${noseY + 8}" stroke="${skin.shadow}" stroke-width="2" fill="none"/>`;
+                    break;
+                case 1: // Nariz aguileña
+                    svg += `<path d="M100,${noseY - 20} Q95,${noseY} 100,${noseY + 5} M${100 - noseWidth},${noseY + 8} Q100,${noseY + 15} ${100 + noseWidth},${noseY + 8}" stroke="${skin.shadow}" stroke-width="2" fill="none"/>`;
+                    break;
+                case 2: // Nariz pequeña
+                    svg += `<path d="M100,${noseY - 10} L100,${noseY + 5} M${100 - noseWidth},${noseY + 3} Q100,${noseY + 8} ${100 + noseWidth},${noseY + 3}" stroke="${skin.shadow}" stroke-width="1.5" fill="none"/>`;
+                    break;
+                default: // Nariz ancha
+                    svg += `<path d="M100,${noseY - 20} L100,${noseY + 5} M${100 - noseWidth - 3},${noseY + 10} Q100,${noseY + 18} ${100 + noseWidth + 3},${noseY + 10}" stroke="${skin.shadow}" stroke-width="2" fill="none"/>`;
+                    svg += `<ellipse cx="${100 - noseWidth - 2}" cy="${noseY + 8}" rx="4" ry="3" fill="${skin.shadow}" opacity="0.3"/>`;
+                    svg += `<ellipse cx="${100 + noseWidth + 2}" cy="${noseY + 8}" rx="4" ry="3" fill="${skin.shadow}" opacity="0.3"/>`;
             }
-            
-            const hairMaterial = new THREE.MeshStandardMaterial({ 
-                color: hairColor, 
-                roughness: 0.8,
-                metalness: 0.1
-            });
-            
-            // Calvicie según edad
-            const baldProb = edad >= 45 ? 0.3 : (edad >= 35 ? 0.15 : 0.02);
-            const isBald = rng.next() < baldProb;
-            
-            if (isBald && edad >= 35) {
-                // Pelo lateral para calvos
-                const sideGeom = new THREE.SphereGeometry(0.25, 16, 16);
-                
-                const leftSide = new THREE.Mesh(sideGeom, hairMaterial);
-                leftSide.position.set(-0.65 * faceWidth, 0.45, 0);
-                leftSide.scale.set(0.4, 0.6, 0.3);
-                group.add(leftSide);
-                
-                const rightSide = new THREE.Mesh(sideGeom, hairMaterial);
-                rightSide.position.set(0.65 * faceWidth, 0.45, 0);
-                rightSide.scale.set(0.4, 0.6, 0.3);
-                group.add(rightSide);
-                
-                return;
-            }
-            
-            // Base del pelo
-            const hairBaseGeom = new THREE.SphereGeometry(0.88, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2);
-            const hairBase = new THREE.Mesh(hairBaseGeom, hairMaterial);
-            hairBase.position.y = 0.08 * faceHeight;
-            hairBase.scale.set(faceWidth, 0.5, 0.95);
-            group.add(hairBase);
-            
-            // Volumen adicional según estilo
-            const hairStyle = rng.int(0, 4);
-            
-            switch (hairStyle) {
-                case 0: // Pelo corto
-                    break;
-                    
-                case 1: // Flequillo
-                    const bangGeom = new THREE.BoxGeometry(0.45 * faceWidth, 0.12, 0.18);
-                    const bang = new THREE.Mesh(bangGeom, hairMaterial);
-                    bang.position.set(0, 0.55 * faceHeight, 0.6);
-                    group.add(bang);
-                    break;
-                    
-                case 2: // Pelo hacia atrás
-                    const backGeom = new THREE.SphereGeometry(0.5, 24, 16);
-                    const backHair = new THREE.Mesh(backGeom, hairMaterial);
-                    backHair.position.set(0, 0.5 * faceHeight, -0.25);
-                    backHair.scale.set(faceWidth * 0.9, 0.35, 0.6);
-                    group.add(backHair);
-                    break;
-                    
-                case 3: // Pelo lateral
-                    const sidePartGeom = new THREE.BoxGeometry(0.25, 0.18, 0.22);
-                    const sidePart = new THREE.Mesh(sidePartGeom, hairMaterial);
-                    sidePart.position.set(-0.32 * faceWidth, 0.52 * faceHeight, 0.5);
-                    sidePart.rotation.z = -0.15;
-                    group.add(sidePart);
-                    break;
-                    
-                case 4: // Rapado
-                    hairBase.material = new THREE.MeshStandardMaterial({ 
-                        color: hairColor, 
-                        roughness: 0.9,
-                        metalness: 0.0,
-                        transparent: true,
-                        opacity: 0.7
-                    });
-                    hairBase.scale.set(faceWidth, 0.2, 0.9);
-                    break;
-            }
-            
-            // Añadir mechones para más volumen
-            if (hairStyle < 4 && rng.next() > 0.5) {
-                const strandGeom = new THREE.SphereGeometry(0.08, 8, 8);
-                for (let i = 0; i < 3; i++) {
-                    const strand = new THREE.Mesh(strandGeom, hairMaterial);
-                    strand.position.set(
-                        rng.range(-0.3, 0.3) * faceWidth,
-                        0.6 * faceHeight + rng.range(0, 0.1),
-                        rng.range(0.3, 0.6)
-                    );
-                    strand.scale.set(1.5, 1, 0.8);
-                    group.add(strand);
-                }
-            }
+            return svg;
         }
         
-        // Añadir gafas 3D
-        function addGlasses3D(group, rng, THREE) {
-            const frameMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x1a1a1a, 
-                roughness: 0.3,
-                metalness: 0.5 
-            });
-            const lensMaterial = new THREE.MeshStandardMaterial({ 
-                color: 0x87ceeb, 
-                transparent: true, 
-                opacity: 0.25,
-                roughness: 0.1,
-                metalness: 0.1
-            });
+        function generateMustache(style, color, shadow, rng) {
+            let svg = '';
+            const y = 148;
+            svg += `<path d="M80,${y} Q90,${y + 5} 100,${y + 2} Q110,${y + 5} 120,${y}" stroke="${color}" stroke-width="4" fill="none" stroke-linecap="round"/>`;
+            return svg;
+        }
+        
+        function generateBeard(style, color, shadow, weightFactor, rng) {
+            let svg = '';
+            const beardOpacity = 0.8;
             
-            // Marcos redondos
-            const frameGeom = new THREE.TorusGeometry(0.14, 0.012, 8, 24);
+            switch(style) {
+                case 0: // Barba completa corta
+                    svg += `<ellipse cx="100" cy="175" rx="${40 + weightFactor*3}" ry="30" fill="${color}" opacity="${beardOpacity}"/>`;
+                    svg += `<ellipse cx="100" cy="165" rx="${45 + weightFactor*3}" ry="20" fill="${color}" opacity="${beardOpacity}"/>`;
+                    break;
+                case 1: // Perilla
+                    svg += `<ellipse cx="100" cy="185" rx="12" ry="18" fill="${color}" opacity="${beardOpacity}"/>`;
+                    break;
+                case 2: // Barba de 3 días
+                    svg += `<ellipse cx="100" cy="170" rx="${35 + weightFactor*2}" ry="25" fill="${color}" opacity="0.4"/>`;
+                    break;
+                case 3: // Barba estilo ancla
+                    svg += `<path d="M85,160 Q100,165 115,160 L115,175 Q100,200 85,175 Z" fill="${color}" opacity="${beardOpacity}"/>`;
+                    svg += `<ellipse cx="100" cy="190" rx="10" ry="15" fill="${color}" opacity="${beardOpacity}"/>`;
+                    break;
+            }
+            return svg;
+        }
+        
+        function generateGlasses(eyeY, spacing, rng) {
+            let svg = '';
+            const leftX = 100 - spacing;
+            const rightX = 100 + spacing;
             
-            const leftFrame = new THREE.Mesh(frameGeom, frameMaterial);
-            leftFrame.position.set(-0.28, 0.1, 0.85);
-            group.add(leftFrame);
+            const frameColor = rng.pick(['#1a1a1a', '#2c2c2c', '#4a3020', '#8b4513']);
+            const frameStyle = rng.int(0, 2);
             
-            const rightFrame = new THREE.Mesh(frameGeom, frameMaterial);
-            rightFrame.position.set(0.28, 0.1, 0.85);
-            group.add(rightFrame);
-            
-            // Lentes
-            const lensGeom = new THREE.CircleGeometry(0.125, 24);
-            
-            const leftLens = new THREE.Mesh(lensGeom, lensMaterial);
-            leftLens.position.set(-0.28, 0.1, 0.84);
-            group.add(leftLens);
-            
-            const rightLens = new THREE.Mesh(lensGeom, lensMaterial);
-            rightLens.position.set(0.28, 0.1, 0.84);
-            group.add(rightLens);
+            switch(frameStyle) {
+                case 0: // Redondos
+                    svg += `<circle cx="${leftX}" cy="${eyeY}" r="17" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<circle cx="${rightX}" cy="${eyeY}" r="17" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<ellipse cx="${leftX}" cy="${eyeY}" rx="14" ry="10" fill="rgba(135,206,235,0.1)"/>`;
+                    svg += `<ellipse cx="${rightX}" cy="${eyeY}" rx="14" ry="10" fill="rgba(135,206,235,0.1)"/>`;
+                    break;
+                case 1: // Rectangulares
+                    svg += `<rect x="${leftX - 15}" y="${eyeY - 10}" width="30" height="18" rx="3" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<rect x="${rightX - 15}" y="${eyeY - 10}" width="30" height="18" rx="3" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<rect x="${leftX - 13}" y="${eyeY - 8}" width="26" height="14" rx="2" fill="rgba(135,206,235,0.1)"/>`;
+                    svg += `<rect x="${rightX - 13}" y="${eyeY - 8}" width="26" height="14" rx="2" fill="rgba(135,206,235,0.1)"/>`;
+                    break;
+                case 2: // Aviador
+                    svg += `<path d="M${leftX - 16},${eyeY - 5} Q${leftX - 18},${eyeY + 12} ${leftX},${eyeY + 10} Q${leftX + 18},${eyeY + 12} ${leftX + 16},${eyeY - 5}" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<path d="M${rightX - 16},${eyeY - 5} Q${rightX - 18},${eyeY + 12} ${rightX},${eyeY + 10} Q${rightX + 18},${eyeY + 12} ${rightX + 16},${eyeY - 5}" fill="none" stroke="${frameColor}" stroke-width="2.5"/>`;
+                    svg += `<path d="M${leftX - 14},${eyeY - 3} Q${leftX - 16},${eyeY + 9} ${leftX},${eyeY + 7} Q${leftX + 16},${eyeY + 9} ${leftX + 14},${eyeY - 3}" fill="rgba(135,206,235,0.15)"/>`;
+                    svg += `<path d="M${rightX - 14},${eyeY - 3} Q${rightX - 16},${eyeY + 9} ${rightX},${eyeY + 7} Q${rightX + 16},${eyeY + 9} ${rightX + 14},${eyeY - 3}" fill="rgba(135,206,235,0.15)"/>`;
+                    break;
+            }
             
             // Puente
-            const bridgeGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 8);
-            const bridge = new THREE.Mesh(bridgeGeom, frameMaterial);
-            bridge.position.set(0, 0.1, 0.88);
-            bridge.rotation.z = Math.PI / 2;
-            group.add(bridge);
+            svg += `<line x1="${leftX + 17}" y1="${eyeY}" x2="${rightX - 17}" y2="${eyeY}" stroke="${frameColor}" stroke-width="2"/>`;
             
             // Patillas
-            const templeGeom = new THREE.BoxGeometry(0.015, 0.015, 0.35);
+            svg += `<line x1="${leftX - 17}" y1="${eyeY}" x2="${leftX - 25}" y2="${eyeY - 5}" stroke="${frameColor}" stroke-width="2"/>`;
+            svg += `<line x1="${rightX + 17}" y1="${eyeY}" x2="${rightX + 25}" y2="${eyeY - 5}" stroke="${frameColor}" stroke-width="2"/>`;
             
-            const leftTemple = new THREE.Mesh(templeGeom, frameMaterial);
-            leftTemple.position.set(-0.42, 0.1, 0.65);
-            group.add(leftTemple);
+            return svg;
+        }
+        
+        function generateMouth(y, style, skin, rng) {
+            let svg = '';
+            const mouthWidth = 18 + rng.int(-3, 5);
+            const lipColor = rng.pick(['#c17f7f', '#d4918a', '#b86b6b', '#a05a5a']);
             
-            const rightTemple = new THREE.Mesh(templeGeom, frameMaterial);
-            rightTemple.position.set(0.42, 0.1, 0.65);
-            group.add(rightTemple);
+            switch(style) {
+                case 0: // Sonrisa natural
+                    svg += `<path d="M${100 - mouthWidth},${y} Q100,${y + 12} ${100 + mouthWidth},${y}" stroke="${lipColor}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+                    break;
+                case 1: // Boca seria
+                    svg += `<line x1="${100 - mouthWidth}" y1="${y}" x2="${100 + mouthWidth}" y2="${y}" stroke="${lipColor}" stroke-width="3" stroke-linecap="round"/>`;
+                    break;
+                case 2: // Media sonrisa
+                    svg += `<path d="M${100 - mouthWidth},${y} Q100,${y + 8} ${100 + mouthWidth},${y - 2}" stroke="${lipColor}" stroke-width="3" fill="none" stroke-linecap="round"/>`;
+                    break;
+            }
+            
+            // Labio inferior
+            svg += `<path d="M${100 - mouthWidth + 5},${y + 5} Q100,${y + 10} ${100 + mouthWidth - 5},${y + 5}" fill="${lipColor}" opacity="0.6"/>`;
+            
+            return svg;
+        }
+        
+        // Convertir SVG a PNG base64
+        function svgToPngBase64(svgString) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 200;
+            canvas.height = 250;
+            const ctx = canvas.getContext('2d');
+            
+            const img = new Image();
+            const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+            const url = URL.createObjectURL(svgBlob);
+            
+            return new Promise((resolve) => {
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                    URL.revokeObjectURL(url);
+                    resolve(canvas.toDataURL('image/png'));
+                };
+                img.src = url;
+            });
         }
         
         // ========================================
@@ -886,17 +866,13 @@
             btn.disabled = true;
             
             try {
-                // Cargar Three.js
+                // Verificar estado actual
                 showProgressModal({
                     type: 'loading',
-                    title: 'Cargando Three.js',
-                    text: 'Preparando motor 3D...'
+                    title: 'Verificando avatares',
+                    text: 'Consultando base de datos...'
                 });
                 
-                await loadThreeJS();
-                initThreeScene();
-                
-                // Verificar estado actual
                 const statusRes = await fetch('/api/admin/avatars-status');
                 const statusData = await statusRes.json();
                 
@@ -904,7 +880,7 @@
                     showProgressModal({
                         type: 'warning',
                         title: 'Avatares ya generados',
-                        text: `Todos los ${statusData.total} pilotos ya tienen avatar. ¿Quieres regenerarlos todos?`,
+                        text: `Todos los ${statusData.total} pilotos ya tienen avatar.`,
                         showClose: true
                     });
                     btn.disabled = false;
@@ -922,16 +898,15 @@
                     return;
                 }
                 
-                // Obtener lista de TODOS los pilotos (para generar en cliente)
+                // Obtener lista de pilotos sin avatar
                 showProgressModal({
                     type: 'loading',
-                    title: 'Generando Avatares 3D',
+                    title: 'Generando Avatares',
                     text: `Preparando ${statusData.sinAvatar} avatares...`,
                     total: statusData.sinAvatar,
                     current: 0
                 });
                 
-                // Usar el nuevo endpoint que devuelve todos los pilotos sin avatar
                 const pilotosRes = await fetch('/api/admin/pilotos-sin-avatar');
                 const pilotos = await pilotosRes.json();
                 
@@ -956,10 +931,10 @@
                         // Actualizar UI
                         updateProgress(processed, total, piloto.nombre);
                         
-                        // Generar avatar 3D con Three.js (devuelve PNG base64)
-                        const avatarData = createAvatar3D(piloto);
+                        // Generar avatar 2D estilo retrato (devuelve Promise PNG base64)
+                        const avatarData = await createAvatar3D(piloto);
                         
-                        // Guardar en servidor (convierte a binario)
+                        // Guardar en servidor
                         const saveRes = await fetch('/api/admin/save-avatar', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -1034,7 +1009,7 @@
             
             progressIcon.textContent = '✅';
             progressTitle.textContent = '¡Proceso Completado!';
-            progressText.textContent = `Se generaron ${data.updated} avatares 3D correctamente.`;
+            progressText.textContent = `Se generaron ${data.updated} avatares correctamente.`;
             
             if (data.errors && data.errors.length > 0) {
                 progressDetails.innerHTML = `
