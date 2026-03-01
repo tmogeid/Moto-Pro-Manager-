@@ -837,54 +837,107 @@
             'oscura': '614335'
         };
 
-        // Generar apariencia aleatoria basada en ID (consistente)
-        function generarAparienciaDesdeId(pilotoId) {
-            // Usar el ID como semilla para generar apariencia consistente
+        // Generar apariencia basada en ID, edad y peso
+        function generarApariencia(pilotoId, edad, peso) {
             const seed = pilotoId;
             const random = (offset) => {
                 const x = Math.sin(seed + offset) * 10000;
                 return x - Math.floor(x);
             };
 
-            const peloEstilos = ['short01', 'short02', 'short03', 'short04', 'short05', 'short06', 'short07', 'short08', 'short09', 'short10', 'short11', 'short12', 'short13', 'short14', 'short15'];
-            const peloColores = Object.keys(HAIR_COLORS_DICEBEAR);
+            // Pelo basado en edad
+            let peloEstilos;
+            if (edad >= 40) {
+                // Mayor: más probabilidad de calvicie y pelo gris
+                peloEstilos = ['short01', 'short02', 'short03', 'bald', 'bald', 'bald'];
+            } else if (edad >= 30) {
+                // Adulto: algo de calvicie
+                peloEstilos = ['short01', 'short02', 'short03', 'short04', 'short05', 'bald'];
+            } else {
+                // Joven: pelo abundante
+                peloEstilos = ['short01', 'short02', 'short03', 'short04', 'short05', 'short06', 
+                              'short07', 'short08', 'short09', 'short10', 'short11', 'short12'];
+            }
+
+            // Color de pelo basado en edad
+            let peloColores;
+            if (edad >= 45) {
+                peloColores = ['gris', 'gris', 'negro', 'castaño'];
+            } else if (edad >= 35) {
+                peloColores = ['negro', 'castaño', 'castaño', 'gris'];
+            } else {
+                peloColores = ['negro', 'castaño', 'rubio', 'pelirrojo', 'negro', 'castaño'];
+            }
+
+            // Tono de piel basado en nacionalidad/región (usando seed)
             const pieles = Object.keys(SKIN_TONES_DICEBEAR);
+
+            // Cara basada en peso (topType afecta forma)
+            // Peso bajo (<65): cara más delgada
+            // Peso medio (65-80): normal
+            // Peso alto (>80): cara más redonda
+            let accessories = [];
+            if (random(10) > 0.85) {
+                accessories.push(random(11) > 0.5 ? 'prescription01' : 'prescription02');
+            }
+            // Más probabilidad de gafas con edad
+            if (edad >= 35 && random(12) > 0.6) {
+                accessories = ['prescription01', 'prescription02'].slice(0, 1);
+            }
 
             return {
                 peloEstilo: peloEstilos[Math.floor(random(1) * peloEstilos.length)],
                 peloColor: peloColores[Math.floor(random(2) * peloColores.length)],
                 pielTono: pieles[Math.floor(random(3) * pieles.length)],
-                accesorios: random(4) > 0.8 ? ['prescription01'] : [] // 20% probabilidad de gafas
+                accessories: accessories,
+                // Peso afecta el "top" (cara más redonda)
+                pesoFactor: peso
             };
         }
 
-        // Generar URL de avatar con DiceBear
-        function getAvatarUrl(pilotoId, nombre = '') {
-            const apariencia = generarAparienciaDesdeId(pilotoId);
+        // Generar URL de avatar con DiceBear estilo "personas" (más realista)
+        function getAvatarUrl(pilotoId, edad = 25, peso = 70) {
+            const apariencia = generarApariencia(pilotoId, edad, peso);
             
-            // Construir opciones para DiceBear
-            const options = {
-                seed: pilotoId,
-                backgroundColor: 'transparent',
-                hairColor: HAIR_COLORS_DICEBEAR[apariencia.peloColor] || '4a3728',
-                skinColor: SKIN_TONES_DICEBEAR[apariencia.pielTono] || 'edb98a',
-                hairStyle: apariencia.peloEstilo,
-                accessories: apariencia.accesorios.join(',')
-            };
-
-            // Construir URL
+            // Construir parámetros para DiceBear estilo "personas"
             const params = new URLSearchParams();
-            params.append('seed', options.seed);
-            params.append('backgroundColor', options.backgroundColor);
+            params.append('seed', pilotoId);
+            params.append('backgroundColor', 'transparent');
             
-            // Usar avataaars style de DiceBear
-            return `https://api.dicebear.com/7.x/avataaars/svg?${params.toString()}`;
+            // Aplicar color de pelo si no es calvo
+            if (apariencia.peloEstilo !== 'bald' && HAIR_COLORS_DICEBEAR[apariencia.peloColor]) {
+                params.append('hairColor', HAIR_COLORS_DICEBEAR[apariencia.peloColor]);
+            }
+            
+            // Aplicar tono de piel
+            params.append('skinColor', SKIN_TONES_DICEBEAR[apariencia.pielTono] || 'edb98a');
+            
+            // Gafas si aplica
+            if (apariencia.accessories.length > 0) {
+                params.append('accessories', apariencia.accessories[0]);
+                params.append('accessoriesColor', '262626');
+            }
+            
+            // Estilo "personas" es más realista que "avataaars"
+            return `https://api.dicebear.com/7.x/personas/svg?${params.toString()}`;
         }
 
-        // Función alternativa más simple usando solo seed
-        function getAvatarUrlSimple(pilotoId) {
-            // DiceBear genera avatares consistentes basados en el seed
-            return `https://api.dicebear.com/7.x/avataaars/svg?seed=piloto${pilotoId}&backgroundColor=transparent`;
+        // Función simple con edad y peso
+        function getAvatarUrlSimple(pilotoId, edad = 25, peso = 70) {
+            // Usar el estilo "personas" que es más realista
+            const params = new URLSearchParams();
+            params.append('seed', pilotoId);
+            params.append('backgroundColor', 'transparent');
+            
+            // Edad afecta probabilidades (se pasa como hint en el seed)
+            const ageHint = edad >= 35 ? 'mature' : 'young';
+            const weightHint = peso > 80 ? 'heavy' : peso < 65 ? 'light' : 'normal';
+            
+            // Incorporar edad y peso en el seed para variación
+            const modifiedSeed = `${pilotoId}-${edad}-${Math.floor(peso/10)}`;
+            params.set('seed', modifiedSeed);
+            
+            return `https://api.dicebear.com/7.x/personas/svg?${params.toString()}`;
         }
 
         // Mapeo de atributos para mostrar
@@ -1111,7 +1164,7 @@
                     <!-- Header del piloto -->
                     <div class="piloto-header-section">
                         <div class="piloto-avatar-large">
-                            <img src="${getAvatarUrlSimple(piloto.id)}" alt="${piloto.nombre}" onerror="this.style.display='none';this.parentElement.innerText='${piloto.nombre.charAt(0).toUpperCase()}'">
+                            <img src="${getAvatarUrlSimple(piloto.id, piloto.edad, piloto.peso)}" alt="${piloto.nombre}" onerror="this.style.display='none';this.parentElement.innerText='${piloto.nombre.charAt(0).toUpperCase()}'">
                         </div>
                         <div class="piloto-main-info" style="width: 100%;">
                             <h1>${piloto.nombre}</h1>
@@ -1308,7 +1361,7 @@
                             return `
                                 <button class="piloto-nav-btn ${index === 0 ? 'active' : ''}" onclick="seleccionarPilotoNav(${p.id})">
                                     <span class="piloto-nav-avatar">
-                                        <img src="${getAvatarUrlSimple(p.id)}" alt="${p.nombre}" style="width:100%;height:100%;border-radius:50%;" onerror="this.parentElement.innerText='${p.nombre.charAt(0).toUpperCase()}'">
+                                        <img src="${getAvatarUrlSimple(p.id, p.edad, p.peso)}" alt="${p.nombre}" style="width:100%;height:100%;border-radius:50%;" onerror="this.parentElement.innerText='${p.nombre.charAt(0).toUpperCase()}'">
                                     </span>
                                     <span class="piloto-nav-nombre">${p.nombre.split(' ')[0]}</span>
                                     <span class="piloto-nav-media ${mediaClass}">⭐${media}</span>
