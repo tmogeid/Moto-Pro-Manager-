@@ -49,6 +49,13 @@
             font-weight: bold;
             color: white;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .piloto-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .piloto-main-info {
@@ -809,6 +816,67 @@
         let budget = 0;
         let selectedPilotoId = null; // Piloto actualmente visible
 
+        // ============================================
+        // SISTEMA DE AVATARES 3D CON THREE.JS
+        // ============================================
+        
+        let avatarGenerator = null;
+        let avatarCache = {};
+        
+        // Cargar Three.js dinámicamente
+        function loadThreeJS() {
+            return new Promise((resolve, reject) => {
+                if (window.THREE) {
+                    resolve();
+                    return;
+                }
+                
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/three@0.183.2/build/three.min.js';
+                script.onload = () => {
+                    console.log('Three.js cargado');
+                    resolve();
+                };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Inicializar generador de avatares
+        async function initAvatarGenerator() {
+            try {
+                await loadThreeJS();
+                avatarGenerator = new AvatarGenerator();
+                console.log('AvatarGenerator inicializado');
+            } catch (error) {
+                console.error('Error inicializando avatar generator:', error);
+            }
+        }
+        
+        // Generar avatar para un piloto
+        function generatePilotoAvatar(piloto) {
+            if (!avatarGenerator) return null;
+            
+            // Usar cache si existe
+            if (avatarCache[piloto.id]) {
+                return avatarCache[piloto.id];
+            }
+            
+            try {
+                const avatarUrl = avatarGenerator.generateAvatar({
+                    id: piloto.id,
+                    edad: piloto.edad || 25,
+                    peso: piloto.peso || 70
+                });
+                
+                avatarCache[piloto.id] = avatarUrl;
+                return avatarUrl;
+            } catch (error) {
+                console.error('Error generando avatar:', error);
+                return null;
+            }
+        }
+
         // Mapeo de atributos para mostrar
         const atributosInfo = {
             ritmo: { nombre: 'Ritmo', icon: '⏱️', descripcion: 'Capacidad del piloto para mantener tiempos de vuelta consistentes durante toda la carrera. Un ritmo alto permite gestionar mejor el desgaste de neumáticos y mantener la concentración.' },
@@ -1032,7 +1100,9 @@
                 <div class="piloto-main-card" data-piloto-id="${piloto.id}">
                     <!-- Header del piloto -->
                     <div class="piloto-header-section">
-                        <div class="piloto-avatar-large">${piloto.nombre.charAt(0).toUpperCase()}</div>
+                        <div class="piloto-avatar-large" id="avatar-${piloto.id}">
+                            <span class="avatar-initial">${piloto.nombre.charAt(0).toUpperCase()}</span>
+                        </div>
                         <div class="piloto-main-info" style="width: 100%;">
                             <h1>${piloto.nombre}</h1>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -1543,7 +1613,33 @@
 
         // Inicializar
         cargarPilotos();
+        
+        // ============================================
+        // INICIALIZACIÓN DE AVATARES 3D
+        // ============================================
+        
+        async function initAvatares() {
+            // Cargar Three.js y el generador
+            await initAvatarGenerator();
+            
+            // Generar avatares para todos los pilotos cargados
+            if (pilotosData.length > 0) {
+                for (const piloto of pilotosData) {
+                    const avatarUrl = generatePilotoAvatar(piloto);
+                    if (avatarUrl) {
+                        const avatarEl = document.getElementById(`avatar-${piloto.id}`);
+                        if (avatarEl) {
+                            avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${piloto.nombre}">`;
+                        }
+                    }
+                }
+            }
+        }
+        
+        // Iniciar carga de avatares después de un pequeño delay
+        setTimeout(initAvatares, 100);
     </script>
+    <script src="js/avatar/avatar-3d.js"></script>
 <script src="preload-fondos.js"></script>
 </body>
 </html>
