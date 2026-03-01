@@ -49,6 +49,13 @@
             font-weight: bold;
             color: white;
             flex-shrink: 0;
+            overflow: hidden;
+        }
+
+        .piloto-avatar-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
         }
 
         .piloto-main-info {
@@ -809,6 +816,77 @@
         let budget = 0;
         let selectedPilotoId = null; // Piloto actualmente visible
 
+        // ============================================
+        // SISTEMA DE AVATARES (DiceBear)
+        // ============================================
+        
+        // Colores para mapear a DiceBear
+        const HAIR_COLORS_DICEBEAR = {
+            'negro': '0e0e0e',
+            'castaño': '4a3728',
+            'rubio': 'd4a574',
+            'pelirrojo': 'c04a29',
+            'gris': '808080',
+            'calvo': null
+        };
+
+        const SKIN_TONES_DICEBEAR = {
+            'clara': 'ffdbb4',
+            'media': 'edb98a',
+            'morena': 'd08b5b',
+            'oscura': '614335'
+        };
+
+        // Generar apariencia aleatoria basada en ID (consistente)
+        function generarAparienciaDesdeId(pilotoId) {
+            // Usar el ID como semilla para generar apariencia consistente
+            const seed = pilotoId;
+            const random = (offset) => {
+                const x = Math.sin(seed + offset) * 10000;
+                return x - Math.floor(x);
+            };
+
+            const peloEstilos = ['short01', 'short02', 'short03', 'short04', 'short05', 'short06', 'short07', 'short08', 'short09', 'short10', 'short11', 'short12', 'short13', 'short14', 'short15'];
+            const peloColores = Object.keys(HAIR_COLORS_DICEBEAR);
+            const pieles = Object.keys(SKIN_TONES_DICEBEAR);
+
+            return {
+                peloEstilo: peloEstilos[Math.floor(random(1) * peloEstilos.length)],
+                peloColor: peloColores[Math.floor(random(2) * peloColores.length)],
+                pielTono: pieles[Math.floor(random(3) * pieles.length)],
+                accesorios: random(4) > 0.8 ? ['prescription01'] : [] // 20% probabilidad de gafas
+            };
+        }
+
+        // Generar URL de avatar con DiceBear
+        function getAvatarUrl(pilotoId, nombre = '') {
+            const apariencia = generarAparienciaDesdeId(pilotoId);
+            
+            // Construir opciones para DiceBear
+            const options = {
+                seed: pilotoId,
+                backgroundColor: 'transparent',
+                hairColor: HAIR_COLORS_DICEBEAR[apariencia.peloColor] || '4a3728',
+                skinColor: SKIN_TONES_DICEBEAR[apariencia.pielTono] || 'edb98a',
+                hairStyle: apariencia.peloEstilo,
+                accessories: apariencia.accesorios.join(',')
+            };
+
+            // Construir URL
+            const params = new URLSearchParams();
+            params.append('seed', options.seed);
+            params.append('backgroundColor', options.backgroundColor);
+            
+            // Usar avataaars style de DiceBear
+            return `https://api.dicebear.com/7.x/avataaars/svg?${params.toString()}`;
+        }
+
+        // Función alternativa más simple usando solo seed
+        function getAvatarUrlSimple(pilotoId) {
+            // DiceBear genera avatares consistentes basados en el seed
+            return `https://api.dicebear.com/7.x/avataaars/svg?seed=piloto${pilotoId}&backgroundColor=transparent`;
+        }
+
         // Mapeo de atributos para mostrar
         const atributosInfo = {
             ritmo: { nombre: 'Ritmo', icon: '⏱️', descripcion: 'Capacidad del piloto para mantener tiempos de vuelta consistentes durante toda la carrera. Un ritmo alto permite gestionar mejor el desgaste de neumáticos y mantener la concentración.' },
@@ -1032,7 +1110,9 @@
                 <div class="piloto-main-card" data-piloto-id="${piloto.id}">
                     <!-- Header del piloto -->
                     <div class="piloto-header-section">
-                        <div class="piloto-avatar-large">${piloto.nombre.charAt(0).toUpperCase()}</div>
+                        <div class="piloto-avatar-large">
+                            <img src="${getAvatarUrlSimple(piloto.id)}" alt="${piloto.nombre}" onerror="this.style.display='none';this.parentElement.innerText='${piloto.nombre.charAt(0).toUpperCase()}'">
+                        </div>
                         <div class="piloto-main-info" style="width: 100%;">
                             <h1>${piloto.nombre}</h1>
                             <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
@@ -1227,7 +1307,9 @@
                             const mediaClass = media >= 70 ? 'high' : media >= 50 ? 'medium' : 'low';
                             return `
                                 <button class="piloto-nav-btn ${index === 0 ? 'active' : ''}" onclick="seleccionarPilotoNav(${p.id})">
-                                    <span class="piloto-nav-avatar">${p.nombre.charAt(0).toUpperCase()}</span>
+                                    <span class="piloto-nav-avatar">
+                                        <img src="${getAvatarUrlSimple(p.id)}" alt="${p.nombre}" style="width:100%;height:100%;border-radius:50%;" onerror="this.parentElement.innerText='${p.nombre.charAt(0).toUpperCase()}'">
+                                    </span>
                                     <span class="piloto-nav-nombre">${p.nombre.split(' ')[0]}</span>
                                     <span class="piloto-nav-media ${mediaClass}">⭐${media}</span>
                                 </button>
