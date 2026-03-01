@@ -595,6 +595,44 @@ app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
     }
 });
 
+// --- API ADMIN: VERIFICAR ESTADO DE AVATARES ---
+app.get('/api/admin/avatars-status', requireAuth, async (req, res) => {
+    try {
+        // Verificar que es admin
+        const [userCheck] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+        if (!ADMIN_EMAILS.includes(userCheck[0]?.email.toLowerCase())) {
+            return res.status(403).json({ error: 'No autorizado' });
+        }
+        
+        // Asegurar que existe la columna avatar
+        try {
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
+        } catch (alterErr) {
+            // Ignorar si ya existe
+        }
+        
+        // Contar pilotos totales y con avatar
+        const [stats] = await db.execute(`
+            SELECT 
+                COUNT(*) as total,
+                SUM(CASE WHEN avatar IS NOT NULL AND avatar != '' THEN 1 ELSE 0 END) as con_avatar
+            FROM pilotos
+        `);
+        
+        res.json({
+            total: stats[0].total,
+            conAvatar: stats[0].con_avatar,
+            sinAvatar: stats[0].total - stats[0].con_avatar,
+            todosCompletos: stats[0].total > 0 && stats[0].total === stats[0].con_avatar
+        });
+        
+    } catch (e) {
+        console.error("ERROR VERIFICANDO AVATARES:", e);
+        res.status(500).json({ error: 'Error del servidor: ' + e.message });
+    }
+});
+
 // --- API ADMIN: GENERAR AVATARES PARA TODOS LOS PILOTOS ---
 app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
     try {
@@ -619,7 +657,7 @@ app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
         `);
         
         if (pilotos.length === 0) {
-            return res.json({ success: true, message: 'No hay pilotos para actualizar', updated: 0 });
+            return res.json({ success: true, message: 'No hay pilotos en la base de datos', updated: 0, total: 0 });
         }
         
         // Generar y guardar avatar para cada piloto
@@ -644,7 +682,7 @@ app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
         
         res.json({ 
             success: true, 
-            message: `Avatares generados: ${updated}/${pilotos.length}`,
+            message: `Avatares generados correctamente`,
             updated,
             total: pilotos.length,
             errors: errors.length > 0 ? errors : undefined

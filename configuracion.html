@@ -139,7 +139,8 @@
                 <div class="admin-tool">
                     <h3>🖼️ Avatares de Pilotos</h3>
                     <p>Genera avatares SVG para todos los pilotos del juego. Los avatares se guardan en la base de datos y se basan en la edad y peso de cada piloto.</p>
-                    <button class="btn-admin" id="btnGenerateAvatars" onclick="generateAvatars()">
+                    <div id="avatarStatusInfo" class="admin-status-info"></div>
+                    <button class="btn-admin" id="btnGenerateAvatars" onclick="checkAndGenerateAvatars()">
                         🔄 Actualizar Avatares de Pilotos
                     </button>
                     <div id="avatarStatus" class="admin-status"></div>
@@ -153,6 +154,25 @@
                     </button>
                     <div id="systemStatus" class="admin-status"></div>
                 </div>
+            </div>
+        </section>
+        
+        <!-- Modal de Progreso -->
+        <div class="modal-overlay" id="progressModal">
+            <div class="modal-box modal-progress">
+                <button class="modal-close-btn" id="progressCloseBtn" onclick="closeProgressModal()" style="display: none;">✕</button>
+                <div class="modal-icon" id="progressIcon">⏳</div>
+                <h3 class="modal-title" id="progressTitle">Generando Avatares</h3>
+                <p class="modal-text" id="progressText">Procesando pilotos...</p>
+                
+                <div class="progress-container" id="progressContainer">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+                    </div>
+                    <div class="progress-text" id="progressPercent">0%</div>
+                </div>
+                
+                <div class="progress-details" id="progressDetails"></div>
             </div>
         </section>
     </main>
@@ -209,6 +229,8 @@
                         isAdmin = true;
                         document.getElementById('adminSection').style.display = 'block';
                         console.log('[CONFIG] Usuario es admin, panel mostrado');
+                        // Cargar estado de avatares
+                        loadAvatarsStatus();
                     }
                 }
             })
@@ -357,14 +379,75 @@
         // FUNCIONES DE ADMINISTRADOR
         // ========================================
         
-        async function generateAvatars() {
+        // Cargar estado de avatares al iniciar
+        async function loadAvatarsStatus() {
+            if (!isAdmin) return;
+            
+            try {
+                const res = await fetch('/api/admin/avatars-status');
+                const data = await res.json();
+                
+                const statusInfo = document.getElementById('avatarStatusInfo');
+                if (data.total === 0) {
+                    statusInfo.innerHTML = '<span style="color: #888;">ℹ️ No hay pilotos en la base de datos</span>';
+                } else if (data.todosCompletos) {
+                    statusInfo.innerHTML = `<span style="color: #00c853;">✅ Todos los avatares están generados (${data.total}/${data.total})</span>`;
+                } else {
+                    statusInfo.innerHTML = `<span style="color: #ff9800;">⚠️ Avatares pendientes: ${data.sinAvatar} de ${data.total}</span>`;
+                }
+            } catch (err) {
+                console.error('Error cargando estado de avatares:', err);
+            }
+        }
+        
+        // Verificar y generar avatares
+        async function checkAndGenerateAvatars() {
             const statusEl = document.getElementById('avatarStatus');
             const btn = document.getElementById('btnGenerateAvatars');
             
-            statusEl.innerHTML = '<span class="loading">⏳ Generando avatares...</span>';
             btn.disabled = true;
             
             try {
+                // Verificar estado actual
+                const statusRes = await fetch('/api/admin/avatars-status');
+                const statusData = await statusRes.json();
+                
+                if (statusData.todosCompletos) {
+                    // Ya están todos, mostrar aviso
+                    showProgressModal({
+                        type: 'warning',
+                        title: 'Avatares ya generados',
+                        text: `Todos los ${statusData.total} pilotos ya tienen avatar generado. No es necesario actualizar.`,
+                        showClose: true
+                    });
+                    btn.disabled = false;
+                    return;
+                }
+                
+                if (statusData.total === 0) {
+                    showProgressModal({
+                        type: 'info',
+                        title: 'Sin pilotos',
+                        text: 'No hay pilotos en la base de datos para generar avatares.',
+                        showClose: true
+                    });
+                    btn.disabled = false;
+                    return;
+                }
+                
+                // Mostrar modal de progreso
+                showProgressModal({
+                    type: 'loading',
+                    title: 'Generando Avatares',
+                    text: `Preparando ${statusData.sinAvatar} avatares...`,
+                    total: statusData.sinAvatar,
+                    current: 0
+                });
+                
+                // Simular progreso visual mientras se procesa
+                simulateProgress(statusData.sinAvatar);
+                
+                // Llamar a la API
                 const res = await fetch('/api/admin/generate-avatars', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
@@ -372,20 +455,153 @@
                 
                 const data = await res.json();
                 
+                // Actualizar al completar
                 if (res.ok && data.success) {
-                    statusEl.innerHTML = `<span class="success">✅ ${data.message}</span>`;
-                    if (data.errors && data.errors.length > 0) {
-                        statusEl.innerHTML += `<br><small style="color: #ff9800;">Errores: ${data.errors.join(', ')}</small>`;
-                    }
+                    completeProgress({
+                        updated: data.updated,
+                        total: data.total,
+                        errors: data.errors
+                    });
+                    
+                    // Recargar estado
+                    await loadAvatarsStatus();
                 } else {
-                    statusEl.innerHTML = `<span class="error">❌ ${data.error || 'Error desconocido'}</span>`;
+                    showProgressModal({
+                        type: 'error',
+                        title: 'Error',
+                        text: data.error || 'Error desconocido',
+                        showClose: true
+                    });
                 }
+                
             } catch (err) {
-                statusEl.innerHTML = `<span class="error">❌ Error de conexión: ${err.message}</span>`;
+                showProgressModal({
+                    type: 'error',
+                    title: 'Error de Conexión',
+                    text: err.message,
+                    showClose: true
+                });
             } finally {
                 btn.disabled = false;
             }
         }
+        
+        // Simular progreso visual
+        let progressInterval = null;
+        function simulateProgress(total) {
+            let current = 0;
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressDetails = document.getElementById('progressDetails');
+            
+            clearInterval(progressInterval);
+            
+            progressInterval = setInterval(() => {
+                if (current < total - 1) {
+                    current++;
+                    const percent = Math.round((current / total) * 90); // Max 90% hasta que termine
+                    progressFill.style.width = percent + '%';
+                    progressPercent.textContent = percent + '%';
+                    progressDetails.innerHTML = `<span style="color: #ffc107;">Procesando: ${current} / ${total}</span>`;
+                }
+            }, 100);
+        }
+        
+        // Completar progreso
+        function completeProgress(data) {
+            clearInterval(progressInterval);
+            
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const progressDetails = document.getElementById('progressDetails');
+            const progressTitle = document.getElementById('progressTitle');
+            const progressText = document.getElementById('progressText');
+            const progressIcon = document.getElementById('progressIcon');
+            const progressCloseBtn = document.getElementById('progressCloseBtn');
+            const progressContainer = document.getElementById('progressContainer');
+            
+            // Animar al 100%
+            progressFill.style.width = '100%';
+            progressPercent.textContent = '100%';
+            progressFill.style.background = 'linear-gradient(90deg, #00c853, #69f0ae)';
+            
+            // Cambiar a mensaje de éxito
+            progressIcon.textContent = '✅';
+            progressTitle.textContent = '¡Proceso Completado!';
+            progressText.textContent = `Se generaron ${data.updated} avatares correctamente.`;
+            
+            if (data.errors && data.errors.length > 0) {
+                progressDetails.innerHTML = `
+                    <span style="color: #ff9800;">⚠️ ${data.errors.length} errores:</span>
+                    <div style="font-size: 11px; color: #888; margin-top: 8px; max-height: 60px; overflow-y: auto;">
+                        ${data.errors.map(e => `<div>• ${e}</div>`).join('')}
+                    </div>
+                `;
+            } else {
+                progressDetails.innerHTML = '<span style="color: #00c853;">✨ Todos los avatares generados sin errores</span>';
+            }
+            
+            // Mostrar botón de cerrar
+            progressCloseBtn.style.display = 'block';
+        }
+        
+        // Mostrar modal de progreso
+        function showProgressModal(options) {
+            const modal = document.getElementById('progressModal');
+            const progressIcon = document.getElementById('progressIcon');
+            const progressTitle = document.getElementById('progressTitle');
+            const progressText = document.getElementById('progressText');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressDetails = document.getElementById('progressDetails');
+            const progressCloseBtn = document.getElementById('progressCloseBtn');
+            const progressFill = document.getElementById('progressFill');
+            
+            // Reset
+            progressFill.style.width = '0%';
+            progressFill.style.background = 'linear-gradient(90deg, #ffc107, #ff9800)';
+            document.getElementById('progressPercent').textContent = '0%';
+            progressCloseBtn.style.display = options.showClose ? 'block' : 'none';
+            progressDetails.innerHTML = '';
+            
+            switch(options.type) {
+                case 'warning':
+                    progressIcon.textContent = '⚠️';
+                    progressContainer.style.display = 'none';
+                    break;
+                case 'error':
+                    progressIcon.textContent = '❌';
+                    progressContainer.style.display = 'none';
+                    break;
+                case 'info':
+                    progressIcon.textContent = 'ℹ️';
+                    progressContainer.style.display = 'none';
+                    break;
+                case 'loading':
+                    progressIcon.textContent = '⏳';
+                    progressContainer.style.display = 'block';
+                    break;
+                default:
+                    progressContainer.style.display = 'none';
+            }
+            
+            progressTitle.textContent = options.title || 'Procesando';
+            progressText.textContent = options.text || '';
+            
+            modal.classList.add('active');
+        }
+        
+        // Cerrar modal de progreso
+        function closeProgressModal() {
+            clearInterval(progressInterval);
+            document.getElementById('progressModal').classList.remove('active');
+        }
+        
+        // Cerrar al hacer clic fuera
+        document.getElementById('progressModal').addEventListener('click', (e) => {
+            if (e.target.id === 'progressModal') {
+                closeProgressModal();
+            }
+        });
         
         async function ensureAvatarColumn() {
             const statusEl = document.getElementById('systemStatus');
@@ -503,6 +719,94 @@
         
         .admin-status .error {
             color: #f44336;
+        }
+        
+        /* Modal de progreso */
+        .modal-progress {
+            max-width: 400px;
+            text-align: center;
+        }
+        
+        .modal-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: rgba(255, 255, 255, 0.1);
+            color: #888;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .modal-close-btn:hover {
+            background: rgba(255, 87, 34, 0.3);
+            color: #ff5722;
+        }
+        
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            margin: 0 0 8px 0;
+            color: #fff;
+        }
+        
+        .modal-text {
+            font-size: 14px;
+            color: #aaa;
+            margin: 0 0 20px 0;
+        }
+        
+        .progress-container {
+            margin-bottom: 16px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffc107, #ff9800);
+            border-radius: 6px;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-size: 14px;
+            color: #fff;
+            font-weight: bold;
+        }
+        
+        .progress-details {
+            font-size: 13px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        
+        .admin-status-info {
+            padding: 10px 14px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 8px;
+            margin-bottom: 12px;
+            font-size: 13px;
         }
     </style>
 <script src="preload-fondos.js"></script>
