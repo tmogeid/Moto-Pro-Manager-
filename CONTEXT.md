@@ -37,6 +37,172 @@
 - ❌ Boosts de rendimiento
 - ❌ Pilotos exclusivos de pago
 
+### Sistema de "Patrocinio Técnico" (Anuncios con Contexto)
+
+Para que no parezca P2W, los anuncios se presentan como acuerdos de patrocinio que un Manager real gestionaría:
+
+| Anuncio | Nombre Temático | Recurso Obtenido |
+|---------|-----------------|------------------|
+| **Anuncio 1** | "Patrocinador de Neumáticos" | Dinero para piezas |
+| **Anuncio 2** | "Sponsor de Combustible" | Dinero para viajes/logística |
+| **Anuncio 3** | "Derechos de Televisión" | Dinero para el equipo general |
+
+**Ventajas de este enfoque:**
+- El jugador siente que está gestionando acuerdos publicitarios (parte del trabajo de un Manager)
+- No se percibe como "ver anuncio para hacer trampas"
+- Inmersión en el rol de Manager
+- Monetización ética y bien integrada
+
+### Plataformas de Anuncios (eCPM Estimado)
+
+| Plataforma | eCPM Estimado | Veredicto |
+|------------|---------------|-----------|
+| **Google AdSense** | $8 - $12 | Estable, pero aburrido |
+| **AppLixir** | $12 - $18 | Excelente para empezar |
+| **AdinPlay** | $15 - $25 | La mejor opción calidad/precio |
+| **Venatus** | $20 - $35 | Nivel "Pro" (requiere tráfico alto) |
+
+**Recomendación**: Empezar con **AppLixir** para validar el modelo, luego migrar a **AdinPlay** cuando haya tráfico estable.
+
+### ⚠️ Implementación Técnica de Anuncios (CRÍTICO)
+
+**Regla de Oro**: Solo entregar las monedas/recompensas cuando el evento `adDone` o `onAdCompleted` se dispare. **NUNCA** dar recompensa al hacer clic en el botón.
+
+```javascript
+// ❌ INCORRECTO - Nunca hacer esto
+document.getElementById('verAnuncio').addEventListener('click', () => {
+    darRecompensa(); // FÁCIL DE EXPLOTAR
+    mostrarAnuncio();
+});
+
+// ✅ CORRECTO - Solo recompensa cuando el anuncio termina
+document.getElementById('verAnuncio').addEventListener('click', () => {
+    mostrarAnuncio();
+});
+
+function onAdCompleted() {
+    // Este callback lo dispara el SDK del anuncio
+    // Solo aquí es seguro dar la recompensa
+    darRecompensa();
+    actualizarUI();
+}
+
+// Ejemplo con AppLixir
+AppLixir.launchRewardVideoAd({
+    userId: usuario.id,
+    gameId: 'moto-pro-manager',
+    onAdCompleted: () => {
+        // Anuncio visto completamente - dar recompensa
+        fetch('/api/sponsor-reward', {
+            method: 'POST',
+            body: JSON.stringify({ sponsorId: sponsorActual })
+        });
+    },
+    onAdSkipped: () => {
+        // Usuario saltó el anuncio - sin recompensa
+        mostrarMensaje('Debes ver el anuncio completo');
+    },
+    onAdError: (error) => {
+        // Error técnico - log y notificar
+        console.error('Error de anuncio:', error);
+    }
+});
+```
+
+**Beneficios de esta implementación:**
+- Previene fraude (usuarios que cierran antes de terminar)
+- Asegura que los anunciantes paguen por vistas reales
+- Mejora eCPM (los anunciantes pagan más por vistas completas)
+
+### 🎲 Mini-Juego de Negociación con Sponsors
+
+Antes de cada anuncio, el jugador puede "negociar" eligiendo una de 3 opciones. Esto añade interactividad y la sensación de ser un Manager real.
+
+```
+┌─────────────────────────────────────────────────────┐
+│  🤝 NEGOCIACIÓN CON PATROCINADOR                    │
+│  ─────────────────────────────────────────────────  │
+│  Sponsor: Repsol (Patrocinador de Neumáticos)       │
+│                                                     │
+│  "¿Cómo quieres abordar la negociación?"            │
+│                                                     │
+│  ┌─────────────────────────────────────────────┐    │
+│  │ 🔹 Opción A: "Somos un equipo en ascenso"   │    │
+│  │    → 50% probabilidad | x1.5 recompensa     │    │
+│  └─────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────┐    │
+│  │ 🔹 Opción B: "Tenemos resultados sólidos"   │    │
+│  │    → 70% probabilidad | x1.2 recompensa     │    │
+│  └─────────────────────────────────────────────┘    │
+│  ┌─────────────────────────────────────────────┐    │
+│  │ 🔹 Opción C: "Aceptamos lo que ofrezcan"    │    │
+│  │    → 100% probabilidad | x1.0 recompensa    │    │
+│  └─────────────────────────────────────────────┘    │
+│                                                     │
+│           [ NEGOCIAR ]  [ CANCELAR ]               │
+└─────────────────────────────────────────────────────┘
+```
+
+**Mecánica de Probabilidades:**
+
+| Opción | Riesgo | Probabilidad Éxito | Multiplicador | Estilo |
+|--------|--------|-------------------|---------------|--------|
+| **Arriesgada** | Alto | 40% | x2.0 | "Vamos a por todas" |
+| **Moderada** | Medio | 70% | x1.5 | "Negociación estándar" |
+| **Conservadora** | Bajo | 100% | x1.0 | "Lo que sea" |
+
+**Tabla de Resultados:**
+
+| Resultado | Mensaje | Efecto |
+|-----------|---------|--------|
+| **Éxito** | "¡El sponsor aceptó tu propuesta!" | Recompensa × multiplicador |
+| **Fallo** | "El sponsor no estaba convencido..." | Recompensa base (x1.0) |
+
+**Implementación:**
+
+```javascript
+const NEGOTIATION_OPTIONS = {
+    risky: { successRate: 0.4, multiplier: 2.0, label: "Arriesgada" },
+    moderate: { successRate: 0.7, multiplier: 1.5, label: "Moderada" },
+    safe: { successRate: 1.0, multiplier: 1.0, label: "Conservadora" }
+};
+
+function negotiateReward(option) {
+    const config = NEGOTIATION_OPTIONS[option];
+    const success = Math.random() < config.successRate;
+    const finalMultiplier = success ? config.multiplier : 1.0;
+    
+    // Guardar multiplicador para usar después del anuncio
+    pendingRewardMultiplier = finalMultiplier;
+    
+    // Mostrar resultado visual
+    showNegotiationResult(success, finalMultiplier);
+    
+    // Iniciar anuncio
+    setTimeout(() => launchAd(), 1500);
+}
+
+function onAdCompleted() {
+    const baseReward = SPONSOR_REWARDS[currentSponsor];
+    const finalReward = baseReward * pendingRewardMultiplier;
+    
+    fetch('/api/sponsor-reward', {
+        method: 'POST',
+        body: JSON.stringify({ 
+            sponsorId: currentSponsor,
+            multiplier: pendingRewardMultiplier,
+            amount: finalReward
+        })
+    });
+}
+```
+
+**Beneficios:**
+- Mayor engagement (el jugador participa activamente)
+- Sensación de control sobre las finanzas del equipo
+- Variedad en cada interacción con sponsors
+- Elemento de riesgo/recompensa sin ser P2W
+
 ---
 
 ## 🏍️ SISTEMA DE PILOTOS
