@@ -633,6 +633,61 @@ app.get('/api/admin/avatars-status', requireAuth, async (req, res) => {
     }
 });
 
+// --- API ADMIN: OBTENER PILOTOS SIN AVATAR ---
+app.get('/api/admin/pilotos-sin-avatar', requireAuth, async (req, res) => {
+    try {
+        // Verificar que es admin
+        const [userCheck] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+        if (!ADMIN_EMAILS.includes(userCheck[0]?.email.toLowerCase())) {
+            return res.status(403).json({ error: 'No autorizado' });
+        }
+        
+        // Obtener pilotos sin avatar
+        const [pilotos] = await db.execute(`
+            SELECT id, nombre, edad, peso 
+            FROM pilotos 
+            WHERE avatar IS NULL OR avatar = ''
+        `);
+        
+        res.json(pilotos);
+        
+    } catch (e) {
+        console.error("ERROR OBTENIENDO PILOTOS:", e);
+        res.status(500).json({ error: 'Error del servidor: ' + e.message });
+    }
+});
+
+// --- API ADMIN: GUARDAR AVATAR INDIVIDUAL ---
+app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
+    try {
+        // Verificar que es admin
+        const [userCheck] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+        if (!ADMIN_EMAILS.includes(userCheck[0]?.email.toLowerCase())) {
+            return res.status(403).json({ error: 'No autorizado' });
+        }
+        
+        const { pilotoId, avatar } = req.body;
+        
+        if (!pilotoId || !avatar) {
+            return res.status(400).json({ error: 'Faltan datos' });
+        }
+        
+        // Guardar avatar
+        await db.execute(
+            'UPDATE pilotos SET avatar = ? WHERE id = ?',
+            [avatar, pilotoId]
+        );
+        
+        res.json({ success: true });
+        
+    } catch (e) {
+        console.error("ERROR GUARDANDO AVATAR:", e);
+        res.status(500).json({ error: 'Error del servidor: ' + e.message });
+    }
+});
+
 // --- API ADMIN: GENERAR AVATARES PARA TODOS LOS PILOTOS ---
 app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
     try {

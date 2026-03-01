@@ -137,11 +137,11 @@
             
             <div class="admin-tools">
                 <div class="admin-tool">
-                    <h3>🖼️ Avatares de Pilotos</h3>
-                    <p>Genera avatares SVG para todos los pilotos del juego. Los avatares se guardan en la base de datos y se basan en la edad y peso de cada piloto.</p>
+                    <h3>🖼️ Avatares de Pilotos 3D</h3>
+                    <p>Genera avatares 3D realistas con Three.js. Incluyen iluminación profesional, sombras y geometría detallada basada en edad y peso.</p>
                     <div id="avatarStatusInfo" class="admin-status-info"></div>
                     <button class="btn-admin" id="btnGenerateAvatars" onclick="checkAndGenerateAvatars()">
-                        🔄 Actualizar Avatares de Pilotos
+                        🎨 Generar Avatares 3D
                     </button>
                     <div id="avatarStatus" class="admin-status"></div>
                 </div>
@@ -162,7 +162,7 @@
             <div class="modal-box modal-progress">
                 <button class="modal-close-btn" id="progressCloseBtn" onclick="closeProgressModal()" style="display: none;">✕</button>
                 <div class="modal-icon" id="progressIcon">⏳</div>
-                <h3 class="modal-title" id="progressTitle">Generando Avatares</h3>
+                <h3 class="modal-title" id="progressTitle">Generando Avatares 3D</h3>
                 <p class="modal-text" id="progressText">Procesando pilotos...</p>
                 
                 <div class="progress-container" id="progressContainer">
@@ -173,6 +173,7 @@
                 </div>
                 
                 <div class="progress-details" id="progressDetails"></div>
+                <div id="avatarPreview" style="margin-top: 16px;"></div>
             </div>
         </section>
     </main>
@@ -376,6 +377,485 @@
         }
         
         // ========================================
+        // SISTEMA DE AVATARES 3D CON THREE.JS
+        // ========================================
+        
+        let THREE = null;
+        let avatarScene = null;
+        let avatarCamera = null;
+        let avatarRenderer = null;
+        
+        // Cargar Three.js dinámicamente
+        async function loadThreeJS() {
+            if (THREE) return;
+            
+            return new Promise((resolve, reject) => {
+                const script = document.createElement('script');
+                script.src = 'https://unpkg.com/three@0.160.0/build/three.min.js';
+                script.onload = () => {
+                    THREE = window.THREE;
+                    console.log('[AVATAR] Three.js cargado');
+                    resolve();
+                };
+                script.onerror = reject;
+                document.head.appendChild(script);
+            });
+        }
+        
+        // Inicializar escena 3D
+        function initThreeScene() {
+            if (avatarScene) return;
+            
+            // Escena
+            avatarScene = new THREE.Scene();
+            avatarScene.background = null;
+            
+            // Cámara ortográfica para vista frontal
+            const aspect = 1;
+            const frustumSize = 2.5;
+            avatarCamera = new THREE.OrthographicCamera(
+                frustumSize * aspect / -2,
+                frustumSize * aspect / 2,
+                frustumSize / 2,
+                frustumSize / -2,
+                0.1, 100
+            );
+            avatarCamera.position.set(0, 0, 5);
+            avatarCamera.lookAt(0, 0, 0);
+            
+            // Renderer con alpha para fondo transparente
+            avatarRenderer = new THREE.WebGLRenderer({ 
+                antialias: true, 
+                alpha: true,
+                preserveDrawingBuffer: true 
+            });
+            avatarRenderer.setSize(256, 256);
+            avatarRenderer.setPixelRatio(1);
+            avatarRenderer.shadowMap.enabled = true;
+            avatarRenderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            
+            // Iluminación tipo estudio fotográfico
+            // Key light (luz principal)
+            const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+            keyLight.position.set(2, 3, 5);
+            keyLight.castShadow = true;
+            avatarScene.add(keyLight);
+            
+            // Fill light (luz de relleno)
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.6);
+            fillLight.position.set(-3, 1, 3);
+            avatarScene.add(fillLight);
+            
+            // Rim/back light (luz de contorno)
+            const rimLight = new THREE.DirectionalLight(0xffffff, 0.4);
+            rimLight.position.set(0, 2, -3);
+            avatarScene.add(rimLight);
+            
+            // Luz ambiental suave
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+            avatarScene.add(ambientLight);
+            
+            console.log('[AVATAR] Escena 3D inicializada');
+        }
+        
+        // Generador determinista
+        class SeededRandom {
+            constructor(seed) {
+                this.seed = seed;
+            }
+            next() {
+                this.seed = (this.seed * 9301 + 49297) % 233280;
+                return this.seed / 233280;
+            }
+            range(min, max) {
+                return min + this.next() * (max - min);
+            }
+            int(min, max) {
+                return Math.floor(this.range(min, max + 1));
+            }
+        }
+        
+        // Crear avatar 3D para un piloto
+        function createAvatar3D(piloto) {
+            const rng = new SeededRandom(piloto.id * 1000);
+            const edad = piloto.edad || 25;
+            const peso = piloto.peso || 70;
+            
+            // Limpiar escena
+            while (avatarScene.children.length > 4) {
+                const obj = avatarScene.children[avatarScene.children.length - 1];
+                avatarScene.remove(obj);
+                if (obj.geometry) obj.geometry.dispose();
+                if (obj.material) {
+                    if (Array.isArray(obj.material)) {
+                        obj.material.forEach(m => m.dispose());
+                    } else {
+                        obj.material.dispose();
+                    }
+                }
+            }
+            
+            const group = new THREE.Group();
+            
+            // Colores de piel
+            const skinColors = [0xf5d0c5, 0xe8beac, 0xd4a574, 0xc68642, 0x8d5524, 0xf1c27d, 0xffdbac, 0xc9a66b];
+            const skinColor = skinColors[rng.int(0, skinColors.length - 1)];
+            
+            // Factor de peso para forma de cara
+            const weightFactor = (peso - 70) / 30;
+            const faceWidth = 1 + weightFactor * 0.12;
+            const faceHeight = 1.15 - weightFactor * 0.03;
+            
+            // === CABEZA ===
+            const headGeometry = new THREE.SphereGeometry(0.85, 48, 48);
+            headGeometry.scale(faceWidth, faceHeight, 0.9);
+            
+            const headMaterial = new THREE.MeshStandardMaterial({
+                color: skinColor,
+                roughness: 0.7,
+                metalness: 0.0
+            });
+            const head = new THREE.Mesh(headGeometry, headMaterial);
+            head.castShadow = true;
+            head.receiveShadow = true;
+            group.add(head);
+            
+            // === CUELLO ===
+            const neckGeometry = new THREE.CylinderGeometry(0.28, 0.32, 0.35, 24);
+            const neck = new THREE.Mesh(neckGeometry, headMaterial);
+            neck.position.y = -0.95;
+            neck.castShadow = true;
+            group.add(neck);
+            
+            // === OREJAS ===
+            const earGeometry = new THREE.SphereGeometry(0.12, 16, 16);
+            earGeometry.scale(0.5, 1, 0.7);
+            
+            const leftEar = new THREE.Mesh(earGeometry, headMaterial);
+            leftEar.position.set(-0.85 * faceWidth, 0.05, 0);
+            leftEar.rotation.y = -0.2;
+            group.add(leftEar);
+            
+            const rightEar = new THREE.Mesh(earGeometry, headMaterial);
+            rightEar.position.set(0.85 * faceWidth, 0.05, 0);
+            rightEar.rotation.y = 0.2;
+            group.add(rightEar);
+            
+            // === OJOS ===
+            const eyeWhiteMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.3 });
+            const eyeColors = [0x4a3728, 0x5d4037, 0x3e2723, 0x1a237e, 0x0d47a1, 0x2e7d32];
+            const irisColor = eyeColors[rng.int(0, eyeColors.length - 1)];
+            const irisMaterial = new THREE.MeshStandardMaterial({ color: irisColor, roughness: 0.2 });
+            const pupilMaterial = new THREE.MeshStandardMaterial({ color: 0x000000, roughness: 0.1 });
+            
+            // Párpados
+            const eyelidMaterial = new THREE.MeshStandardMaterial({ color: skinColor, roughness: 0.8 });
+            
+            [-0.28, 0.28].forEach((xPos, idx) => {
+                // Cuenco del ojo
+                const eyeSocket = new THREE.SphereGeometry(0.14, 24, 24);
+                const socket = new THREE.Mesh(eyeSocket, headMaterial);
+                socket.position.set(xPos, 0.12, 0.72);
+                socket.scale.set(1, 0.7, 0.5);
+                group.add(socket);
+                
+                // Blanco del ojo
+                const eyeWhiteGeom = new THREE.SphereGeometry(0.11, 24, 24);
+                const eyeWhite = new THREE.Mesh(eyeWhiteGeom, eyeWhiteMaterial);
+                eyeWhite.position.set(xPos, 0.12, 0.76);
+                group.add(eyeWhite);
+                
+                // Iris
+                const irisGeom = new THREE.SphereGeometry(0.07, 24, 24);
+                const iris = new THREE.Mesh(irisGeom, irisMaterial);
+                iris.position.set(xPos, 0.12, 0.85);
+                group.add(iris);
+                
+                // Pupila
+                const pupilGeom = new THREE.SphereGeometry(0.035, 16, 16);
+                const pupil = new THREE.Mesh(pupilGeom, pupilMaterial);
+                pupil.position.set(xPos, 0.12, 0.9);
+                group.add(pupil);
+                
+                // Brillo
+                const shineGeom = new THREE.SphereGeometry(0.018, 8, 8);
+                const shineMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+                const shine = new THREE.Mesh(shineGeom, shineMaterial);
+                shine.position.set(xPos + 0.025, 0.135, 0.92);
+                group.add(shine);
+                
+                // Párpado superior
+                const eyelidGeom = new THREE.SphereGeometry(0.13, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2);
+                const eyelid = new THREE.Mesh(eyelidGeom, eyelidMaterial);
+                eyelid.position.set(xPos, 0.12, 0.74);
+                eyelid.rotation.x = Math.PI;
+                group.add(eyelid);
+            });
+            
+            // === CEJAS ===
+            const eyebrowColor = edad >= 50 ? 0x808080 : 0x3e2723;
+            const eyebrowMaterial = new THREE.MeshStandardMaterial({ color: eyebrowColor, roughness: 0.9 });
+            
+            const eyebrowGeom = new THREE.BoxGeometry(0.18, 0.04, 0.06);
+            const leftEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
+            leftEyebrow.position.set(-0.28, 0.32, 0.78);
+            leftEyebrow.rotation.z = 0.1;
+            group.add(leftEyebrow);
+            
+            const rightEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
+            rightEyebrow.position.set(0.28, 0.32, 0.78);
+            rightEyebrow.rotation.z = -0.1;
+            group.add(rightEyebrow);
+            
+            // === NARIZ ===
+            const noseGroup = new THREE.Group();
+            
+            // Puente de la nariz
+            const noseBridgeGeom = new THREE.BoxGeometry(0.08, 0.22, 0.15);
+            const noseBridge = new THREE.Mesh(noseBridgeGeom, headMaterial);
+            noseBridge.position.set(0, 0, 0.75);
+            noseGroup.add(noseBridge);
+            
+            // Punta de la nariz
+            const noseTipGeom = new THREE.SphereGeometry(0.08, 16, 16);
+            const noseTip = new THREE.Mesh(noseTipGeom, headMaterial);
+            noseTip.position.set(0, -0.12, 0.82);
+            noseTip.scale.set(1, 0.7, 0.8);
+            noseGroup.add(noseTip);
+            
+            // Alares (laterales de la nariz)
+            const nostrilGeom = new THREE.SphereGeometry(0.045, 12, 12);
+            const leftNostril = new THREE.Mesh(nostrilGeom, headMaterial);
+            leftNostril.position.set(-0.06, -0.15, 0.78);
+            noseGroup.add(leftNostril);
+            
+            const rightNostril = new THREE.Mesh(nostrilGeom, headMaterial);
+            rightNostril.position.set(0.06, -0.15, 0.78);
+            noseGroup.add(rightNostril);
+            
+            group.add(noseGroup);
+            
+            // === BOCA ===
+            const lipColor = 0xc17f7f;
+            const lipMaterial = new THREE.MeshStandardMaterial({ color: lipColor, roughness: 0.4 });
+            
+            // Labio superior
+            const upperLipGeom = new THREE.TorusGeometry(0.08, 0.02, 8, 16, Math.PI);
+            const upperLip = new THREE.Mesh(upperLipGeom, lipMaterial);
+            upperLip.position.set(0, -0.38, 0.75);
+            upperLip.rotation.x = Math.PI;
+            upperLip.scale.set(1.4, 1, 1);
+            group.add(upperLip);
+            
+            // Labio inferior
+            const lowerLipGeom = new THREE.TorusGeometry(0.09, 0.025, 8, 16, Math.PI);
+            const lowerLip = new THREE.Mesh(lowerLipGeom, lipMaterial);
+            lowerLip.position.set(0, -0.45, 0.72);
+            lowerLip.scale.set(1.3, 1, 0.8);
+            group.add(lowerLip);
+            
+            // === PELO ===
+            addHair3D(group, rng, edad, faceWidth, faceHeight, THREE);
+            
+            // === GAFAS (según edad) ===
+            if (edad >= 35 && rng.next() < (edad - 30) * 0.025) {
+                addGlasses3D(group, rng, THREE);
+            }
+            
+            // === MEJILLAS (si peso alto) ===
+            if (peso > 80) {
+                const cheekSize = 0.1 + (peso - 80) * 0.003;
+                const cheekGeom = new THREE.SphereGeometry(cheekSize, 16, 16);
+                
+                const leftCheek = new THREE.Mesh(cheekGeom, headMaterial);
+                leftCheek.position.set(-0.4, -0.15, 0.65);
+                leftCheek.scale.set(1.2, 0.8, 0.6);
+                group.add(leftCheek);
+                
+                const rightCheek = new THREE.Mesh(cheekGeom, headMaterial);
+                rightCheek.position.set(0.4, -0.15, 0.65);
+                rightCheek.scale.set(1.2, 0.8, 0.6);
+                group.add(rightCheek);
+            }
+            
+            // Añadir a escena y renderizar
+            avatarScene.add(group);
+            avatarRenderer.render(avatarScene, avatarCamera);
+            
+            // Obtener imagen como base64
+            const dataUrl = avatarRenderer.domElement.toDataURL('image/png');
+            
+            // Limpiar
+            avatarScene.remove(group);
+            
+            return dataUrl;
+        }
+        
+        // Añadir pelo 3D
+        function addHair3D(group, rng, edad, faceWidth, faceHeight, THREE) {
+            // Color de pelo según edad
+            let hairColor;
+            if (edad >= 50) {
+                hairColor = rng.next() < 0.7 ? 0xc0c0c0 : 0x808080;
+            } else if (edad >= 40) {
+                hairColor = rng.next() < 0.4 ? 0x808080 : 0x3e2723;
+            } else if (edad >= 30) {
+                const colors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524];
+                hairColor = rng.next() < 0.15 ? 0x808080 : colors[rng.int(0, colors.length - 1)];
+            } else {
+                const colors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524, 0xd4a574];
+                hairColor = colors[rng.int(0, colors.length - 1)];
+            }
+            
+            const hairMaterial = new THREE.MeshStandardMaterial({ 
+                color: hairColor, 
+                roughness: 0.8,
+                metalness: 0.1
+            });
+            
+            // Calvicie según edad
+            const baldProb = edad >= 45 ? 0.3 : (edad >= 35 ? 0.15 : 0.02);
+            const isBald = rng.next() < baldProb;
+            
+            if (isBald && edad >= 35) {
+                // Pelo lateral para calvos
+                const sideGeom = new THREE.SphereGeometry(0.25, 16, 16);
+                
+                const leftSide = new THREE.Mesh(sideGeom, hairMaterial);
+                leftSide.position.set(-0.65 * faceWidth, 0.45, 0);
+                leftSide.scale.set(0.4, 0.6, 0.3);
+                group.add(leftSide);
+                
+                const rightSide = new THREE.Mesh(sideGeom, hairMaterial);
+                rightSide.position.set(0.65 * faceWidth, 0.45, 0);
+                rightSide.scale.set(0.4, 0.6, 0.3);
+                group.add(rightSide);
+                
+                return;
+            }
+            
+            // Base del pelo
+            const hairBaseGeom = new THREE.SphereGeometry(0.88, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2);
+            const hairBase = new THREE.Mesh(hairBaseGeom, hairMaterial);
+            hairBase.position.y = 0.08 * faceHeight;
+            hairBase.scale.set(faceWidth, 0.5, 0.95);
+            group.add(hairBase);
+            
+            // Volumen adicional según estilo
+            const hairStyle = rng.int(0, 4);
+            
+            switch (hairStyle) {
+                case 0: // Pelo corto
+                    break;
+                    
+                case 1: // Flequillo
+                    const bangGeom = new THREE.BoxGeometry(0.45 * faceWidth, 0.12, 0.18);
+                    const bang = new THREE.Mesh(bangGeom, hairMaterial);
+                    bang.position.set(0, 0.55 * faceHeight, 0.6);
+                    group.add(bang);
+                    break;
+                    
+                case 2: // Pelo hacia atrás
+                    const backGeom = new THREE.SphereGeometry(0.5, 24, 16);
+                    const backHair = new THREE.Mesh(backGeom, hairMaterial);
+                    backHair.position.set(0, 0.5 * faceHeight, -0.25);
+                    backHair.scale.set(faceWidth * 0.9, 0.35, 0.6);
+                    group.add(backHair);
+                    break;
+                    
+                case 3: // Pelo lateral
+                    const sidePartGeom = new THREE.BoxGeometry(0.25, 0.18, 0.22);
+                    const sidePart = new THREE.Mesh(sidePartGeom, hairMaterial);
+                    sidePart.position.set(-0.32 * faceWidth, 0.52 * faceHeight, 0.5);
+                    sidePart.rotation.z = -0.15;
+                    group.add(sidePart);
+                    break;
+                    
+                case 4: // Rapado
+                    hairBase.material = new THREE.MeshStandardMaterial({ 
+                        color: hairColor, 
+                        roughness: 0.9,
+                        metalness: 0.0,
+                        transparent: true,
+                        opacity: 0.7
+                    });
+                    hairBase.scale.set(faceWidth, 0.2, 0.9);
+                    break;
+            }
+            
+            // Añadir mechones para más volumen
+            if (hairStyle < 4 && rng.next() > 0.5) {
+                const strandGeom = new THREE.SphereGeometry(0.08, 8, 8);
+                for (let i = 0; i < 3; i++) {
+                    const strand = new THREE.Mesh(strandGeom, hairMaterial);
+                    strand.position.set(
+                        rng.range(-0.3, 0.3) * faceWidth,
+                        0.6 * faceHeight + rng.range(0, 0.1),
+                        rng.range(0.3, 0.6)
+                    );
+                    strand.scale.set(1.5, 1, 0.8);
+                    group.add(strand);
+                }
+            }
+        }
+        
+        // Añadir gafas 3D
+        function addGlasses3D(group, rng, THREE) {
+            const frameMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x1a1a1a, 
+                roughness: 0.3,
+                metalness: 0.5 
+            });
+            const lensMaterial = new THREE.MeshStandardMaterial({ 
+                color: 0x87ceeb, 
+                transparent: true, 
+                opacity: 0.25,
+                roughness: 0.1,
+                metalness: 0.1
+            });
+            
+            // Marcos redondos
+            const frameGeom = new THREE.TorusGeometry(0.14, 0.012, 8, 24);
+            
+            const leftFrame = new THREE.Mesh(frameGeom, frameMaterial);
+            leftFrame.position.set(-0.28, 0.1, 0.85);
+            group.add(leftFrame);
+            
+            const rightFrame = new THREE.Mesh(frameGeom, frameMaterial);
+            rightFrame.position.set(0.28, 0.1, 0.85);
+            group.add(rightFrame);
+            
+            // Lentes
+            const lensGeom = new THREE.CircleGeometry(0.125, 24);
+            
+            const leftLens = new THREE.Mesh(lensGeom, lensMaterial);
+            leftLens.position.set(-0.28, 0.1, 0.84);
+            group.add(leftLens);
+            
+            const rightLens = new THREE.Mesh(lensGeom, lensMaterial);
+            rightLens.position.set(0.28, 0.1, 0.84);
+            group.add(rightLens);
+            
+            // Puente
+            const bridgeGeom = new THREE.CylinderGeometry(0.01, 0.01, 0.1, 8);
+            const bridge = new THREE.Mesh(bridgeGeom, frameMaterial);
+            bridge.position.set(0, 0.1, 0.88);
+            bridge.rotation.z = Math.PI / 2;
+            group.add(bridge);
+            
+            // Patillas
+            const templeGeom = new THREE.BoxGeometry(0.015, 0.015, 0.35);
+            
+            const leftTemple = new THREE.Mesh(templeGeom, frameMaterial);
+            leftTemple.position.set(-0.42, 0.1, 0.65);
+            group.add(leftTemple);
+            
+            const rightTemple = new THREE.Mesh(templeGeom, frameMaterial);
+            rightTemple.position.set(0.42, 0.1, 0.65);
+            group.add(rightTemple);
+        }
+        
+        // ========================================
         // FUNCIONES DE ADMINISTRADOR
         // ========================================
         
@@ -402,22 +882,29 @@
         
         // Verificar y generar avatares
         async function checkAndGenerateAvatars() {
-            const statusEl = document.getElementById('avatarStatus');
             const btn = document.getElementById('btnGenerateAvatars');
-            
             btn.disabled = true;
             
             try {
+                // Cargar Three.js
+                showProgressModal({
+                    type: 'loading',
+                    title: 'Cargando Three.js',
+                    text: 'Preparando motor 3D...'
+                });
+                
+                await loadThreeJS();
+                initThreeScene();
+                
                 // Verificar estado actual
                 const statusRes = await fetch('/api/admin/avatars-status');
                 const statusData = await statusRes.json();
                 
                 if (statusData.todosCompletos) {
-                    // Ya están todos, mostrar aviso
                     showProgressModal({
                         type: 'warning',
                         title: 'Avatares ya generados',
-                        text: `Todos los ${statusData.total} pilotos ya tienen avatar generado. No es necesario actualizar.`,
+                        text: `Todos los ${statusData.total} pilotos ya tienen avatar. ¿Quieres regenerarlos todos?`,
                         showClose: true
                     });
                     btn.disabled = false;
@@ -435,49 +922,84 @@
                     return;
                 }
                 
-                // Mostrar modal de progreso
+                // Obtener lista de pilotos
                 showProgressModal({
                     type: 'loading',
-                    title: 'Generando Avatares',
+                    title: 'Generando Avatares 3D',
                     text: `Preparando ${statusData.sinAvatar} avatares...`,
                     total: statusData.sinAvatar,
                     current: 0
                 });
                 
-                // Simular progreso visual mientras se procesa
-                simulateProgress(statusData.sinAvatar);
+                // Obtener pilotos sin avatar
+                const pilotosRes = await fetch('/api/admin/pilotos-sin-avatar');
+                const pilotos = await pilotosRes.json();
                 
-                // Llamar a la API
-                const res = await fetch('/api/admin/generate-avatars', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                
-                const data = await res.json();
-                
-                // Actualizar al completar
-                if (res.ok && data.success) {
-                    completeProgress({
-                        updated: data.updated,
-                        total: data.total,
-                        errors: data.errors
-                    });
-                    
-                    // Recargar estado
-                    await loadAvatarsStatus();
-                } else {
+                if (!pilotos.length) {
                     showProgressModal({
-                        type: 'error',
-                        title: 'Error',
-                        text: data.error || 'Error desconocido',
+                        type: 'info',
+                        title: 'Sin cambios',
+                        text: 'Todos los pilotos ya tienen avatar.',
                         showClose: true
                     });
+                    btn.disabled = false;
+                    return;
                 }
+                
+                // Generar avatares uno por uno
+                let processed = 0;
+                const total = pilotos.length;
+                const errors = [];
+                
+                for (const piloto of pilotos) {
+                    try {
+                        // Actualizar UI
+                        updateProgress(processed, total, piloto.nombre);
+                        
+                        // Generar avatar 3D
+                        const avatarData = createAvatar3D(piloto);
+                        
+                        // Guardar en servidor
+                        const saveRes = await fetch('/api/admin/save-avatar', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ 
+                                pilotoId: piloto.id, 
+                                avatar: avatarData 
+                            })
+                        });
+                        
+                        if (!saveRes.ok) {
+                            throw new Error('Error al guardar');
+                        }
+                        
+                        // Mostrar preview
+                        if (processed === 0) {
+                            document.getElementById('avatarPreview').innerHTML = 
+                                `<img src="${avatarData}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffc107;">`;
+                        }
+                        
+                    } catch (err) {
+                        errors.push(`${piloto.nombre}: ${err.message}`);
+                    }
+                    
+                    processed++;
+                }
+                
+                // Completar
+                completeProgress({
+                    updated: processed,
+                    total: total,
+                    errors: errors
+                });
+                
+                // Recargar estado
+                await loadAvatarsStatus();
                 
             } catch (err) {
                 showProgressModal({
                     type: 'error',
-                    title: 'Error de Conexión',
+                    title: 'Error',
                     text: err.message,
                     showClose: true
                 });
@@ -486,31 +1008,18 @@
             }
         }
         
-        // Simular progreso visual
-        let progressInterval = null;
-        function simulateProgress(total) {
-            let current = 0;
-            const progressFill = document.getElementById('progressFill');
-            const progressPercent = document.getElementById('progressPercent');
-            const progressDetails = document.getElementById('progressDetails');
-            
-            clearInterval(progressInterval);
-            
-            progressInterval = setInterval(() => {
-                if (current < total - 1) {
-                    current++;
-                    const percent = Math.round((current / total) * 90); // Max 90% hasta que termine
-                    progressFill.style.width = percent + '%';
-                    progressPercent.textContent = percent + '%';
-                    progressDetails.innerHTML = `<span style="color: #ffc107;">Procesando: ${current} / ${total}</span>`;
-                }
-            }, 100);
+        // Actualizar progreso
+        function updateProgress(current, total, nombre) {
+            const percent = Math.round(((current + 1) / total) * 100);
+            document.getElementById('progressFill').style.width = percent + '%';
+            document.getElementById('progressPercent').textContent = percent + '%';
+            document.getElementById('progressDetails').innerHTML = 
+                `<span style="color: #ffc107;">Procesando: ${current + 1}/${total}</span><br>
+                 <span style="color: #fff; font-size: 12px;">${nombre}</span>`;
         }
         
         // Completar progreso
         function completeProgress(data) {
-            clearInterval(progressInterval);
-            
             const progressFill = document.getElementById('progressFill');
             const progressPercent = document.getElementById('progressPercent');
             const progressDetails = document.getElementById('progressDetails');
@@ -518,17 +1027,14 @@
             const progressText = document.getElementById('progressText');
             const progressIcon = document.getElementById('progressIcon');
             const progressCloseBtn = document.getElementById('progressCloseBtn');
-            const progressContainer = document.getElementById('progressContainer');
             
-            // Animar al 100%
             progressFill.style.width = '100%';
             progressPercent.textContent = '100%';
             progressFill.style.background = 'linear-gradient(90deg, #00c853, #69f0ae)';
             
-            // Cambiar a mensaje de éxito
             progressIcon.textContent = '✅';
             progressTitle.textContent = '¡Proceso Completado!';
-            progressText.textContent = `Se generaron ${data.updated} avatares correctamente.`;
+            progressText.textContent = `Se generaron ${data.updated} avatares 3D correctamente.`;
             
             if (data.errors && data.errors.length > 0) {
                 progressDetails.innerHTML = `
@@ -541,7 +1047,6 @@
                 progressDetails.innerHTML = '<span style="color: #00c853;">✨ Todos los avatares generados sin errores</span>';
             }
             
-            // Mostrar botón de cerrar
             progressCloseBtn.style.display = 'block';
         }
         
@@ -555,13 +1060,14 @@
             const progressDetails = document.getElementById('progressDetails');
             const progressCloseBtn = document.getElementById('progressCloseBtn');
             const progressFill = document.getElementById('progressFill');
+            const avatarPreview = document.getElementById('avatarPreview');
             
-            // Reset
             progressFill.style.width = '0%';
             progressFill.style.background = 'linear-gradient(90deg, #ffc107, #ff9800)';
             document.getElementById('progressPercent').textContent = '0%';
             progressCloseBtn.style.display = options.showClose ? 'block' : 'none';
             progressDetails.innerHTML = '';
+            avatarPreview.innerHTML = '';
             
             switch(options.type) {
                 case 'warning':
@@ -592,7 +1098,6 @@
         
         // Cerrar modal de progreso
         function closeProgressModal() {
-            clearInterval(progressInterval);
             document.getElementById('progressModal').classList.remove('active');
         }
         
