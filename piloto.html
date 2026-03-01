@@ -820,17 +820,17 @@
         // SISTEMA DE AVATARES - CARGADO DESDE BD
         // ============================================
         
-        // Función para mostrar el avatar del piloto (viene de la BD)
+        // Función para mostrar el avatar del piloto (imagen PNG desde BD)
         function mostrarAvatarPiloto(piloto) {
             const avatarEl = document.getElementById(`avatar-${piloto.id}`);
             if (!avatarEl) return;
             
-            if (piloto.avatar) {
-                // El avatar viene como SVG string desde la BD
-                // Lo convertimos a data URI para mostrarlo como imagen
-                const avatarSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(piloto.avatar)));
-                avatarEl.innerHTML = `<img src="${avatarSrc}" alt="${piloto.nombre}" style="width: 100%; height: 100%; object-fit: cover;">`;
-                console.log('[PILOTO] Avatar cargado desde BD para:', piloto.id);
+            // El campo tiene_avatar viene de la API (1 si tiene avatar, 0 si no)
+            if (piloto.tiene_avatar) {
+                // Cargar imagen desde el endpoint que sirve el PNG binario
+                const avatarSrc = `/api/piloto-avatar/${piloto.id}`;
+                avatarEl.innerHTML = `<img src="${avatarSrc}" alt="${piloto.nombre}" style="width: 100%; height: 100%; object-fit: cover;" onerror="this.parentElement.innerHTML='<span class=\'avatar-initial\'>'+('${piloto.nombre}'.charAt(0).toUpperCase())+'</span>'">`;
+                console.log('[PILOTO] Avatar PNG cargado desde BD para:', piloto.id);
             } else {
                 // Si no hay avatar, mostrar inicial
                 avatarEl.innerHTML = `<span class="avatar-initial">${piloto.nombre.charAt(0).toUpperCase()}</span>`;

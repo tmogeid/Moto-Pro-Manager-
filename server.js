@@ -439,9 +439,10 @@ app.get('/piloto', requireAuth, (req, res) => {
     res.sendFile(path.join(__dirname, 'piloto.html'));
 });
 
-// --- API: DATOS DEL PILOTO ---
+// --- API: DATOS DEL PILOTO (sin avatar binario) ---
 app.get('/api/piloto', requireAuth, async (req, res) => {
     try {
+        // No incluimos 'avatar' porque es LONGBLOB binario - usar /api/piloto-avatar/:id
         const [pilotos] = await db.execute(
             `SELECT
                 id, nombre, numero, user_id, numero_updated_at,
@@ -452,7 +453,9 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
                 edad, fecha_nacimiento,
                 lesion_tipo, lesion_inicio, lesion_duracion,
                 entrenador_id, entrenamiento_atributo, entrenamiento_carreras_restantes,
-                rol, estado, fatiga, avatar, created_at, updated_at
+                rol, estado, fatiga,
+                CASE WHEN avatar IS NOT NULL THEN 1 ELSE 0 END as tiene_avatar,
+                created_at, updated_at
             FROM pilotos WHERE user_id = ?`,
             [req.session.userId]
         );
@@ -465,6 +468,38 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
     } catch (e) {
         console.error("ERROR OBTENIENDO PILOTO:", e);
         res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// --- API: AVATAR DEL PILOTO (imagen PNG desde BD) ---
+app.get('/api/piloto-avatar/:id', async (req, res) => {
+    try {
+        const pilotoId = req.params.id;
+        
+        const [pilotos] = await db.execute(
+            'SELECT avatar FROM pilotos WHERE id = ?',
+            [pilotoId]
+        );
+        
+        if (pilotos.length === 0) {
+            return res.status(404).send('Piloto no encontrado');
+        }
+        
+        const avatar = pilotos[0].avatar;
+        
+        if (!avatar) {
+            // Devolver imagen por defecto (placeholder)
+            return res.redirect('/img/default-avatar.png');
+        }
+        
+        // Servir la imagen PNG
+        res.setHeader('Content-Type', 'image/png');
+        res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 día de caché
+        res.send(avatar);
+        
+    } catch (e) {
+        console.error("ERROR OBTENIENDO AVATAR:", e);
+        res.status(500).send('Error del servidor');
     }
 });
 
@@ -567,7 +602,7 @@ app.get('/api/is-admin', requireAuth, async (req, res) => {
     }
 });
 
-// --- API ADMIN: AÑADIR CAMPO AVATAR A PILOTOS ---
+// --- API ADMIN: AÑADIR CAMPO AVATAR A PILOTOS (LONGBLOB para imágenes binarias) ---
 app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
     try {
         // Verificar que es admin
@@ -577,14 +612,20 @@ app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
         
-        // Intentar añadir la columna si no existe
+        // Intentar añadir la columna si no existe (LONGBLOB para imágenes binarias)
         try {
-            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
-            res.json({ success: true, message: 'Columna avatar añadida' });
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGBLOB NULL');
+            res.json({ success: true, message: 'Columna avatar añadida (LONGBLOB)' });
         } catch (alterErr) {
-            // Si la columna ya existe, ignorar el error
+            // Si la columna ya existe, verificar si es LONGTEXT y convertirla
             if (alterErr.code === 'ER_DUP_FIELDNAME' || alterErr.message.includes('Duplicate column')) {
-                res.json({ success: true, message: 'La columna avatar ya existe' });
+                // Intentar convertir a LONGBLOB si es LONGTEXT
+                try {
+                    await db.execute('ALTER TABLE pilotos MODIFY COLUMN avatar LONGBLOB NULL');
+                    res.json({ success: true, message: 'Columna avatar convertida a LONGBLOB' });
+                } catch (modifyErr) {
+                    res.json({ success: true, message: 'La columna avatar ya existe' });
+                }
             } else {
                 throw alterErr;
             }
@@ -658,7 +699,7 @@ app.get('/api/admin/pilotos-sin-avatar', requireAuth, async (req, res) => {
     }
 });
 
-// --- API ADMIN: GUARDAR AVATAR INDIVIDUAL ---
+// --- API ADMIN: GUARDAR AVATAR INDIVIDUAL (PNG binario) ---
 app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
     try {
         // Verificar que es admin
@@ -674,10 +715,24 @@ app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
             return res.status(400).json({ error: 'Faltan datos' });
         }
         
-        // Guardar avatar
+        // Convertir base64 a Buffer binario
+        // El formato viene como: data:image/png;base64,iVBORw0KGgo...
+        let avatarBuffer;
+        if (avatar.startsWith('data:image')) {
+            // Extraer solo la parte base64
+            const base64Data = avatar.split(',')[1];
+            avatarBuffer = Buffer.from(base64Data, 'base64');
+        } else {
+            // Si ya es base64 puro
+            avatarBuffer = Buffer.from(avatar, 'base64');
+        }
+        
+        console.log(`[AVATAR] Guardando imagen binaria para piloto ${pilotoId}, tamaño: ${avatarBuffer.length} bytes`);
+        
+        // Guardar avatar como LONGBLOB (Buffer)
         await db.execute(
             'UPDATE pilotos SET avatar = ? WHERE id = ?',
-            [avatar, pilotoId]
+            [avatarBuffer, pilotoId]
         );
         
         res.json({ success: true });
@@ -688,7 +743,7 @@ app.post('/api/admin/save-avatar', requireAuth, async (req, res) => {
     }
 });
 
-// --- API ADMIN: GENERAR AVATARES PARA TODOS LOS PILOTOS ---
+// --- API ADMIN: OBTENER PILOTOS SIN AVATAR (para generar en cliente con Three.js) ---
 app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
     try {
         // Verificar que es admin
@@ -698,53 +753,33 @@ app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
             return res.status(403).json({ error: 'No autorizado' });
         }
         
-        // Asegurar que existe la columna avatar
+        // Asegurar que existe la columna avatar (LONGBLOB)
         try {
-            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGBLOB NULL');
         } catch (alterErr) {
             // Ignorar si ya existe
         }
         
-        // Obtener todos los pilotos con sus datos
+        // Obtener todos los pilotos con sus datos (para generar avatares en cliente)
         const [pilotos] = await db.execute(`
             SELECT id, nombre, edad, peso 
             FROM pilotos
         `);
         
         if (pilotos.length === 0) {
-            return res.json({ success: true, message: 'No hay pilotos en la base de datos', updated: 0, total: 0 });
+            return res.json({ success: true, message: 'No hay pilotos en la base de datos', pilotos: [], total: 0 });
         }
         
-        // Generar y guardar avatar para cada piloto
-        let updated = 0;
-        const errors = [];
-        
-        for (const piloto of pilotos) {
-            try {
-                // Generar avatar como SVG con datos del piloto
-                const avatarSvg = generateAvatarSvg(piloto.id, piloto.edad || 25, piloto.peso || 70);
-                
-                // Guardar en BD
-                await db.execute(
-                    'UPDATE pilotos SET avatar = ? WHERE id = ?',
-                    [avatarSvg, piloto.id]
-                );
-                updated++;
-            } catch (pilotoErr) {
-                errors.push(`Piloto ${piloto.id} (${piloto.nombre}): ${pilotoErr.message}`);
-            }
-        }
-        
+        // Devolver pilotos para que el cliente genere los avatares con Three.js
         res.json({ 
             success: true, 
-            message: `Avatares generados correctamente`,
-            updated,
-            total: pilotos.length,
-            errors: errors.length > 0 ? errors : undefined
+            message: 'Pilotos obtenidos para generación de avatares 3D',
+            pilotos: pilotos,
+            total: pilotos.length
         });
         
     } catch (e) {
-        console.error("ERROR GENERANDO AVATARES:", e);
+        console.error("ERROR OBTENIENDO PILOTOS PARA AVATARES:", e);
         res.status(500).json({ error: 'Error del servidor: ' + e.message });
     }
 });

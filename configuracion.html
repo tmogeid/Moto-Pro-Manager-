@@ -922,7 +922,7 @@
                     return;
                 }
                 
-                // Obtener lista de pilotos
+                // Obtener lista de TODOS los pilotos (para generar en cliente)
                 showProgressModal({
                     type: 'loading',
                     title: 'Generando Avatares 3D',
@@ -931,7 +931,7 @@
                     current: 0
                 });
                 
-                // Obtener pilotos sin avatar
+                // Usar el nuevo endpoint que devuelve todos los pilotos sin avatar
                 const pilotosRes = await fetch('/api/admin/pilotos-sin-avatar');
                 const pilotos = await pilotosRes.json();
                 
@@ -956,10 +956,10 @@
                         // Actualizar UI
                         updateProgress(processed, total, piloto.nombre);
                         
-                        // Generar avatar 3D
+                        // Generar avatar 3D con Three.js (devuelve PNG base64)
                         const avatarData = createAvatar3D(piloto);
                         
-                        // Guardar en servidor
+                        // Guardar en servidor (convierte a binario)
                         const saveRes = await fetch('/api/admin/save-avatar', {
                             method: 'POST',
                             headers: { 'Content-Type': 'application/json' },
@@ -973,7 +973,7 @@
                             throw new Error('Error al guardar');
                         }
                         
-                        // Mostrar preview
+                        // Mostrar preview del primer avatar
                         if (processed === 0) {
                             document.getElementById('avatarPreview').innerHTML = 
                                 `<img src="${avatarData}" style="width: 80px; height: 80px; border-radius: 50%; border: 2px solid #ffc107;">`;
