@@ -452,7 +452,7 @@ app.get('/api/piloto', requireAuth, async (req, res) => {
                 edad, fecha_nacimiento,
                 lesion_tipo, lesion_inicio, lesion_duracion,
                 entrenador_id, entrenamiento_atributo, entrenamiento_carreras_restantes,
-                rol, estado, fatiga, created_at, updated_at
+                rol, estado, fatiga, avatar, created_at, updated_at
             FROM pilotos WHERE user_id = ?`,
             [req.session.userId]
         );
@@ -524,13 +524,19 @@ app.get('/api/user-data', requireAuth, async (req, res) => {
     try {
         const [u] = await db.execute('SELECT id, username, email, escuderia, budget, language FROM users WHERE id = ?', [req.session.userId]);
         if (u.length > 0) {
-            console.log(`[API] user-data para usuario ${u[0].username}: language=${u[0].language}`);
+            // Verificar si es admin (email específico)
+            const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+            const isAdmin = ADMIN_EMAILS.includes(u[0].email.toLowerCase());
+            
+            console.log(`[API] user-data para usuario ${u[0].username}: language=${u[0].language}, isAdmin=${isAdmin}`);
             res.json({
+                id: u[0].id,
                 username: u[0].username,
                 email: u[0].email,
                 escuderia: u[0].escuderia,
                 budget: u[0].budget || 0,
                 language: u[0].language || 'es',
+                isAdmin: isAdmin,
                 notify_email: true,
                 notify_races: true,
                 notify_news: false
@@ -543,6 +549,269 @@ app.get('/api/user-data', requireAuth, async (req, res) => {
         res.status(500).json({ error: 'Error del servidor' });
     }
 });
+
+// --- API: VERIFICAR SI ES ADMIN ---
+app.get('/api/is-admin', requireAuth, async (req, res) => {
+    try {
+        const [u] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        if (u.length > 0) {
+            const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+            const isAdmin = ADMIN_EMAILS.includes(u[0].email.toLowerCase());
+            res.json({ isAdmin });
+        } else {
+            res.status(404).json({ error: 'Usuario no encontrado' });
+        }
+    } catch (e) {
+        console.error("ERROR VERIFICANDO ADMIN:", e);
+        res.status(500).json({ error: 'Error del servidor' });
+    }
+});
+
+// --- API ADMIN: AÑADIR CAMPO AVATAR A PILOTOS ---
+app.post('/api/admin/ensure-avatar-column', requireAuth, async (req, res) => {
+    try {
+        // Verificar que es admin
+        const [u] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+        if (!ADMIN_EMAILS.includes(u[0]?.email.toLowerCase())) {
+            return res.status(403).json({ error: 'No autorizado' });
+        }
+        
+        // Intentar añadir la columna si no existe
+        try {
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
+            res.json({ success: true, message: 'Columna avatar añadida' });
+        } catch (alterErr) {
+            // Si la columna ya existe, ignorar el error
+            if (alterErr.code === 'ER_DUP_FIELDNAME' || alterErr.message.includes('Duplicate column')) {
+                res.json({ success: true, message: 'La columna avatar ya existe' });
+            } else {
+                throw alterErr;
+            }
+        }
+    } catch (e) {
+        console.error("ERROR AÑADIENDO COLUMNA AVATAR:", e);
+        res.status(500).json({ error: 'Error del servidor: ' + e.message });
+    }
+});
+
+// --- API ADMIN: GENERAR AVATARES PARA TODOS LOS PILOTOS ---
+app.post('/api/admin/generate-avatars', requireAuth, async (req, res) => {
+    try {
+        // Verificar que es admin
+        const [userCheck] = await db.execute('SELECT email FROM users WHERE id = ?', [req.session.userId]);
+        const ADMIN_EMAILS = ['tmogeid@gmail.com'];
+        if (!ADMIN_EMAILS.includes(userCheck[0]?.email.toLowerCase())) {
+            return res.status(403).json({ error: 'No autorizado' });
+        }
+        
+        // Asegurar que existe la columna avatar
+        try {
+            await db.execute('ALTER TABLE pilotos ADD COLUMN avatar LONGTEXT NULL');
+        } catch (alterErr) {
+            // Ignorar si ya existe
+        }
+        
+        // Obtener todos los pilotos con sus datos
+        const [pilotos] = await db.execute(`
+            SELECT id, nombre, edad, peso 
+            FROM pilotos
+        `);
+        
+        if (pilotos.length === 0) {
+            return res.json({ success: true, message: 'No hay pilotos para actualizar', updated: 0 });
+        }
+        
+        // Generar y guardar avatar para cada piloto
+        let updated = 0;
+        const errors = [];
+        
+        for (const piloto of pilotos) {
+            try {
+                // Generar avatar como SVG con datos del piloto
+                const avatarSvg = generateAvatarSvg(piloto.id, piloto.edad || 25, piloto.peso || 70);
+                
+                // Guardar en BD
+                await db.execute(
+                    'UPDATE pilotos SET avatar = ? WHERE id = ?',
+                    [avatarSvg, piloto.id]
+                );
+                updated++;
+            } catch (pilotoErr) {
+                errors.push(`Piloto ${piloto.id} (${piloto.nombre}): ${pilotoErr.message}`);
+            }
+        }
+        
+        res.json({ 
+            success: true, 
+            message: `Avatares generados: ${updated}/${pilotos.length}`,
+            updated,
+            total: pilotos.length,
+            errors: errors.length > 0 ? errors : undefined
+        });
+        
+    } catch (e) {
+        console.error("ERROR GENERANDO AVATARES:", e);
+        res.status(500).json({ error: 'Error del servidor: ' + e.message });
+    }
+});
+
+// --- FUNCIÓN: GENERAR AVATAR SVG ---
+function generateAvatarSvg(pilotoId, edad, peso) {
+    // Generador determinista basado en ID
+    const seededRandom = (seed) => {
+        const x = Math.sin(seed++) * 10000;
+        return x - Math.floor(x);
+    };
+    
+    let seed = pilotoId * 1000;
+    const rand = () => seededRandom(seed++);
+    const randInt = (min, max) => Math.floor(rand() * (max - min + 1)) + min;
+    
+    // Colores de piel
+    const skinColors = ['#f5d0c5', '#e8beac', '#d4a574', '#c68642', '#8d5524', '#f1c27d', '#ffdbac', '#c9a66b'];
+    const skinColor = skinColors[randInt(0, skinColors.length - 1)];
+    
+    // Colores de pelo según edad
+    let hairColor;
+    if (edad >= 50) {
+        hairColor = rand() < 0.7 ? '#c0c0c0' : '#808080';
+    } else if (edad >= 40) {
+        hairColor = rand() < 0.4 ? '#808080' : '#3e2723';
+    } else if (edad >= 30) {
+        const youngColors = ['#3e2723', '#5d4037', '#4a3728', '#1a1a1a', '#8d5524'];
+        hairColor = rand() < 0.15 ? '#808080' : youngColors[randInt(0, youngColors.length - 1)];
+    } else {
+        const youngColors = ['#3e2723', '#5d4037', '#4a3728', '#1a1a1a', '#8d5524', '#d4a574'];
+        hairColor = youngColors[randInt(0, youngColors.length - 1)];
+    }
+    
+    // Color de ojos
+    const eyeColors = ['#4a3728', '#5d4037', '#3e2723', '#1a237e', '#0d47a1', '#2e7d32'];
+    const eyeColor = eyeColors[randInt(0, eyeColors.length - 1)];
+    
+    // Forma de cara según peso
+    const weightFactor = (peso - 70) / 30;
+    const faceWidth = 45 + weightFactor * 5;
+    const faceHeight = 55 - weightFactor * 3;
+    
+    // Calvicie según edad
+    const baldProb = edad >= 45 ? 0.3 : (edad >= 35 ? 0.15 : 0.02);
+    const isBald = rand() < baldProb;
+    
+    // Estilo de pelo
+    const hairStyle = randInt(0, 4);
+    
+    // Gafas según edad
+    const hasGlasses = edad >= 35 && rand() < (edad - 30) * 0.02;
+    
+    // Generar SVG
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+        <defs>
+            <clipPath id="headClip">
+                <circle cx="60" cy="55" r="48"/>
+            </clipPath>
+            <radialGradient id="skinGrad" cx="40%" cy="30%">
+                <stop offset="0%" style="stop-color:${skinColor}"/>
+                <stop offset="100%" style="stop-color:${adjustColor(skinColor, -20)}"/>
+            </radialGradient>
+        </defs>
+        
+        <!-- Cuello -->
+        <ellipse cx="60" cy="110" rx="22" ry="12" fill="${adjustColor(skinColor, -15)}"/>
+        
+        <!-- Cabeza -->
+        <ellipse cx="60" cy="55" rx="${faceWidth}" ry="${faceHeight}" fill="url(#skinGrad)"/>
+        
+        <!-- Orejas -->
+        <ellipse cx="${60 - faceWidth - 3}" cy="55" rx="6" ry="10" fill="${skinColor}"/>
+        <ellipse cx="${60 + faceWidth + 3}" cy="55" rx="6" ry="10" fill="${skinColor}"/>
+        
+        ${isBald && edad >= 35 ? `
+            <!-- Pelo lateral (calvo) -->
+            <ellipse cx="${60 - faceWidth + 5}" cy="35" rx="12" ry="18" fill="${hairColor}"/>
+            <ellipse cx="${60 + faceWidth - 5}" cy="35" rx="12" ry="18" fill="${hairColor}"/>
+        ` : `
+            <!-- Pelo normal -->
+            ${generateHairStyle(hairStyle, hairColor, faceWidth, faceHeight)}
+        `}
+        
+        <!-- Cejas -->
+        <rect x="${60 - 28}" y="40" width="16" height="3" rx="1.5" fill="#3e2723" transform="rotate(-5 ${60 - 20} 41)"/>
+        <rect x="${60 + 12}" y="40" width="16" height="3" rx="1.5" fill="#3e2723" transform="rotate(5 ${60 + 20} 41)"/>
+        
+        <!-- Ojos -->
+        <ellipse cx="${60 - 15}" cy="52" rx="9" ry="7" fill="white"/>
+        <ellipse cx="${60 + 15}" cy="52" rx="9" ry="7" fill="white"/>
+        <circle cx="${60 - 15}" cy="52" r="5" fill="${eyeColor}"/>
+        <circle cx="${60 + 15}" cy="52" r="5" fill="${eyeColor}"/>
+        <circle cx="${60 - 15}" cy="52" r="2" fill="black"/>
+        <circle cx="${60 + 15}" cy="52" r="2" fill="black"/>
+        <circle cx="${60 - 13}" cy="50" r="1.5" fill="white"/>
+        <circle cx="${60 + 17}" cy="50" r="1.5" fill="white"/>
+        
+        <!-- Nariz -->
+        <path d="M60 55 L56 70 Q60 73 64 70 L60 55" fill="${adjustColor(skinColor, -10)}"/>
+        
+        <!-- Boca -->
+        <path d="M50 80 Q60 86 70 80" stroke="#c17f7f" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+        
+        ${hasGlasses ? `
+            <!-- Gafas -->
+            <circle cx="${60 - 15}" cy="52" r="12" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="${60 + 15}" cy="52" r="12" fill="none" stroke="#1a1a1a" stroke-width="2"/>
+            <line x1="${60 - 3}" y1="52" x2="${60 + 3}" y2="52" stroke="#1a1a1a" stroke-width="2"/>
+            <line x1="${60 - 27}" y1="52" x2="${60 - 35}" y2="48" stroke="#1a1a1a" stroke-width="2"/>
+            <line x1="${60 + 27}" y1="52" x2="${60 + 35}" y2="48" stroke="#1a1a1a" stroke-width="2"/>
+            <circle cx="${60 - 15}" cy="52" r="10" fill="rgba(135,206,235,0.15)"/>
+            <circle cx="${60 + 15}" cy="52" r="10" fill="rgba(135,206,235,0.15)"/>
+        ` : ''}
+        
+        <!-- Mejillas si tiene más peso -->
+        ${peso > 80 ? `
+            <ellipse cx="${60 - 30}" cy="68" rx="${8 + (peso - 80) * 0.3}" ry="6" fill="${adjustColor(skinColor, -5)}" opacity="0.5"/>
+            <ellipse cx="${60 + 30}" cy="68" rx="${8 + (peso - 80) * 0.3}" ry="6" fill="${adjustColor(skinColor, -5)}" opacity="0.5"/>
+        ` : ''}
+    </svg>`;
+    
+    return svg;
+}
+
+// Función auxiliar para ajustar colores
+function adjustColor(hex, amount) {
+    const num = parseInt(hex.replace('#', ''), 16);
+    const r = Math.min(255, Math.max(0, (num >> 16) + amount));
+    const g = Math.min(255, Math.max(0, ((num >> 8) & 0x00FF) + amount));
+    const b = Math.min(255, Math.max(0, (num & 0x0000FF) + amount));
+    return '#' + (0x1000000 + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+// Función auxiliar para generar estilo de pelo
+function generateHairStyle(style, color, faceWidth, faceHeight) {
+    const centerX = 60;
+    const topY = 55 - faceHeight;
+    
+    switch(style) {
+        case 0: // Pelo corto
+            return `<ellipse cx="${centerX}" cy="${topY + 8}" rx="${faceWidth + 3}" ry="${faceHeight * 0.3}" fill="${color}"/>`;
+        case 1: // Pelo con flequillo
+            return `
+                <ellipse cx="${centerX}" cy="${topY + 5}" rx="${faceWidth + 5}" ry="${faceHeight * 0.35}" fill="${color}"/>
+                <rect x="${centerX - 25}" y="${topY + 5}" width="50" height="12" rx="6" fill="${color}"/>
+            `;
+        case 2: // Pelo hacia atrás
+            return `<ellipse cx="${centerX}" cy="${topY + 3}" rx="${faceWidth}" ry="${faceHeight * 0.25}" fill="${color}"/>`;
+        case 3: // Pelo lateral
+            return `
+                <ellipse cx="${centerX}" cy="${topY + 6}" rx="${faceWidth + 4}" ry="${faceHeight * 0.32}" fill="${color}"/>
+                <rect x="${centerX - 30}" y="${topY + 3}" width="20" height="15" rx="4" fill="${color}" transform="rotate(-10 ${centerX - 20} ${topY + 10})"/>
+            `;
+        case 4: // Rapado
+            return `<ellipse cx="${centerX}" cy="${topY + 8}" rx="${faceWidth - 2}" ry="${faceHeight * 0.15}" fill="${color}" opacity="0.7"/>`;
+        default:
+            return `<ellipse cx="${centerX}" cy="${topY + 8}" rx="${faceWidth + 2}" ry="${faceHeight * 0.28}" fill="${color}"/>`;
+    }
+}
 
 // --- API: ACTUALIZAR IDIOMA DEL USUARIO ---
 app.post('/api/update-language', requireAuth, async (req, res) => {

@@ -817,426 +817,24 @@
         let selectedPilotoId = null; // Piloto actualmente visible
 
         // ============================================
-        // SISTEMA DE AVATARES 3D CON THREE.JS
+        // SISTEMA DE AVATARES - CARGADO DESDE BD
         // ============================================
         
-        let avatarGenerator = null;
-        let avatarCache = {};
-        
-        // Generador de números pseudo-aleatorios determinista
-        class SeededRandom {
-            constructor(seed) {
-                this.seed = seed;
-            }
-            next() {
-                this.seed = (this.seed * 9301 + 49297) % 233280;
-                return this.seed / 233280;
-            }
-            range(min, max) {
-                return min + this.next() * (max - min);
-            }
-            int(min, max) {
-                return Math.floor(this.range(min, max + 1));
-            }
-        }
-        
-        // Clase para generar avatares 3D
-        class AvatarGenerator {
-            constructor() {
-                this.scene = null;
-                this.camera = null;
-                this.renderer = null;
-                this.initialized = false;
-            }
+        // Función para mostrar el avatar del piloto (viene de la BD)
+        function mostrarAvatarPiloto(piloto) {
+            const avatarEl = document.getElementById(`avatar-${piloto.id}`);
+            if (!avatarEl) return;
             
-            init() {
-                if (this.initialized) return;
-                
-                const THREE = window.THREE;
-                
-                // Crear escena
-                this.scene = new THREE.Scene();
-                this.scene.background = null; // Fondo transparente
-                
-                // Crear cámara ortográfica para vista frontal
-                const aspect = 1;
-                const frustumSize = 3;
-                this.camera = new THREE.OrthographicCamera(
-                    frustumSize * aspect / -2,
-                    frustumSize * aspect / 2,
-                    frustumSize / 2,
-                    frustumSize / -2,
-                    0.1,
-                    100
-                );
-                this.camera.position.set(0, 0, 5);
-                this.camera.lookAt(0, 0, 0);
-                
-                // Crear renderer
-                this.renderer = new THREE.WebGLRenderer({ 
-                    antialias: true, 
-                    alpha: true 
-                });
-                this.renderer.setSize(120, 120);
-                this.renderer.setPixelRatio(1);
-                
-                // Luces
-                const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
-                this.scene.add(ambientLight);
-                
-                const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-                directionalLight.position.set(2, 2, 5);
-                this.scene.add(directionalLight);
-                
-                const backLight = new THREE.DirectionalLight(0xffffff, 0.3);
-                backLight.position.set(-2, 1, -3);
-                this.scene.add(backLight);
-                
-                this.initialized = true;
-            }
-            
-            generateAvatar(options) {
-                const { id, edad = 25, peso = 70 } = options;
-                
-                this.init();
-                const THREE = window.THREE;
-                
-                // Limpiar escena anterior
-                while (this.scene.children.length > 3) {
-                    this.scene.remove(this.scene.children[this.scene.children.length - 1]);
-                }
-                
-                // Generador determinista
-                const rng = new SeededRandom(id * 1000);
-                
-                // Crear grupo del avatar
-                const avatarGroup = new THREE.Group();
-                
-                // Colores de piel variados (tonos naturales)
-                const skinColors = [
-                    0xf5d0c5, 0xe8beac, 0xd4a574, 0xc68642, 
-                    0x8d5524, 0xf1c27d, 0xffdbac, 0xc9a66b
-                ];
-                const skinColor = skinColors[rng.int(0, skinColors.length - 1)];
-                const skinMaterial = new THREE.MeshLambertMaterial({ color: skinColor });
-                
-                // Calcular forma de la cara según peso (peso normal: 65-75kg)
-                const weightFactor = (peso - 70) / 30; // -1 a +1 aproximadamente
-                const faceWidth = 0.8 + weightFactor * 0.15;
-                const faceHeight = 1.0 - weightFactor * 0.05;
-                const cheekFullness = weightFactor * 0.1;
-                
-                // Cabeza (elipsoide)
-                const headGeometry = new THREE.SphereGeometry(0.9, 32, 24);
-                headGeometry.scale(faceWidth, faceHeight, 0.85);
-                const head = new THREE.Mesh(headGeometry, skinMaterial);
-                head.position.y = 0;
-                avatarGroup.add(head);
-                
-                // Mejillas (para pilotos con más peso)
-                if (cheekFullness > 0.02) {
-                    const cheekGeometry = new THREE.SphereGeometry(0.2, 16, 16);
-                    const leftCheek = new THREE.Mesh(cheekGeometry, skinMaterial);
-                    leftCheek.position.set(-0.45, -0.1, 0.6);
-                    leftCheek.scale.set(1, 0.8, 0.5 + cheekFullness);
-                    avatarGroup.add(leftCheek);
-                    
-                    const rightCheek = leftCheek.clone();
-                    rightCheek.position.x = 0.45;
-                    avatarGroup.add(rightCheek);
-                }
-                
-                // Cuello
-                const neckGeometry = new THREE.CylinderGeometry(0.35, 0.4, 0.4, 16);
-                const neck = new THREE.Mesh(neckGeometry, skinMaterial);
-                neck.position.y = -1.0;
-                avatarGroup.add(neck);
-                
-                // Ojos
-                const eyeWhiteMaterial = new THREE.MeshLambertMaterial({ color: 0xffffff });
-                const eyeColors = [0x4a3728, 0x5d4037, 0x3e2723, 0x1a237e, 0x0d47a1, 0x2e7d32];
-                const irisColor = eyeColors[rng.int(0, eyeColors.length - 1)];
-                const irisMaterial = new THREE.MeshLambertMaterial({ color: irisColor });
-                const pupilMaterial = new THREE.MeshLambertMaterial({ color: 0x000000 });
-                
-                const eyePositions = [
-                    { x: -0.28, y: 0.1 },
-                    { x: 0.28, y: 0.1 }
-                ];
-                
-                eyePositions.forEach(pos => {
-                    // Blanco del ojo
-                    const eyeWhiteGeom = new THREE.SphereGeometry(0.12, 16, 16);
-                    const eyeWhite = new THREE.Mesh(eyeWhiteGeom, eyeWhiteMaterial);
-                    eyeWhite.position.set(pos.x, pos.y, 0.72);
-                    avatarGroup.add(eyeWhite);
-                    
-                    // Iris
-                    const irisGeom = new THREE.SphereGeometry(0.08, 16, 16);
-                    const iris = new THREE.Mesh(irisGeom, irisMaterial);
-                    iris.position.set(pos.x, pos.y, 0.82);
-                    avatarGroup.add(iris);
-                    
-                    // Pupila
-                    const pupilGeom = new THREE.SphereGeometry(0.04, 8, 8);
-                    const pupil = new THREE.Mesh(pupilGeom, pupilMaterial);
-                    pupil.position.set(pos.x, pos.y, 0.87);
-                    avatarGroup.add(pupil);
-                });
-                
-                // Cejas
-                const eyebrowMaterial = new THREE.MeshLambertMaterial({ color: 0x3e2723 });
-                const eyebrowGeom = new THREE.BoxGeometry(0.18, 0.03, 0.05);
-                
-                const leftEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
-                leftEyebrow.position.set(-0.28, 0.32, 0.75);
-                leftEyebrow.rotation.z = 0.1;
-                avatarGroup.add(leftEyebrow);
-                
-                const rightEyebrow = new THREE.Mesh(eyebrowGeom, eyebrowMaterial);
-                rightEyebrow.position.set(0.28, 0.32, 0.75);
-                rightEyebrow.rotation.z = -0.1;
-                avatarGroup.add(rightEyebrow);
-                
-                // Nariz
-                const noseGeom = new THREE.ConeGeometry(0.08, 0.2, 8);
-                const nose = new THREE.Mesh(noseGeom, skinMaterial);
-                nose.position.set(0, -0.05, 0.85);
-                nose.rotation.x = Math.PI / 2;
-                avatarGroup.add(nose);
-                
-                // Boca
-                const mouthGeom = new THREE.BoxGeometry(0.2, 0.03, 0.05);
-                const mouthMaterial = new THREE.MeshLambertMaterial({ color: 0xc17f7f });
-                const mouth = new THREE.Mesh(mouthGeom, mouthMaterial);
-                mouth.position.set(0, -0.35, 0.78);
-                avatarGroup.add(mouth);
-                
-                // Orejas
-                const earGeom = new THREE.SphereGeometry(0.12, 8, 8);
-                const leftEar = new THREE.Mesh(earGeom, skinMaterial);
-                leftEar.position.set(-0.78, 0.05, 0);
-                leftEar.scale.set(0.5, 1, 0.8);
-                avatarGroup.add(leftEar);
-                
-                const rightEar = leftEar.clone();
-                rightEar.position.x = 0.78;
-                avatarGroup.add(rightEar);
-                
-                // Pelo (varía según edad)
-                this.addHair(avatarGroup, rng, edad, THREE);
-                
-                // Gafas (probabilidad según edad)
-                if (edad >= 35 && rng.next() < (edad - 30) * 0.02) {
-                    this.addGlasses(avatarGroup, THREE);
-                }
-                
-                // Añadir a escena
-                this.scene.add(avatarGroup);
-                
-                // Renderizar
-                this.renderer.render(this.scene, this.camera);
-                
-                // Devolver data URL
-                return this.renderer.domElement.toDataURL('image/png');
-            }
-            
-            addHair(group, rng, edad, THREE) {
-                // Colores de pelo según edad
-                let hairColor;
-                if (edad >= 50) {
-                    // Mayormente canoso
-                    hairColor = rng.next() < 0.7 ? 0xc0c0c0 : 0x808080;
-                } else if (edad >= 40) {
-                    // Algunas canas
-                    hairColor = rng.next() < 0.4 ? 0x808080 : 0x3e2723;
-                } else if (edad >= 30) {
-                    // Pelo normal con posibilidad de canas
-                    const normalColors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524];
-                    hairColor = rng.next() < 0.15 ? 0x808080 : normalColors[rng.int(0, normalColors.length - 1)];
-                } else {
-                    // Pelo joven
-                    const youngColors = [0x3e2723, 0x5d4037, 0x4a3728, 0x1a1a1a, 0x8d5524, 0xd4a574];
-                    hairColor = youngColors[rng.int(0, youngColors.length - 1)];
-                }
-                
-                const hairMaterial = new THREE.MeshLambertMaterial({ color: hairColor });
-                
-                // Calvicie según edad
-                const baldProb = edad >= 45 ? 0.3 : (edad >= 35 ? 0.15 : 0.02);
-                const isBald = rng.next() < baldProb;
-                
-                if (isBald && edad >= 35) {
-                    // Pelo escaso o calvo - solo lados
-                    const sideHairGeom = new THREE.SphereGeometry(0.3, 16, 16);
-                    
-                    const leftSide = new THREE.Mesh(sideHairGeom, hairMaterial);
-                    leftSide.position.set(-0.6, 0.5, 0);
-                    leftSide.scale.set(0.4, 0.6, 0.3);
-                    group.add(leftSide);
-                    
-                    const rightSide = leftSide.clone();
-                    rightSide.position.x = 0.6;
-                    group.add(rightSide);
-                } else {
-                    // Estilo de pelo aleatorio
-                    const hairStyle = rng.int(0, 4);
-                    
-                    switch (hairStyle) {
-                        case 0: // Pelo corto
-                            const shortHairGeom = new THREE.SphereGeometry(0.92, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-                            const shortHair = new THREE.Mesh(shortHairGeom, hairMaterial);
-                            shortHair.position.y = 0.1;
-                            group.add(shortHair);
-                            break;
-                            
-                        case 1: // Pelo medio con flequillo
-                            const midHairGeom = new THREE.SphereGeometry(0.95, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-                            const midHair = new THREE.Mesh(midHairGeom, hairMaterial);
-                            midHair.position.y = 0.05;
-                            group.add(midHair);
-                            
-                            // Flequillo
-                            const bangGeom = new THREE.BoxGeometry(0.5, 0.15, 0.2);
-                            const bang = new THREE.Mesh(bangGeom, hairMaterial);
-                            bang.position.set(0, 0.6, 0.65);
-                            group.add(bang);
-                            break;
-                            
-                        case 2: // Pelo hacia atrás
-                            const backHairGeom = new THREE.SphereGeometry(0.92, 32, 16);
-                            const backHair = new THREE.Mesh(backHairGeom, hairMaterial);
-                            backHair.scale.set(1, 0.3, 1.1);
-                            backHair.position.set(0, 0.75, -0.1);
-                            group.add(backHair);
-                            break;
-                            
-                        case 3: // Pelo lateral
-                            const sideSweepGeom = new THREE.SphereGeometry(0.93, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2);
-                            const sideSweep = new THREE.Mesh(sideSweepGeom, hairMaterial);
-                            sideSweep.position.y = 0.08;
-                            group.add(sideSweep);
-                            
-                            // Lado
-                            const sidePartGeom = new THREE.BoxGeometry(0.3, 0.2, 0.25);
-                            const sidePart = new THREE.Mesh(sidePartGeom, hairMaterial);
-                            sidePart.position.set(-0.35, 0.6, 0.55);
-                            sidePart.rotation.z = -0.3;
-                            group.add(sidePart);
-                            break;
-                            
-                        case 4: // Rapado casi al cero
-                            const buzzGeom = new THREE.SphereGeometry(0.91, 32, 16);
-                            const buzz = new THREE.Mesh(buzzGeom, hairMaterial);
-                            buzz.position.y = 0.05;
-                            buzz.scale.set(1, 0.15, 1);
-                            group.add(buzz);
-                            break;
-                    }
-                }
-            }
-            
-            addGlasses(group, THREE) {
-                const frameMaterial = new THREE.MeshLambertMaterial({ color: 0x1a1a1a });
-                const lensMaterial = new THREE.MeshLambertMaterial({ 
-                    color: 0x87ceeb, 
-                    transparent: true, 
-                    opacity: 0.3 
-                });
-                
-                // Marcos
-                const frameGeom = new THREE.TorusGeometry(0.15, 0.015, 8, 24);
-                
-                const leftFrame = new THREE.Mesh(frameGeom, frameMaterial);
-                leftFrame.position.set(-0.28, 0.1, 0.82);
-                group.add(leftFrame);
-                
-                const rightFrame = new THREE.Mesh(frameGeom, frameMaterial);
-                rightFrame.position.set(0.28, 0.1, 0.82);
-                group.add(rightFrame);
-                
-                // Lentes
-                const lensGeom = new THREE.CircleGeometry(0.14, 24);
-                
-                const leftLens = new THREE.Mesh(lensGeom, lensMaterial);
-                leftLens.position.set(-0.28, 0.1, 0.81);
-                group.add(leftLens);
-                
-                const rightLens = new THREE.Mesh(lensGeom, lensMaterial);
-                rightLens.position.set(0.28, 0.1, 0.81);
-                group.add(rightLens);
-                
-                // Puente
-                const bridgeGeom = new THREE.CylinderGeometry(0.015, 0.015, 0.1, 8);
-                const bridge = new THREE.Mesh(bridgeGeom, frameMaterial);
-                bridge.position.set(0, 0.1, 0.85);
-                bridge.rotation.z = Math.PI / 2;
-                group.add(bridge);
-                
-                // Patillas
-                const templeGeom = new THREE.BoxGeometry(0.02, 0.02, 0.4);
-                
-                const leftTemple = new THREE.Mesh(templeGeom, frameMaterial);
-                leftTemple.position.set(-0.43, 0.1, 0.6);
-                group.add(leftTemple);
-                
-                const rightTemple = new THREE.Mesh(templeGeom, frameMaterial);
-                rightTemple.position.set(0.43, 0.1, 0.6);
-                group.add(rightTemple);
-            }
-        }
-        
-        // Cargar Three.js dinámicamente
-        function loadThreeJS() {
-            return new Promise((resolve, reject) => {
-                if (window.THREE) {
-                    resolve();
-                    return;
-                }
-                
-                const script = document.createElement('script');
-                script.src = 'https://unpkg.com/three@0.183.2/build/three.min.js';
-                script.onload = () => {
-                    console.log('Three.js cargado');
-                    resolve();
-                };
-                script.onerror = reject;
-                document.head.appendChild(script);
-            });
-        }
-        
-        // Inicializar generador de avatares
-        async function initAvatarGenerator() {
-            try {
-                await loadThreeJS();
-                avatarGenerator = new AvatarGenerator();
-                console.log('AvatarGenerator inicializado');
-            } catch (error) {
-                console.error('Error inicializando avatar generator:', error);
-            }
-        }
-        
-        // Generar avatar para un piloto
-        function generatePilotoAvatar(piloto) {
-            if (!avatarGenerator || !avatarGenerator.initialized) return null;
-            
-            // Usar cache si existe
-            if (avatarCache[piloto.id]) {
-                return avatarCache[piloto.id];
-            }
-            
-            try {
-                const avatarUrl = avatarGenerator.generateAvatar({
-                    id: piloto.id,
-                    edad: piloto.edad || 25,
-                    peso: piloto.peso || 70
-                });
-                
-                avatarCache[piloto.id] = avatarUrl;
-                return avatarUrl;
-            } catch (error) {
-                console.error('Error generando avatar:', error);
-                return null;
+            if (piloto.avatar) {
+                // El avatar viene como SVG string desde la BD
+                // Lo convertimos a data URI para mostrarlo como imagen
+                const avatarSrc = 'data:image/svg+xml;base64,' + btoa(unescape(encodeURIComponent(piloto.avatar)));
+                avatarEl.innerHTML = `<img src="${avatarSrc}" alt="${piloto.nombre}" style="width: 100%; height: 100%; object-fit: cover;">`;
+                console.log('[PILOTO] Avatar cargado desde BD para:', piloto.id);
+            } else {
+                // Si no hay avatar, mostrar inicial
+                avatarEl.innerHTML = `<span class="avatar-initial">${piloto.nombre.charAt(0).toUpperCase()}</span>`;
+                console.log('[PILOTO] Sin avatar en BD, mostrando inicial para:', piloto.id);
             }
         }
 
@@ -1682,6 +1280,11 @@
                             });
                         }
                         
+                        // Mostrar avatares de la BD
+                        pilotosData.forEach(piloto => {
+                            mostrarAvatarPiloto(piloto);
+                        });
+                        
                         noPilotoCard.style.display = 'none';
                     } else if (data && data.id) {
                         // Compatibilidad con respuesta de un solo piloto (formato antiguo)
@@ -1689,6 +1292,9 @@
                         container.innerHTML = crearTarjetaPiloto(data);
                         navContainer.style.display = 'none';
                         noPilotoCard.style.display = 'none';
+                        
+                        // Mostrar avatar
+                        mostrarAvatarPiloto(data);
                     } else {
                         container.innerHTML = '';
                         navContainer.style.display = 'none';
@@ -1974,77 +1580,8 @@
             }
         });
 
-        // ============================================
-        // INICIALIZACIÓN DE AVATARES 3D
-        // ============================================
-        
-        async function initAvatares() {
-            // Cargar Three.js y el generador
-            await initAvatarGenerator();
-            
-            console.log('[AVATAR] Generador inicializado, pilotos:', pilotosData.length);
-            
-            // Generar avatares para todos los pilotos cargados
-            if (pilotosData.length > 0) {
-                for (const piloto of pilotosData) {
-                    const avatarUrl = generatePilotoAvatar(piloto);
-                    if (avatarUrl) {
-                        const avatarEl = document.getElementById(`avatar-${piloto.id}`);
-                        if (avatarEl) {
-                            avatarEl.innerHTML = `<img src="${avatarUrl}" alt="${piloto.nombre}">`;
-                            console.log('[AVATAR] Avatar generado para piloto:', piloto.id);
-                        } else {
-                            console.log('[AVATAR] No se encontró elemento avatar para:', piloto.id);
-                        }
-                    }
-                }
-            } else {
-                console.log('[AVATAR] No hay pilotos para generar avatares');
-            }
-        }
-        
-        // Inicializar pilotos y luego avatares
-        async function init() {
-            // Cargar Three.js en paralelo mientras cargan los pilotos
-            const threeJsPromise = loadThreeJS();
-            
-            // Cargar pilotos (esto llama a la API)
-            await new Promise((resolve) => {
-                const checkPilotos = () => {
-                    if (pilotosData.length > 0) {
-                        resolve();
-                    } else {
-                        setTimeout(checkPilotos, 100);
-                    }
-                };
-                // Dar tiempo a que cargarPilotos termine
-                setTimeout(checkPilotos, 200);
-            });
-            
-            // Esperar a que Three.js esté listo
-            await threeJsPromise;
-            
-            // Ahora inicializar el generador y generar avatares
-            await initAvatares();
-        }
-        
-        // Cargar pilotos primero
+        // Inicializar
         cargarPilotos();
-        
-        // Iniciar proceso de avatares
-        setTimeout(() => {
-            initAvatarGenerator().then(() => {
-                // Reintentar cada 500ms hasta que haya pilotos
-                const tryGenerate = () => {
-                    if (pilotosData.length > 0 && avatarGenerator && avatarGenerator.initialized) {
-                        initAvatares();
-                    } else {
-                        setTimeout(tryGenerate, 500);
-                    }
-                };
-                tryGenerate();
-            });
-        }, 300);
     </script>
 <script src="preload-fondos.js"></script>
 </body>

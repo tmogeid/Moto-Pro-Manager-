@@ -129,6 +129,32 @@
             <p class="config-danger-text" data-i18n="config.dangerText">Estas acciones son irreversibles. Asegúrate de saber lo que estás haciendo.</p>
             <button class="btn-danger" onclick="showDeleteConfirm()">🗑️ <span data-i18n="config.deleteAccount">Eliminar Mi Cuenta</span></button>
         </section>
+
+        <!-- Panel de Administrador (solo visible para admins) -->
+        <section class="config-section config-admin" id="adminSection" style="display: none;">
+            <h2 class="config-title config-title-admin">👑 Panel de Administrador</h2>
+            <p class="config-description">Herramientas exclusivas para la gestión del juego.</p>
+            
+            <div class="admin-tools">
+                <div class="admin-tool">
+                    <h3>🖼️ Avatares de Pilotos</h3>
+                    <p>Genera avatares SVG para todos los pilotos del juego. Los avatares se guardan en la base de datos y se basan en la edad y peso de cada piloto.</p>
+                    <button class="btn-admin" id="btnGenerateAvatars" onclick="generateAvatars()">
+                        🔄 Actualizar Avatares de Pilotos
+                    </button>
+                    <div id="avatarStatus" class="admin-status"></div>
+                </div>
+                
+                <div class="admin-tool">
+                    <h3>🔧 Sistema</h3>
+                    <p>Herramientas de mantenimiento del sistema.</p>
+                    <button class="btn-admin btn-secondary" id="btnEnsureAvatarColumn" onclick="ensureAvatarColumn()">
+                        📋 Verificar Columna Avatar
+                    </button>
+                    <div id="systemStatus" class="admin-status"></div>
+                </div>
+            </div>
+        </section>
     </main>
 
     <!-- Modal de Confirmación para Eliminar Cuenta -->
@@ -148,7 +174,10 @@
 
     <script src="nav-menu.js"></script>
     <script>
-        // Cargar datos del usuario
+        // Variable para verificar si es admin
+        let isAdmin = false;
+        
+        // Cargar datos del usuario y verificar admin
         fetch('/api/user-data')
             .then(res => {
                 if (!res.ok) {
@@ -174,6 +203,13 @@
                     if (data.notify_email !== undefined) document.getElementById('notifyEmail').checked = data.notify_email;
                     if (data.notify_races !== undefined) document.getElementById('notifyRaces').checked = data.notify_races;
                     if (data.notify_news !== undefined) document.getElementById('notifyNews').checked = data.notify_news;
+                    
+                    // Verificar si es admin y mostrar panel
+                    if (data.isAdmin) {
+                        isAdmin = true;
+                        document.getElementById('adminSection').style.display = 'block';
+                        console.log('[CONFIG] Usuario es admin, panel mostrado');
+                    }
                 }
             })
             .catch(() => {
@@ -316,7 +352,159 @@
             if (deleteInput.value !== 'ELIMINAR') return;
             alert('Función de eliminación de cuenta - pendiente de implementar en el servidor');
         }
+        
+        // ========================================
+        // FUNCIONES DE ADMINISTRADOR
+        // ========================================
+        
+        async function generateAvatars() {
+            const statusEl = document.getElementById('avatarStatus');
+            const btn = document.getElementById('btnGenerateAvatars');
+            
+            statusEl.innerHTML = '<span class="loading">⏳ Generando avatares...</span>';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/admin/generate-avatars', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    statusEl.innerHTML = `<span class="success">✅ ${data.message}</span>`;
+                    if (data.errors && data.errors.length > 0) {
+                        statusEl.innerHTML += `<br><small style="color: #ff9800;">Errores: ${data.errors.join(', ')}</small>`;
+                    }
+                } else {
+                    statusEl.innerHTML = `<span class="error">❌ ${data.error || 'Error desconocido'}</span>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<span class="error">❌ Error de conexión: ${err.message}</span>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
+        
+        async function ensureAvatarColumn() {
+            const statusEl = document.getElementById('systemStatus');
+            const btn = document.getElementById('btnEnsureAvatarColumn');
+            
+            statusEl.innerHTML = '<span class="loading">⏳ Verificando...</span>';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/admin/ensure-avatar-column', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.success) {
+                    statusEl.innerHTML = `<span class="success">✅ ${data.message}</span>`;
+                } else {
+                    statusEl.innerHTML = `<span class="error">❌ ${data.error || 'Error desconocido'}</span>`;
+                }
+            } catch (err) {
+                statusEl.innerHTML = `<span class="error">❌ Error de conexión: ${err.message}</span>`;
+            } finally {
+                btn.disabled = false;
+            }
+        }
     </script>
+    <style>
+        /* Estilos del panel de administrador */
+        .config-admin {
+            background: rgba(255, 193, 7, 0.1);
+            border: 2px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .config-title-admin {
+            color: #ffc107;
+        }
+        
+        .admin-tools {
+            display: grid;
+            gap: 20px;
+            margin-top: 16px;
+        }
+        
+        .admin-tool {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255, 193, 7, 0.2);
+        }
+        
+        .admin-tool h3 {
+            margin: 0 0 8px 0;
+            color: #fff;
+            font-size: 16px;
+        }
+        
+        .admin-tool p {
+            margin: 0 0 16px 0;
+            color: #aaa;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .btn-admin {
+            background: linear-gradient(135deg, #ffc107, #ff9800);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+        
+        .btn-admin:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 193, 7, 0.4);
+        }
+        
+        .btn-admin:disabled {
+            background: #444;
+            color: #888;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .btn-admin.btn-secondary {
+            background: rgba(255, 193, 7, 0.2);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.3);
+        }
+        
+        .btn-admin.btn-secondary:hover {
+            background: rgba(255, 193, 7, 0.3);
+        }
+        
+        .admin-status {
+            margin-top: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .admin-status .loading {
+            color: #ffc107;
+        }
+        
+        .admin-status .success {
+            color: #00c853;
+        }
+        
+        .admin-status .error {
+            color: #f44336;
+        }
+    </style>
 <script src="preload-fondos.js"></script>
 </body>
 </html>
